@@ -54,7 +54,8 @@ export async function initSync() {
 export async function currentUser() {
   if (!syncEnabled) return null;
   await load();
-  return readyUser;
+  await readyUser;
+  return fb.auth.currentUser;
 }
 
 function msg(err) {
