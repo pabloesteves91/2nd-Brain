@@ -1,0 +1,12 @@
+rules_version = '2';
+
+// Jede Person sieht und schreibt nur ihre eigenen Notizen und Bilder:
+//   users/{uid}/notes/{noteId}
+//   (Bilder liegen in Firebase Storage, siehe storage.rules)
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /users/{uid}/{document=**} {
+      allow read, write: if request.auth != null && request.auth.uid == uid;
+    }
+  }
+}

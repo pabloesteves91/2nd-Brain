@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content">
+  <title>2nd Brain</title>
+  <meta name="description" content="Öffnen. Schreiben. Schliessen.">
+  <meta name="theme-color" content="#fbfaf7" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#121212" media="(prefers-color-scheme: dark)">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="2nd Brain">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div id="banner" class="banner" hidden>
+    <button id="banner-open" type="button">Tag abschliessen →</button>
+    <button id="banner-close" type="button" aria-label="Ausblenden">×</button>
+  </div>
+
+  <main id="editor">
+    <textarea id="note" placeholder="Was geht dir durch den Kopf?" autocomplete="off" autocapitalize="sentences" spellcheck="true" aria-label="Notiz"></textarea>
+    <div id="thumbs" class="thumbs"></div>
+    <div class="tap-area" id="tap-area"></div>
+  </main>
+
+  <div id="status" class="status" aria-live="polite"></div>
+
+  <nav id="menu" class="menu" aria-label="Menü">
+    <button type="button" data-view="review">heute</button>
+    <button type="button" data-view="all">alle</button>
+    <label class="menu-btn" for="file">bild</label>
+    <input id="file" type="file" accept="image/*" multiple hidden>
+    <button type="button" id="new">neu</button>
+    <button type="button" data-view="settings" aria-label="Einstellungen">···</button>
+  </nav>
+
+  <div id="overlay" class="overlay" hidden>
+    <div class="backdrop" data-close></div>
+    <section class="sheet" role="dialog" aria-modal="true">
+      <div class="sheet-grip" data-close></div>
+      <div id="sheet-body" class="sheet-body"></div>
+    </section>
+  </div>
+
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>
