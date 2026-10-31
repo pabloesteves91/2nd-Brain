@@ -1,16 +1,12 @@
-// Cloud-Sync über Firebase (optional).
-// Firebase Console → Projekteinstellungen → "Meine Apps" → Web-App (</>) → firebaseConfig hier einfügen.
-// Diese Werte sind öffentlich gedacht; die Daten schützen die Firestore-Regeln (siehe firestore.rules).
-// null lassen = App arbeitet nur lokal, Sync ist ausgeblendet.
+// Cloud-Sync über Firebase.
+// Diese Werte sind öffentlich gedacht; die Daten schützen die Regeln (firestore.rules, storage.rules).
+// FIREBASE_CONFIG = null setzen, um die App nur lokal zu nutzen.
 
-export const FIREBASE_CONFIG = null;
-/* Beispiel:
 export const FIREBASE_CONFIG = {
-  apiKey: '…',
-  authDomain: 'dein-projekt.firebaseapp.com',
-  projectId: 'dein-projekt',
-  storageBucket: 'dein-projekt.appspot.com',
-  messagingSenderId: '…',
-  appId: '…',
+  apiKey: 'AIzaSyD2537rgYreXFrLjzUUj-2keAHuq6PH2sE',
+  authDomain: 'dnbrain-7dbe3.firebaseapp.com',
+  projectId: 'dnbrain-7dbe3',
+  storageBucket: 'dnbrain-7dbe3.firebasestorage.app',
+  messagingSenderId: '122752634842',
+  appId: '1:122752634842:web:ca7a0c18416cc4a641bae3',
 };
-*/

@@ -59,6 +59,7 @@ export async function currentUser() {
 
 function msg(err) {
   const code = err?.code || '';
+  if (code.includes('configuration-not-found') || code.includes('operation-not-allowed')) return 'Diese Anmeldeart ist in Firebase noch nicht aktiviert (Authentication → Sign-in method).';
   if (code.includes('wrong-password') || code.includes('invalid-credential')) return 'E-Mail oder Passwort falsch.';
   if (code.includes('email-already-in-use')) return 'Diese E-Mail ist schon registriert – bitte anmelden.';
   if (code.includes('weak-password')) return 'Passwort zu kurz (mind. 6 Zeichen).';
