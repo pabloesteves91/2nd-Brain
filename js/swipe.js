@@ -4,6 +4,7 @@
 import { h, toast } from './ui.js';
 import { db, saveNote } from './db.js';
 import { removeImage } from './images.js';
+import { scheduleTask } from './native.js';
 
 const START = 10;        // ab so vielen px gilt es als Wischen
 const TRIGGER = 0.35;    // Anteil der Breite, ab dem die Aktion ausgelöst wird
@@ -90,9 +91,10 @@ export function swipeNote(n, cardEl, rerender) {
       run: async () => {
         n.status = archived ? 'sorted' : 'archived';
         await saveNote(n);
+        scheduleTask(n);
         rerender();
         toast(archived ? 'Wiederhergestellt' : 'Archiviert', 'Rückgängig', async () => {
-          n.status = prevStatus; await saveNote(n); rerender();
+          n.status = prevStatus; await saveNote(n); scheduleTask(n); rerender();
         });
       },
     },
@@ -102,9 +104,10 @@ export function swipeNote(n, cardEl, rerender) {
       run: async () => {
         n.deleted = true;
         await saveNote(n);
+        scheduleTask(n);
         rerender();
         toast('Gelöscht', 'Rückgängig',
-          async () => { n.deleted = false; await saveNote(n); rerender(); },
+          async () => { n.deleted = false; await saveNote(n); scheduleTask(n); rerender(); },
           async () => { // erst wenn nicht rückgängig gemacht: Bilder lokal entfernen
             const now = await db.get('notes', n.id);
             if (now?.deleted) for (const id of n.images) await removeImage(id);

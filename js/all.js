@@ -3,6 +3,7 @@ import { imageUrl } from './images.js';
 import { settings } from './settings.js';
 import { h, fmtTime, fmtDay } from './ui.js';
 import { swipeNote } from './swipe.js';
+import { reminderControl } from './tasks.js';
 
 let state = { q: '', cat: null, archived: false };
 
@@ -81,6 +82,6 @@ function card(n, container, rerender) {
     thumbs,
     n.status === 'archived' ? h('div', { class: 'card-actions' },
       h('button', { type: 'button', onclick: async () => { n.status = 'sorted'; await saveNote(n); rerender(); } }, 'wiederherstellen'),
-    ) : null,
+    ) : (reminderControl(n, rerender) ? h('div', { class: 'card-actions' }, reminderControl(n, rerender)) : null),
   );
 }

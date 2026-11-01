@@ -3,7 +3,7 @@ import { blobToDataUrl, dataUrlToBlob } from './images.js';
 import { settings, setSetting } from './settings.js';
 import * as sync from './sync.js';
 import { h } from './ui.js';
-import { isNative } from './native.js';
+import { isNative, biometryAvailable, verifyIdentity } from './native.js';
 
 const seg = (key, options) => h('div', { class: 'seg' }, options.map(([v, label]) =>
   h('button', {
@@ -63,12 +63,33 @@ export function openSettings(container) {
     h('div', { class: 'group' }, h('h3', {}, 'Tagesrückblick'),
       row('Abend-Hinweis', toggle('reminder'), isNative() ? 'Mitteilung zur eingestellten Zeit' : 'Dezenter Hinweis zum Sortieren'),
       row(isNative() ? 'Um' : 'Ab', h('input', { type: 'time', value: s.reviewTime, onchange: e => setSetting('reviewTime', e.target.value) })),
+      row('Wiederentdecken', toggle('rediscover'), 'Alte Gedanken von vor 7, 30 oder 365 Tagen'),
+    ),
+
+    h('div', { class: 'group' }, h('h3', {}, 'Wochenrückblick'),
+      isNative() ? row('Sonntags erinnern', toggle('weekly'), 'Mitteilung mit Blick auf die Woche') : null,
+      isNative() ? row('Um', h('input', { type: 'time', value: s.weeklyTime, onchange: e => setSetting('weeklyTime', e.target.value) })) : null,
+      h('p', { class: 'small' }, 'Unter „heute“ → „Woche“ jederzeit ansehen.'),
     ),
 
     h('div', { class: 'group' }, h('h3', {}, 'Kategorien'),
       cats,
       row(newCat, h('button', { type: 'button', class: 'link', onclick: addCat }, 'hinzufügen')),
+      row('#Tags übernehmen', toggle('tagsAsCategory'), 'Neue #Tags im Text werden automatisch zur Kategorie. Bekannte Kategorien (#idee, #aufgabe …) werden immer erkannt.'),
     ),
+
+    isNative() ? h('div', { class: 'group' }, h('h3', {}, 'Privatsphäre'),
+      row('Mit Face ID sperren', h('label', { class: 'switch' },
+        h('input', {
+          type: 'checkbox', checked: s.faceId,
+          onchange: async e => {
+            const want = e.target.checked;
+            if (want && !(await biometryAvailable())) { alert('Face ID ist auf diesem Gerät nicht verfügbar oder nicht eingerichtet.'); e.target.checked = false; return; }
+            if (!(await verifyIdentity())) { e.target.checked = !want; return; }
+            setSetting('faceId', want);
+          },
+        }), h('span')), 'Beim Öffnen nach „Leeres Blatt nach“'),
+    ) : null,
 
     syncSection(),
 

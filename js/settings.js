@@ -8,6 +8,11 @@ export const DEFAULTS = {
   reminder: true,        // Abend-Hinweis für den Rückblick
   reviewTime: '20:00',
   categories: ['Idee', 'Aufgabe', 'Projekt', 'Persönlich'],
+  tagsAsCategory: false, // neue #Tags automatisch als Kategorie anlegen
+  faceId: false,         // App mit Face ID sperren (nur iOS)
+  weekly: true,          // Wochenrückblick-Mitteilung am Sonntag
+  weeklyTime: '18:00',
+  rediscover: true,      // im Rückblick alte Gedanken wiederentdecken
 };
 
 let current = load();

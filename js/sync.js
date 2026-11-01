@@ -6,7 +6,7 @@ import { isNative, appleSignIn } from './native.js';
 
 const V = '10.12.2';
 const CDN = `https://www.gstatic.com/firebasejs/${V}`;
-const NOTE_FIELDS = ['id', 'text', 'images', 'created_at', 'updated_at', 'day', 'category', 'pinned', 'status', 'sort_order', 'deleted'];
+const NOTE_FIELDS = ['id', 'text', 'images', 'created_at', 'updated_at', 'day', 'category', 'pinned', 'status', 'sort_order', 'deleted', 'tags', 'remind_at'];
 
 export const syncEnabled = !!FIREBASE_CONFIG;
 

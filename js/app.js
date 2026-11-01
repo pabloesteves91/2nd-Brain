@@ -1,11 +1,12 @@
-import { db, localDay, notesOfDay } from './db.js';
-import { initEditor, startFresh, openNote, flush, focusEditor, refreshCurrent, autosize } from './editor.js';
+import { db, localDay, notesOfDay, listNotes } from './db.js';
+import { initEditor, startFresh, openNote, flush, focusEditor, refreshCurrent, autosize, putAway } from './editor.js';
 import { openReview } from './review.js';
 import { openAll } from './all.js';
 import { openSettings } from './settings-view.js';
 import { settings, apply } from './settings.js';
 import { initSync, scheduleSync, syncNow } from './sync.js';
-import { isNative, initNative, scheduleReminder, setStatusBar, tap } from './native.js';
+import { isNative, initNative, scheduleReminder, scheduleWeekly, rescheduleTasks, setStatusBar, tap } from './native.js';
+import { initLock, onAppState } from './lock.js';
 
 const overlay = document.getElementById('overlay');
 const body = document.getElementById('sheet-body');
@@ -21,6 +22,7 @@ startFresh();
 
 const views = {
   review: c => openReview(c),
+  week: c => openReview(c, { mode: 'week' }),
   all: c => openAll(c),
   settings: c => openSettings(c),
 };
@@ -44,7 +46,7 @@ function close() {
 document.querySelectorAll('[data-view]').forEach(b => b.addEventListener('click', () => open(b.dataset.view)));
 overlay.addEventListener('click', e => { if (e.target.closest('[data-close]')) close(); });
 document.addEventListener('keydown', e => { if (e.key === 'Escape' && view) close(); });
-document.getElementById('new').addEventListener('click', () => startFresh());
+document.getElementById('new').addEventListener('click', () => putAway());
 
 body.addEventListener('open-note', async e => {
   close();
@@ -62,9 +64,10 @@ window.addEventListener('pointerup', e => {
 // ---------- Daten geändert (lokal oder per Sync) ----------
 
 document.addEventListener('notes-changed', () => scheduleSync());
-document.addEventListener('remote-changed', () => {
+document.addEventListener('remote-changed', async () => {
   refreshCurrent();
-  if (view === 'review' || view === 'all') {
+  if (isNative()) rescheduleTasks(await listNotes());
+  if (view === 'review' || view === 'week' || view === 'all') {
     const top = body.scrollTop;
     Promise.resolve(views[view](body)).then(() => { body.scrollTop = top; });
   }
@@ -95,13 +98,37 @@ window.addEventListener('online', () => scheduleSync(300));
 // ---------- Abend-Hinweis ----------
 
 const banner = document.getElementById('banner');
-document.getElementById('banner-open').addEventListener('click', () => { banner.hidden = true; open('review'); });
+const bannerOpen = document.getElementById('banner-open');
+let bannerAction = () => open('review');
+let bannerDismiss = async () => db.setMeta('bannerDismissed', localDay());
+bannerOpen.addEventListener('click', () => { banner.hidden = true; bannerAction(); });
 document.getElementById('banner-close').addEventListener('click', async () => {
   banner.hidden = true;
-  await db.setMeta('bannerDismissed', localDay());
+  await bannerDismiss();
 });
 
+// Fällige Aufgaben (im Browser; in der iOS-App kommen echte Mitteilungen).
+async function checkDue() {
+  if (isNative()) return false;
+  const seen = (await db.getMeta('remindersSeen')) || [];
+  const due = (await listNotes()).filter(n => n.remind_at && new Date(n.remind_at) <= new Date()
+    && n.status !== 'archived' && !seen.includes(n.id + n.remind_at));
+  if (!due.length) return false;
+  const n = due[0];
+  const text = n.text.replace(/\s+/g, ' ').trim();
+  bannerOpen.textContent = `⏰ ${text.length > 34 ? text.slice(0, 32) + '…' : text || 'Erinnerung'} →`;
+  const mark = async () => db.setMeta('remindersSeen', [...seen, n.id + n.remind_at].slice(-200));
+  bannerAction = async () => { await mark(); if (view) close(); openNote(n.id); };
+  bannerDismiss = mark;
+  banner.hidden = false;
+  return true;
+}
+
 async function checkReminder() {
+  if (await checkDue()) return;
+  bannerOpen.textContent = 'Tag abschliessen →';
+  bannerAction = () => open('review');
+  bannerDismiss = async () => db.setMeta('bannerDismissed', localDay());
   const s = settings();
   if (!s.reminder || isNative()) { banner.hidden = true; return; }
   const now = new Date();
@@ -114,22 +141,34 @@ async function checkReminder() {
   banner.hidden = open.length === 0;
 }
 checkReminder();
+setInterval(checkReminder, 60000);
 
 // ---------- Sync & Offline ----------
 
 initSync().then(() => scheduleSync(500));
+if (isNative()) listNotes().then(rescheduleTasks);
 
 // ---------- Native iOS-App ----------
 
-initNative({ onOpenReview: () => open('review') });
+initLock();
+initNative({
+  onOpenReview: () => open('review'),
+  onOpenWeek: () => open('week'),
+  onOpenNote: async id => { if (view) close(); await openNote(id); },
+  onNewThought: async () => { if (view) close(); await startFresh(); },
+  onAppState,
+});
 const darkQuery = matchMedia('(prefers-color-scheme: dark)');
 let reminderKey = '';
+let weeklyKey = '';
 function nativeSettings() {
   if (!isNative()) return;
   const s = settings();
   setStatusBar(s.theme === 'dark' || (s.theme === 'system' && darkQuery.matches));
   const key = `${s.reminder}|${s.reviewTime}`;
   if (key !== reminderKey) { reminderKey = key; scheduleReminder({ enabled: s.reminder, time: s.reviewTime }); }
+  const wkey = `${s.weekly}|${s.weeklyTime}`;
+  if (wkey !== weeklyKey) { weeklyKey = wkey; scheduleWeekly({ enabled: s.weekly, time: s.weeklyTime }); }
 }
 nativeSettings();
 document.addEventListener('settings-changed', nativeSettings);

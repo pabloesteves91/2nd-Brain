@@ -23,9 +23,11 @@
   </div>
 
   <main id="editor">
+    <div id="page" class="page">
     <textarea id="note" placeholder="Was geht dir durch den Kopf?" autocomplete="off" autocapitalize="sentences" spellcheck="true" aria-label="Notiz"></textarea>
     <div id="thumbs" class="thumbs"></div>
     <div class="tap-area" id="tap-area"></div>
+    </div>
   </main>
 
   <div id="status" class="status" aria-live="polite"></div>
@@ -45,6 +47,12 @@
       <div class="sheet-grip" data-close></div>
       <div id="sheet-body" class="sheet-body"></div>
     </section>
+  </div>
+
+  <div id="lock" class="lock" hidden>
+    <div class="lock-mark" aria-hidden="true"></div>
+    <button type="button">Entsperren</button>
+    <p class="lock-hint"></p>
   </div>
 
   <script type="module" src="js/app.js"></script>
