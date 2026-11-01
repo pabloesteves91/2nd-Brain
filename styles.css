@@ -86,7 +86,52 @@ button { background: none; border: 0; padding: 0; cursor: pointer; }
   will-change: transform;
 }
 
-#editor { overscroll-behavior: none; }
+#editor { overscroll-behavior: none; position: relative; }
+
+/* Logo ganz leise im Hintergrund */
+body::before {
+  content: "";
+  position: fixed;
+  left: 50%;
+  top: 46%;
+  width: min(46vw, 220px);
+  aspect-ratio: 272 / 244;
+  transform: translate(-50%, -50%);
+  background: var(--fg);
+  -webkit-mask: url("icons/mark.svg") center / contain no-repeat;
+  mask: url("icons/mark.svg") center / contain no-repeat;
+  opacity: .06;
+  pointer-events: none;
+  z-index: 0;
+}
+#editor, .menu, .status, .banner { z-index: 1; }
+
+/* #Kategorie-Vorschläge über der Tastatur */
+.suggest {
+  position: fixed;
+  left: 0; right: 0;
+  bottom: calc(env(safe-area-inset-bottom) + 50px);
+  display: flex;
+  gap: 8px;
+  padding: 8px 16px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  z-index: 6;
+  -webkit-overflow-scrolling: touch;
+}
+.suggest[hidden] { display: none; }
+.suggest::-webkit-scrollbar { display: none; }
+.suggest-chip {
+  flex: none;
+  padding: 7px 13px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: var(--card);
+  color: var(--muted);
+  font-size: 14px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, .06);
+}
+.suggest-chip.cat { color: var(--fg); border-color: var(--faint); }
 
 #note {
   flex: none;
@@ -439,6 +484,44 @@ select.cat.set { color: var(--fg); border-color: var(--faint); }
 
 .cats { display: flex; flex-wrap: wrap; gap: 6px; padding: 10px 0; }
 .cats .chip button { margin-left: 6px; color: var(--muted); }
+
+/* ---------- Einstellungen: Kopf ---------- */
+
+.about {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin: 8px 0 6px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--line);
+}
+.about-mark {
+  width: 48px; height: 48px; flex: none;
+  border-radius: 12px;
+  background: var(--card);
+  border: 1px solid var(--line);
+  position: relative;
+}
+.about-mark::after {
+  content: ""; position: absolute; inset: 11px;
+  background: var(--fg);
+  -webkit-mask: url("icons/mark.svg") center / contain no-repeat;
+  mask: url("icons/mark.svg") center / contain no-repeat;
+}
+.about-text { flex: 1; min-width: 0; }
+.about-name { font-size: 20px; font-weight: 600; letter-spacing: -.01em; }
+.about-sub { font-size: 13px; color: var(--muted); margin-top: 2px; }
+.about-actions { display: flex; flex-direction: column; align-items: flex-end; gap: 6px; }
+.support-btn {
+  padding: 7px 14px;
+  border-radius: 999px;
+  background: var(--accent);
+  color: var(--bg);
+  font-size: 14px;
+  font-weight: 500;
+  text-decoration: none;
+}
+.about-actions a.link { font-size: 12.5px; color: var(--muted); }
 
 /* ---------- Erinnerung ---------- */
 

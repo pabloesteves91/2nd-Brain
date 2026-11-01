@@ -10,3 +10,7 @@ export const FIREBASE_CONFIG = {
   messagingSenderId: '122752634842',
   appId: '1:122752634842:web:ca7a0c18416cc4a641bae3',
 };
+
+// Version der Web-App (in der iOS-App kommt die Version aus Xcode).
+export const APP_VERSION = '1.1.0';
+export const SUPPORT_EMAIL = 'fabioberta@me.com';

@@ -3,6 +3,9 @@ import { settings, setSetting } from './settings.js';
 
 const TAG = /(^|[\s(])#([\p{L}\p{N}_-]{2,})/gu;
 
+// Für Vergleiche: Gross/klein, Leerzeichen und Bindestriche egal („Mein Projekt“ = #meinprojekt).
+export const normTag = s => s.toLowerCase().replace(/[\s_-]+/g, '');
+
 export function extractTags(text) {
   const out = [];
   for (const m of text.matchAll(TAG)) {
@@ -19,7 +22,7 @@ export function applyTags(note) {
   if (!tags.length) return;
   const s = settings();
   const cats = s.categories;
-  const match = tags.map(t => cats.find(c => c.toLowerCase() === t)).find(Boolean);
+  const match = tags.map(t => cats.find(c => normTag(c) === normTag(t))).find(Boolean);
   if (match) {
     if (note.category !== match) { note.category = match; note.status = note.status === 'archived' ? 'archived' : 'sorted'; }
     return;

@@ -1,0 +1,20 @@
+<!--
+  In die Info.plist der APP (App → App → Info → Rechtsklick → Open As → Source Code)
+  direkt vor dem letzten </dict> einfügen. Damit versteht Siri den App-Namen auch gesprochen
+  („Second Brain“, „Zweites Gehirn“), statt „2nd“ als Zahl zu lesen.
+-->
+	<key>INAlternativeAppNames</key>
+	<array>
+		<dict>
+			<key>INAlternativeAppName</key>
+			<string>Second Brain</string>
+			<key>INAlternativeAppNamePronunciationHint</key>
+			<string>second brain</string>
+		</dict>
+		<dict>
+			<key>INAlternativeAppName</key>
+			<string>Zweites Gehirn</string>
+			<key>INAlternativeAppNamePronunciationHint</key>
+			<string>zweites gehirn</string>
+		</dict>
+	</array>

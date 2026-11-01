@@ -24,6 +24,9 @@ struct SecondBrainShortcuts: AppShortcutsProvider {
             phrases: [
                 "Neuer Gedanke in \(.applicationName)",
                 "\(.applicationName) neuer Gedanke",
+                "Gedanke in \(.applicationName) notieren",
+                "Notiz in \(.applicationName)",
+                "Neue Notiz in \(.applicationName)",
             ],
             shortTitle: "Neuer Gedanke",
             systemImageName: "square.and.pencil"

@@ -1,10 +1,10 @@
 // Service Worker: App-Shell offline verfügbar machen.
-const CACHE = '2nd-brain-v4';
+const CACHE = '2nd-brain-v5';
 const SHELL = [
   './', 'index.html', 'styles.css', 'manifest.webmanifest',
   'js/app.js', 'js/db.js', 'js/editor.js', 'js/images.js', 'js/ui.js',
-  'js/settings.js', 'js/settings-view.js', 'js/review.js', 'js/all.js', 'js/sync.js', 'js/config.js', 'js/native.js', 'js/swipe.js', 'js/tags.js', 'js/tasks.js', 'js/lock.js',
-  'icons/icon.svg', 'icons/icon-192.png', 'icons/icon-512.png', 'icons/apple-touch-icon.png',
+  'js/settings.js', 'js/settings-view.js', 'js/review.js', 'js/all.js', 'js/sync.js', 'js/config.js', 'js/native.js', 'js/swipe.js', 'js/tags.js', 'js/tasks.js', 'js/lock.js', 'js/compose.js',
+  'icons/icon.svg', 'icons/mark.svg', 'icons/icon-192.png', 'icons/icon-512.png', 'icons/apple-touch-icon.png',
 ];
 
 self.addEventListener('install', e => {

@@ -1,0 +1,6 @@
+/* Deutsche Siri-Phrasen für den Kurzbefehl „Neuer Gedanke“. ${applicationName} = Name der App (inkl. Alternativnamen). */
+"Neuer Gedanke in ${applicationName}" = "Neuer Gedanke in ${applicationName}";
+"${applicationName} neuer Gedanke" = "${applicationName} neuer Gedanke";
+"Gedanke in ${applicationName} notieren" = "Gedanke in ${applicationName} notieren";
+"Notiz in ${applicationName}" = "Notiz in ${applicationName}";
+"Neue Notiz in ${applicationName}" = "Neue Notiz in ${applicationName}";

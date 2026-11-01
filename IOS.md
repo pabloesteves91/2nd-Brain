@@ -176,6 +176,7 @@ und ziehst die Dateien hinein. Einmalig ca. 20–30 Minuten.
 | `ios-extensions/App/SecondBrainNativePlugin.swift` | **App** |
 | `ios-extensions/App/MainViewController.swift` | **App** |
 | `ios-extensions/App/NewThoughtIntent.swift` | **App** |
+| `ios-extensions/App/de.lproj/AppShortcuts.strings` | **App** (Lokalisierung German, siehe E5b) |
 | `ios-extensions/Widget/SecondBrainWidget.swift` | **SecondBrainWidget** |
 | `ios-extensions/Share/ShareViewController.swift` | **ShareExtension** |
 
@@ -215,6 +216,28 @@ Test: App einmal starten, dann in Safari `secondbrain://new` eingeben → die Ap
 Nichts weiter zu tun – kommt mit `NewThoughtIntent.swift` aus Schritt E2.
 Nach dem nächsten Start der App findest du ihn in der **Kurzbefehle**-App unter *2nd Brain*, in Spotlight und bei Siri
 („Neuer Gedanke in 2nd Brain“). **Action-Button:** *Einstellungen → Action-Button → Kurzbefehl → 2nd Brain → Neuer Gedanke*.
+
+## E5b. Siri auf Deutsch
+
+Damit Siri „2nd Brain“ versteht (sonst denkt Siri z. B. an WhatsApp):
+
+1. **Deutsch hinzufügen:** links das blaue **App** → oben unter **PROJECT** (nicht Targets) **App** → Reiter **Info** →
+   **Localizations** → **+** → **German (de)** → im Dialog alles angehakt lassen → **Finish**.
+2. **Phrasen-Datei:** gelben Ordner **App** anklicken → **File → Add Files to "App"…** → `~/2nd-Brain/ios-extensions/App/de.lproj`
+   (den **Ordner** `de.lproj` wählen) → *Copy items if needed* ✓, Target **App** ✓ → Add.
+   Prüfen: Datei `AppShortcuts.strings` anklicken → rechts unter *Localization* ist **German** angehakt.
+3. **Alternativ-Namen:** **App → Info** → Rechtsklick → **Open As → Source Code** → den Inhalt von
+   `ios-extensions/App/Info-Siri.plist.txt` (ab `<key>INAlternativeAppNames</key>`) direkt vor dem letzten `</dict>` einfügen → ⌘S.
+4. **Wichtig:** Siri lernt die Sätze nur bei der Installation. App vom iPhone **löschen** und mit ▶︎ neu installieren,
+   danach die App einmal öffnen und 1–2 Minuten warten.
+
+Testen – sag zu Siri:
+- „**Neuer Gedanke in Second Brain**“
+- „**Second Brain neuer Gedanke**“
+- „**Notiz in Second Brain**“
+
+Tipp: Am zuverlässigsten ist der **Action-Button** oder ein Kurzbefehl auf dem Homescreen
+(Kurzbefehle-App → *Neuer Gedanke* lange drücken → *Zum Home-Bildschirm*).
 
 ## E6. Widget
 

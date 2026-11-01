@@ -3,6 +3,7 @@ import { storeImage, imageUrl, removeImage } from './images.js';
 import { h, flash } from './ui.js';
 import { applyTags } from './tags.js';
 import { tap } from './native.js';
+import { continueList, initSuggest } from './compose.js';
 
 const ta = () => document.getElementById('note');
 const thumbsEl = () => document.getElementById('thumbs');
@@ -39,6 +40,14 @@ export function initEditor() {
     const files = [...e.target.files];
     e.target.value = '';
     if (files.length) await addImages(files);
+  });
+
+  // Schreibhilfen: #Vorschläge und automatische Listen
+  const suggest = initSuggest(t);
+  t.addEventListener('beforeinput', e => {
+    if (e.inputType !== 'insertLineBreak' && e.inputType !== 'insertParagraph') return;
+    if (suggest.isOpen()) suggest.close();
+    if (continueList(t)) e.preventDefault();
   });
 
   // Bilder direkt einfügen (Desktop: Cmd+V)

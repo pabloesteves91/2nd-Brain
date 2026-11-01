@@ -3,7 +3,35 @@ import { blobToDataUrl, dataUrlToBlob } from './images.js';
 import { settings, setSetting } from './settings.js';
 import * as sync from './sync.js';
 import { h } from './ui.js';
-import { isNative, biometryAvailable, verifyIdentity } from './native.js';
+import { isNative, biometryAvailable, verifyIdentity, appInfo } from './native.js';
+import { APP_VERSION, SUPPORT_EMAIL } from './config.js';
+
+function aboutHeader() {
+  const sub = h('div', { class: 'about-sub' }, `Version ${APP_VERSION}`);
+  const mail = h('a', { class: 'support-btn', href: '#' }, 'Support');
+  const setMail = version => {
+    const platform = isNative() ? 'iOS-App' : 'Web-App';
+    const body = `\n\n\n—\n2nd Brain ${version} · ${platform}\n${navigator.userAgent}`;
+    mail.href = `mailto:${SUPPORT_EMAIL}?subject=${encodeURIComponent('2nd Brain Support')}&body=${encodeURIComponent(body)}`;
+  };
+  setMail(APP_VERSION);
+  appInfo().then(info => {
+    if (!info?.version) return;
+    const v = info.build && info.build !== info.version ? `${info.version} (${info.build})` : info.version;
+    sub.textContent = `Version ${v}`;
+    setMail(v);
+  });
+  return h('div', { class: 'about' },
+    h('div', { class: 'about-mark', 'aria-hidden': 'true' }),
+    h('div', { class: 'about-text' },
+      h('div', { class: 'about-name' }, '2nd Brain'),
+      h('div', { class: 'about-sub' }, 'Öffnen. Schreiben. Schliessen.'),
+      sub),
+    h('div', { class: 'about-actions' },
+      mail,
+      h('a', { class: 'link', href: 'https://pabloesteves91.github.io/2nd-Brain/privacy.html', target: '_blank', rel: 'noopener' }, 'Datenschutz')),
+  );
+}
 
 const seg = (key, options) => h('div', { class: 'seg' }, options.map(([v, label]) =>
   h('button', {
@@ -44,7 +72,7 @@ export function openSettings(container) {
   newCat.addEventListener('keydown', e => { if (e.key === 'Enter') addCat(); });
 
   container.replaceChildren(
-    h('div', { class: 'head' }, h('h2', {}, 'Einstellungen')),
+    aboutHeader(),
 
     h('div', { class: 'group' }, h('h3', {}, 'Schreiben'),
       row('Schrift', seg('font', [['sans', 'Sans'], ['serif', 'Serif'], ['mono', 'Mono']])),
@@ -107,7 +135,7 @@ export function openSettings(container) {
       }, 'löschen'), 'Nur auf diesem Gerät'),
     ),
 
-    h('p', { class: 'small', style: 'text-align:center;margin-top:28px' }, 'Öffnen. Schreiben. Schliessen.'),
+
   );
 }
 

@@ -191,3 +191,9 @@ export async function clearSharedInbox(ids) {
   if (!p || !ids.length) return;
   try { await p.clearInbox({ ids }); } catch { /* egal */ }
 }
+
+export async function appInfo() {
+  const app = plugin('App');
+  if (!app) return null;
+  try { return await app.getInfo(); } catch { return null; }
+}
