@@ -69,6 +69,7 @@ Links im Navigator **App** (blaues Symbol) → Target **App** auswählen.
    |---|---|
    | Privacy - Camera Usage Description | `Um Fotos zu deinen Notizen hinzuzufügen.` |
    | Privacy - Photo Library Usage Description | `Um Bilder aus deiner Mediathek zu Notizen hinzuzufügen.` |
+   | Privacy - Face ID Usage Description | `Um deine Notizen mit Face ID zu schützen.` |
    | App Uses Non-Exempt Encryption | `NO` |
 
 4. **App-Icon:** Im Navigator `App → App → Assets` → **AppIcon** öffnen und `icons/icon-1024.png`
