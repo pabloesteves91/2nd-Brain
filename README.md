@@ -82,21 +82,24 @@ js/settings*.js       Einstellungen
 js/db.js              IndexedDB
 js/images.js          Bilder verkleinern & speichern
 js/sync.js            Firebase-Sync
+js/native.js          iOS-Funktionen (Capacitor), im Browser ohne Wirkung
 js/config.js          Firebase-Konfiguration
 firestore.rules       Firestore-Regeln
 storage.rules         Storage-Regeln
 ```
 
-## Später: App Store
+## iOS-App (Xcode / App Store)
 
-Die App hat keinen Build-Schritt und lässt sich direkt mit [Capacitor](https://capacitorjs.com) einpacken:
+Die App wird mit [Capacitor](https://capacitorjs.com) zur nativen iOS-App – ohne Umbau des Codes.
+In der iOS-App gibt es zusätzlich echte Abend-Mitteilungen, „Mit Apple anmelden“ und Haptik.
+
+**Schritt-für-Schritt-Anleitung: [IOS.md](IOS.md)**
+
+Kurzfassung auf dem Mac:
 
 ```bash
-npm init -y && npm i @capacitor/core @capacitor/cli @capacitor/ios
-npx cap init "2nd Brain" ch.secondbrain.app --web-dir .
-npx cap add ios && npx cap open ios
+npm install && npm run build && npx cap add ios && npx cap open ios
 ```
 
-Native Extras für die Store-Version: echte Abend-Erinnerung (`@capacitor/local-notifications`),
-Kamera (`@capacitor/camera`), Haptik. Für Google-Login in der nativen App eignet sich
-`@capacitor-firebase/authentication`; zusätzlich verlangt Apple „Mit Apple anmelden“, sobald Google-Login angeboten wird.
+Datenschutzerklärung (für den App Store): [`privacy.html`](privacy.html) →
+<https://pabloesteves91.github.io/2nd-Brain/privacy.html>

@@ -5,6 +5,7 @@ import { openAll } from './all.js';
 import { openSettings } from './settings-view.js';
 import { settings, apply } from './settings.js';
 import { initSync, scheduleSync, syncNow } from './sync.js';
+import { isNative, initNative, scheduleReminder, setStatusBar, tap } from './native.js';
 
 const overlay = document.getElementById('overlay');
 const body = document.getElementById('sheet-body');
@@ -102,7 +103,7 @@ document.getElementById('banner-close').addEventListener('click', async () => {
 
 async function checkReminder() {
   const s = settings();
-  if (!s.reminder) { banner.hidden = true; return; }
+  if (!s.reminder || isNative()) { banner.hidden = true; return; }
   const now = new Date();
   const [hh, mm] = s.reviewTime.split(':').map(Number);
   if (now.getHours() * 60 + now.getMinutes() < hh * 60 + mm) return;
@@ -118,7 +119,24 @@ checkReminder();
 
 initSync().then(() => scheduleSync(500));
 
-if ('serviceWorker' in navigator && location.protocol !== 'file:') {
+// ---------- Native iOS-App ----------
+
+initNative({ onOpenReview: () => open('review') });
+const darkQuery = matchMedia('(prefers-color-scheme: dark)');
+let reminderKey = '';
+function nativeSettings() {
+  if (!isNative()) return;
+  const s = settings();
+  setStatusBar(s.theme === 'dark' || (s.theme === 'system' && darkQuery.matches));
+  const key = `${s.reminder}|${s.reviewTime}`;
+  if (key !== reminderKey) { reminderKey = key; scheduleReminder({ enabled: s.reminder, time: s.reviewTime }); }
+}
+nativeSettings();
+document.addEventListener('settings-changed', nativeSettings);
+darkQuery.addEventListener?.('change', nativeSettings);
+document.addEventListener('day-closed', tap);
+
+if (!isNative() && 'serviceWorker' in navigator && location.protocol !== 'file:') {
   navigator.serviceWorker.register('sw.js').catch(() => {});
 }
 

@@ -2,6 +2,7 @@
 // Lokal (IndexedDB) bleibt die Quelle; Firestore ist der Abgleich zwischen Geräten.
 import { FIREBASE_CONFIG } from './config.js';
 import { db } from './db.js';
+import { isNative, appleSignIn } from './native.js';
 
 const V = '10.12.2';
 const CDN = `https://www.gstatic.com/firebasejs/${V}`;
@@ -31,8 +32,11 @@ async function load() {
     import(`${CDN}/firebase-storage.js`),
   ]);
   const app = initializeApp(FIREBASE_CONFIG);
-  const auth = A.getAuth(app);
-  await A.setPersistence(auth, A.indexedDBLocalPersistence).catch(() => {});
+  // In der iOS-App (WKWebView) ohne Popup/Redirect-Resolver initialisieren – sonst hängt Auth.
+  const auth = isNative()
+    ? A.initializeAuth(app, { persistence: A.indexedDBLocalPersistence })
+    : A.getAuth(app);
+  if (!isNative()) await A.setPersistence(auth, A.indexedDBLocalPersistence).catch(() => {});
   fb = { auth, fs: F.getFirestore(app), st: S.getStorage(app), A, F, S };
   readyUser = new Promise(resolve => {
     const off = A.onAuthStateChanged(auth, u => { off(); resolve(u); });
@@ -42,7 +46,7 @@ async function load() {
     if (u) scheduleSync(0);
   });
   // Ergebnis eines Redirect-Logins (iOS-Homescreen-App) abholen
-  A.getRedirectResult(auth).catch(err => setStatus({ state: 'error', error: msg(err) }));
+  if (!isNative()) A.getRedirectResult(auth).catch(err => setStatus({ state: 'error', error: msg(err) }));
   return fb;
 }
 
@@ -88,6 +92,40 @@ export async function signInEmail(email, password, create = false) {
     if (create) await A.createUserWithEmailAndPassword(auth, email, password);
     else await A.signInWithEmailAndPassword(auth, email, password);
   } catch (err) { throw new Error(msg(err)); }
+}
+
+export async function signInApple() {
+  const { auth, A } = await load();
+  try {
+    const { idToken, rawNonce } = await appleSignIn();
+    const credential = new A.OAuthProvider('apple.com').credential({ idToken, rawNonce });
+    await A.signInWithCredential(auth, credential);
+  } catch (err) {
+    if (String(err?.message || err).includes('1001')) throw new Error('Anmeldung abgebrochen.');
+    throw new Error(msg(err));
+  }
+}
+
+// Konto inkl. aller Cloud-Daten löschen (App-Store-Pflicht).
+export async function deleteAccount() {
+  const { auth, A, fs, F, st, S } = await load();
+  const user = auth.currentUser;
+  if (!user) return;
+  const snap = await F.getDocs(F.collection(fs, 'users', user.uid, 'notes'));
+  for (const d of snap.docs) {
+    for (const id of d.data().images || []) {
+      await S.deleteObject(S.ref(st, imagePath(user.uid, id))).catch(() => {});
+    }
+    await F.deleteDoc(d.ref);
+  }
+  try {
+    await A.deleteUser(user);
+  } catch (err) {
+    if (err?.code === 'auth/requires-recent-login') throw new Error('Bitte ab- und wieder anmelden und dann erneut löschen.');
+    throw new Error(msg(err));
+  }
+  await db.setMeta('lastPull', 0);
+  await db.setMeta('syncUser', null);
 }
 
 export async function signOut() {

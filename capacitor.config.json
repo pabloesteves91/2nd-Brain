@@ -1,0 +1,14 @@
+{
+  "appId": "ch.secondbrain.app",
+  "appName": "2nd Brain",
+  "webDir": "www",
+  "backgroundColor": "#fbfaf7",
+  "ios": {
+    "contentInset": "never",
+    "backgroundColor": "#fbfaf7"
+  },
+  "plugins": {
+    "Keyboard": { "resize": "native", "resizeOnFullScreen": true },
+    "LocalNotifications": { "iconColor": "#1d1d1b" }
+  }
+}

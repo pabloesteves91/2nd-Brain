@@ -3,6 +3,7 @@ import { blobToDataUrl, dataUrlToBlob } from './images.js';
 import { settings, setSetting } from './settings.js';
 import * as sync from './sync.js';
 import { h } from './ui.js';
+import { isNative } from './native.js';
 
 const seg = (key, options) => h('div', { class: 'seg' }, options.map(([v, label]) =>
   h('button', {
@@ -60,8 +61,8 @@ export function openSettings(container) {
     ),
 
     h('div', { class: 'group' }, h('h3', {}, 'Tagesrückblick'),
-      row('Abend-Hinweis', toggle('reminder'), 'Dezenter Hinweis zum Sortieren'),
-      row('Ab', h('input', { type: 'time', value: s.reviewTime, onchange: e => setSetting('reviewTime', e.target.value) })),
+      row('Abend-Hinweis', toggle('reminder'), isNative() ? 'Mitteilung zur eingestellten Zeit' : 'Dezenter Hinweis zum Sortieren'),
+      row(isNative() ? 'Um' : 'Ab', h('input', { type: 'time', value: s.reviewTime, onchange: e => setSetting('reviewTime', e.target.value) })),
     ),
 
     h('div', { class: 'group' }, h('h3', {}, 'Kategorien'),
@@ -119,6 +120,13 @@ function syncSection() {
       body.replaceChildren(
         row('Angemeldet', h('button', { type: 'button', class: 'link', onclick: async () => { await sync.signOut(); render(); } }, 'abmelden'), user.email || user.displayName || ''),
         row(st, h('button', { type: 'button', class: 'link', onclick: () => sync.syncNow() }, 'jetzt synchronisieren')),
+        row('Konto löschen', h('button', {
+          type: 'button', class: 'danger',
+          onclick: async () => {
+            if (!confirm('Konto und alle Notizen in der Cloud endgültig löschen? Die Notizen auf diesem Gerät bleiben erhalten.')) return;
+            try { await sync.deleteAccount(); render(); } catch (e) { alert(e.message); }
+          },
+        }, 'löschen'), 'Entfernt alle Cloud-Daten'),
       );
       return;
     }
@@ -132,10 +140,15 @@ function syncSection() {
     };
     body.replaceChildren(
       h('p', { class: 'small' }, 'Melde dich an, um deine Notizen auf allen Geräten zu haben.'),
-      row('Google', h('button', {
-        type: 'button', class: 'link',
-        onclick: async () => { err.textContent = ''; try { await sync.signInGoogle(); render(); } catch (e) { err.textContent = e.message; } },
-      }, 'mit Google anmelden')),
+      isNative()
+        ? row('Apple', h('button', {
+          type: 'button', class: 'link',
+          onclick: async () => { err.textContent = ''; try { await sync.signInApple(); render(); } catch (e) { err.textContent = e.message; } },
+        }, 'Mit Apple anmelden'))
+        : row('Google', h('button', {
+          type: 'button', class: 'link',
+          onclick: async () => { err.textContent = ''; try { await sync.signInGoogle(); render(); } catch (e) { err.textContent = e.message; } },
+        }, 'mit Google anmelden')),
       h('div', { class: 'row' }, email),
       h('div', { class: 'row' }, pw),
       h('div', { class: 'row' },

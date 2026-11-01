@@ -97,6 +97,7 @@ async function render(container) {
             for (const n of all) if (n.status === 'inbox') { n.status = 'sorted'; await saveNote(n); }
             await db.setMeta('closedDays', [...new Set([...closedDays, state.day])].slice(-60));
             document.getElementById('banner').hidden = true;
+            document.dispatchEvent(new CustomEvent('day-closed'));
             render(container);
           },
         }, unsorted === 0 && closedDays.includes(state.day) ? 'Tag abgeschlossen ✓' : 'Tag abschliessen'),
