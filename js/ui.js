@@ -45,3 +45,21 @@ export function flash(text) {
   clearTimeout(statusTimer);
   statusTimer = setTimeout(() => el.classList.remove('show'), 1200);
 }
+
+// Kurzer Hinweis unten mit optionaler Aktion (z. B. „Rückgängig“).
+let toastEl, toastTimer, toastDone;
+export function toast(text, actionLabel, onAction, onExpire) {
+  if (toastDone) { const d = toastDone; toastDone = null; d(); }
+  toastEl?.remove();
+  clearTimeout(toastTimer);
+  const finish = () => { toastEl?.classList.remove('show'); const el = toastEl; setTimeout(() => el?.remove(), 250); };
+  toastEl = h('div', { class: 'toast', role: 'status' }, h('span', {}, text),
+    actionLabel ? h('button', {
+      type: 'button',
+      onclick: () => { clearTimeout(toastTimer); toastDone = null; finish(); onAction?.(); },
+    }, actionLabel) : null);
+  document.body.append(toastEl);
+  requestAnimationFrame(() => toastEl.classList.add('show'));
+  toastDone = onExpire || null;
+  toastTimer = setTimeout(() => { const d = toastDone; toastDone = null; finish(); d?.(); }, 4500);
+}
