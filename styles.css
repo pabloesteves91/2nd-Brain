@@ -292,7 +292,7 @@ body.typing .menu:hover, body.typing .menu:focus-within { opacity: 1; }
   padding: 12px 14px 10px;
   touch-action: pan-y;
 }
-.card.dragging { opacity: .6; box-shadow: 0 10px 30px rgba(0, 0, 0, .12); }
+.card.dragging, .swipe.dragging .card { opacity: .6; box-shadow: 0 10px 30px rgba(0, 0, 0, .12); }
 .card.archived { opacity: .55; }
 
 .card-top {
@@ -465,8 +465,9 @@ select.cat.set { color: var(--fg); border-color: var(--faint); }
 .toast {
   position: fixed;
   left: 50%;
-  bottom: calc(env(safe-area-inset-bottom) + 24px);
+  bottom: calc(env(safe-area-inset-bottom) + 104px);
   transform: translate(-50%, 20px);
+  box-shadow: 0 8px 28px rgba(0, 0, 0, .22);
   display: flex;
   gap: 16px;
   align-items: center;

@@ -1,8 +1,8 @@
-import { db, listNotes, saveNote } from './db.js';
-import { imageUrl, removeImage } from './images.js';
+import { listNotes, saveNote } from './db.js';
+import { imageUrl } from './images.js';
 import { settings } from './settings.js';
-import { h, fmtTime, fmtDay, toast } from './ui.js';
-import { swipeable } from './swipe.js';
+import { h, fmtTime, fmtDay } from './ui.js';
+import { swipeNote } from './swipe.js';
 
 let state = { q: '', cat: null, archived: false };
 
@@ -59,39 +59,7 @@ export function openAll(container) {
 }
 
 // Rechts wischen = archivieren (bzw. wiederherstellen), links wischen = löschen.
-function swipeCard(n, container, rerender) {
-  const archived = n.status === 'archived';
-  const prevStatus = n.status;
-  return swipeable(card(n, container, rerender), {
-    right: {
-      label: archived ? 'wiederherstellen' : 'archivieren',
-      tone: 'archive',
-      run: async () => {
-        n.status = archived ? 'sorted' : 'archived';
-        await saveNote(n);
-        rerender();
-        toast(archived ? 'Wiederhergestellt' : 'Archiviert', 'Rückgängig', async () => {
-          n.status = prevStatus; await saveNote(n); rerender();
-        });
-      },
-    },
-    left: {
-      label: 'löschen',
-      tone: 'delete',
-      run: async () => {
-        n.deleted = true;
-        await saveNote(n);
-        rerender();
-        toast('Gelöscht', 'Rückgängig',
-          async () => { n.deleted = false; await saveNote(n); rerender(); },
-          async () => { // erst wenn nicht rückgängig gemacht: Bilder lokal entfernen
-            const now = await db.get('notes', n.id);
-            if (now?.deleted) for (const id of n.images) await removeImage(id);
-          });
-      },
-    },
-  });
-}
+const swipeCard = (n, container, rerender) => swipeNote(n, card(n, container, rerender), rerender);
 
 function card(n, container, rerender) {
   const thumbs = h('div', { class: 'thumbs' });

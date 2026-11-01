@@ -1,4 +1,5 @@
-import { db, localDay, notesOfDay, saveNote, deleteNote } from './db.js';
+import { db, localDay, notesOfDay, saveNote } from './db.js';
+import { swipeNote } from './swipe.js';
 import { imageUrl } from './images.js';
 import { settings } from './settings.js';
 import { h, fmtTime, fmtDay, shiftDay } from './ui.js';
@@ -64,7 +65,7 @@ async function render(container) {
 
   const catLine = byCat.size ? [...byCat].map(([c, n]) => `${c} ${n}`).join(' · ') : null;
 
-  const cards = h('div', { class: 'cards' }, visible.map(n => card(n, container)));
+  const cards = h('div', { class: 'cards' }, visible.map(n => swipeNote(n, card(n, container), () => render(container))));
   if (state.sort === 'eigene') enableDrag(cards, container);
 
   container.replaceChildren(...[
@@ -90,6 +91,7 @@ async function render(container) {
             h('button', { type: 'button', class: state.sort === s ? 'on' : '', onclick: () => { state.sort = s; render(container); } }, s))),
         ),
         cards,
+        h('p', { class: 'swipe-hint' }, '→ archivieren · ← löschen'),
         h('button', {
           type: 'button', class: 'primary',
           disabled: unsorted === 0 && closedDays.includes(state.day),
@@ -141,32 +143,34 @@ function card(n, container) {
     thumbs,
     h('div', { class: 'card-actions' },
       h('button', { type: 'button', class: n.pinned ? 'on' : '', onclick: async () => { n.pinned = !n.pinned; await saveNote(n); render(container); } }, n.pinned ? 'gepinnt' : 'pinnen'),
-      h('button', { type: 'button', onclick: async () => { n.status = 'archived'; await saveNote(n); render(container); } }, 'archivieren'),
-      h('button', { type: 'button', onclick: async () => { if (confirm('Notiz löschen?')) { await deleteNote(n); render(container); } } }, 'löschen'),
     ),
   );
 }
 
 // Drag & Drop per Pointer-Events am Griff (funktioniert mit Touch und Maus).
+// Bewegung wird am window verfolgt – so geht nichts verloren, wenn die Karte im DOM verschoben wird.
 function enableDrag(list, container) {
   list.addEventListener('pointerdown', e => {
     const handle = e.target.closest('.handle');
     if (!handle) return;
     e.preventDefault();
-    const item = handle.closest('.card');
+    const item = handle.closest('.swipe');
+    const pid = e.pointerId;
     item.classList.add('dragging');
-    handle.setPointerCapture(e.pointerId);
 
     const move = ev => {
-      const over = document.elementFromPoint(ev.clientX, ev.clientY)?.closest('.card');
+      if (ev.pointerId !== pid) return;
+      ev.preventDefault();
+      const over = document.elementFromPoint(ev.clientX, ev.clientY)?.closest('.swipe');
       if (!over || over === item || over.parentNode !== list) return;
       const r = over.getBoundingClientRect();
       list.insertBefore(item, ev.clientY < r.top + r.height / 2 ? over : over.nextSibling);
     };
-    const up = async () => {
-      handle.removeEventListener('pointermove', move);
-      handle.removeEventListener('pointerup', up);
-      handle.removeEventListener('pointercancel', up);
+    const up = async ev => {
+      if (ev.pointerId !== pid) return;
+      window.removeEventListener('pointermove', move);
+      window.removeEventListener('pointerup', up);
+      window.removeEventListener('pointercancel', up);
       item.classList.remove('dragging');
       const ids = [...list.children].map(c => c.dataset.id);
       for (const [i, id] of ids.entries()) {
@@ -175,8 +179,8 @@ function enableDrag(list, container) {
       }
       render(container);
     };
-    handle.addEventListener('pointermove', move);
-    handle.addEventListener('pointerup', up);
-    handle.addEventListener('pointercancel', up);
+    window.addEventListener('pointermove', move, { passive: false });
+    window.addEventListener('pointerup', up);
+    window.addEventListener('pointercancel', up);
   });
 }

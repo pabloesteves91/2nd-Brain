@@ -1,7 +1,9 @@
 // Wischen nach links/rechts auf einer Karte (Touch + Maus), wie in iOS-Mail.
 // left  = Aktion beim Wischen nach links  (Hintergrund rechts sichtbar)
 // right = Aktion beim Wischen nach rechts (Hintergrund links sichtbar)
-import { h } from './ui.js';
+import { h, toast } from './ui.js';
+import { db, saveNote } from './db.js';
+import { removeImage } from './images.js';
 
 const START = 10;        // ab so vielen px gilt es als Wischen
 const TRIGGER = 0.35;    // Anteil der Breite, ab dem die Aktion ausgelöst wird
@@ -74,5 +76,42 @@ export function swipeable(card, { left, right }) {
     if (swiped) { e.stopPropagation(); e.preventDefault(); swiped = false; }
   }, true);
 
+  return wrap;
+}
+
+// Standard-Gesten für eine Notizkarte: rechts archivieren/wiederherstellen, links löschen – jeweils mit Rückgängig.
+export function swipeNote(n, cardEl, rerender) {
+  const archived = n.status === 'archived';
+  const prevStatus = n.status;
+  const wrap = swipeable(cardEl, {
+    right: {
+      label: archived ? 'wiederherstellen' : 'archivieren',
+      tone: 'archive',
+      run: async () => {
+        n.status = archived ? 'sorted' : 'archived';
+        await saveNote(n);
+        rerender();
+        toast(archived ? 'Wiederhergestellt' : 'Archiviert', 'Rückgängig', async () => {
+          n.status = prevStatus; await saveNote(n); rerender();
+        });
+      },
+    },
+    left: {
+      label: 'löschen',
+      tone: 'delete',
+      run: async () => {
+        n.deleted = true;
+        await saveNote(n);
+        rerender();
+        toast('Gelöscht', 'Rückgängig',
+          async () => { n.deleted = false; await saveNote(n); rerender(); },
+          async () => { // erst wenn nicht rückgängig gemacht: Bilder lokal entfernen
+            const now = await db.get('notes', n.id);
+            if (now?.deleted) for (const id of n.images) await removeImage(id);
+          });
+      },
+    },
+  });
+  wrap.dataset.id = n.id;
   return wrap;
 }
