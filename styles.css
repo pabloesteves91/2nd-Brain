@@ -94,12 +94,12 @@ body::before {
   position: fixed;
   left: 50%;
   top: 46%;
-  width: min(46vw, 220px);
-  aspect-ratio: 272 / 244;
+  width: min(52vw, 240px);
+  aspect-ratio: 524 / 419;
   transform: translate(-50%, -50%);
   background: var(--fg);
-  -webkit-mask: url("icons/mark.svg") center / contain no-repeat;
-  mask: url("icons/mark.svg") center / contain no-repeat;
+  -webkit-mask: url("icons/mark.png") center / contain no-repeat;
+  mask: url("icons/mark.png") center / contain no-repeat;
   opacity: .06;
   pointer-events: none;
   z-index: 0;
@@ -529,10 +529,10 @@ select.cat.set { color: var(--fg); border-color: var(--faint); }
   position: relative;
 }
 .about-mark::after {
-  content: ""; position: absolute; inset: 11px;
+  content: ""; position: absolute; inset: 9px;
   background: var(--fg);
-  -webkit-mask: url("icons/mark.svg") center / contain no-repeat;
-  mask: url("icons/mark.svg") center / contain no-repeat;
+  -webkit-mask: url("icons/mark.png") center / contain no-repeat;
+  mask: url("icons/mark.png") center / contain no-repeat;
 }
 .about-text { flex: 1; min-width: 0; }
 .about-name { font-size: 20px; font-weight: 600; letter-spacing: -.01em; }
