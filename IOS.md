@@ -43,6 +43,8 @@ npx cap open ios
 ```
 
 `npx cap add ios` legt den Ordner `ios/` an (das Xcode-Projekt). Danach öffnet sich Xcode.
+Es wird der in Xcode eingebaute **Swift Package Manager** verwendet – CocoaPods brauchst du nicht.
+Warte nach dem Öffnen, bis Xcode unten „Resolving Package Graph“ abgeschlossen hat.
 
 > **Bundle-ID:** Voreingestellt ist `ch.secondbrain.app` in `capacitor.config.json`. Sie muss weltweit eindeutig sein.
 > Falls Xcode meldet, sie sei vergeben, nimm z. B. `ch.pabloesteves.secondbrain`, trage sie in
