@@ -63,3 +63,43 @@ export function toast(text, actionLabel, onAction, onExpire) {
   toastDone = onExpire || null;
   toastTimer = setTimeout(() => { const d = toastDone; toastDone = null; finish(); d?.(); }, 4500);
 }
+
+// ---------- Links ----------
+
+const URL_RE = /\b(?:https?:\/\/|www\.)[^\s<>"']*[^\s<>"'.,;:!?)\]}»“”]/gi;
+
+export function findLinks(text) {
+  return [...new Set((text.match(URL_RE) || []))];
+}
+
+export const hrefOf = url => (/^https?:\/\//i.test(url) ? url : `https://${url}`);
+
+export function shortUrl(url) {
+  try {
+    const u = new URL(hrefOf(url));
+    const path = (u.pathname + u.search).replace(/\/$/, '');
+    const short = u.hostname.replace(/^www\./, '') + (path.length > 22 ? path.slice(0, 20) + '…' : path);
+    return short;
+  } catch { return url; }
+}
+
+export function linkEl(url, text = url) {
+  return h('a', {
+    href: hrefOf(url), target: '_blank', rel: 'noopener noreferrer', class: 'note-link',
+    onclick: e => e.stopPropagation(),     // nicht gleichzeitig die Notiz öffnen
+    onpointerdown: e => e.stopPropagation(),
+  }, text);
+}
+
+// Text mit klickbaren Links (ohne innerHTML).
+export function linkify(text) {
+  const out = [];
+  let last = 0;
+  for (const m of text.matchAll(URL_RE)) {
+    if (m.index > last) out.push(text.slice(last, m.index));
+    out.push(linkEl(m[0]));
+    last = m.index + m[0].length;
+  }
+  if (last < text.length) out.push(text.slice(last));
+  return out;
+}

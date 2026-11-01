@@ -1,6 +1,6 @@
 import { db, newNote, saveNote } from './db.js';
 import { storeImage, imageUrl, removeImage } from './images.js';
-import { h, flash } from './ui.js';
+import { h, flash, findLinks, linkEl, shortUrl } from './ui.js';
 import { applyTags } from './tags.js';
 import { tap } from './native.js';
 import { continueList, initSuggest } from './compose.js';
@@ -16,6 +16,19 @@ export function autosize() {
   const t = ta();
   t.style.height = 'auto';
   t.style.height = `${t.scrollHeight}px`;
+  renderLinks();
+}
+
+// Links im Text als antippbare Zeile unter dem Schreibfeld
+let lastLinks = '';
+function renderLinks() {
+  const el = document.getElementById('links');
+  if (!el) return;
+  const links = findLinks(ta().value);
+  const key = links.join('\n');
+  if (key === lastLinks) return;
+  lastLinks = key;
+  el.replaceChildren(...links.slice(0, 6).map(u => linkEl(u, `↗ ${shortUrl(u)}`)));
 }
 
 export function initEditor() {

@@ -158,6 +158,32 @@ body::before {
   padding-top: 12px;
 }
 .thumbs:empty { display: none; }
+
+.note-link {
+  color: inherit;
+  text-decoration: underline;
+  text-decoration-color: var(--faint);
+  text-underline-offset: 3px;
+  word-break: break-all;
+}
+.note-link:active { text-decoration-color: var(--fg); }
+
+.links { display: flex; flex-wrap: wrap; gap: 8px; padding-top: 10px; }
+.links:empty { display: none; }
+.links .note-link {
+  text-decoration: none;
+  font-size: 13.5px;
+  color: var(--muted);
+  border: 1px solid var(--line);
+  background: var(--card);
+  border-radius: 999px;
+  padding: 5px 12px;
+  word-break: normal;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
 #editor .tap-area { flex: 1; min-height: 30vh; cursor: text; }
 
 .thumb {
