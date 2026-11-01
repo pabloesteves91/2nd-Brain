@@ -1,11 +1,15 @@
-import { db, localDay, notesOfDay, listNotes } from './db.js';
+import { db, localDay, notesOfDay, listNotes, newNote, saveNote } from './db.js';
 import { initEditor, startFresh, openNote, flush, focusEditor, refreshCurrent, autosize, putAway } from './editor.js';
 import { openReview } from './review.js';
 import { openAll } from './all.js';
 import { openSettings } from './settings-view.js';
 import { settings, apply } from './settings.js';
 import { initSync, scheduleSync, syncNow } from './sync.js';
-import { isNative, initNative, scheduleReminder, scheduleWeekly, rescheduleTasks, setStatusBar, tap } from './native.js';
+import { isNative, initNative, scheduleReminder, scheduleWeekly, rescheduleTasks, setStatusBar, tap,
+  takePendingAction, readSharedInbox, clearSharedInbox } from './native.js';
+import { storeImage, dataUrlToBlob } from './images.js';
+import { applyTags } from './tags.js';
+import { toast } from './ui.js';
 import { initLock, onAppState } from './lock.js';
 
 const overlay = document.getElementById('overlay');
@@ -156,8 +160,49 @@ initNative({
   onOpenWeek: () => open('week'),
   onOpenNote: async id => { if (view) close(); await openNote(id); },
   onNewThought: async () => { if (view) close(); await startFresh(); },
-  onAppState,
+  onAppState: active => { onAppState(active); if (active) nativeInbox(); },
+  onPendingAction: () => nativeInbox(),
 });
+
+// Kurzbefehl „Neuer Gedanke“ und geteilte Inhalte übernehmen.
+let inboxBusy = false;
+async function nativeInbox() {
+  if (!isNative() || inboxBusy) return;
+  inboxBusy = true;
+  try {
+    if ((await takePendingAction()) === 'new') { if (view) close(); await startFresh(); }
+    const items = await readSharedInbox();
+    const done = [];
+    let imported = 0;
+    for (const it of items) {
+      if (!it?.id) continue;
+      if (await db.get('notes', it.id)) { done.push(it.id); continue; } // schon übernommen
+      const n = newNote();
+      n.id = it.id;
+      n.text = it.text || '';
+      if (it.created_at) {
+        const d = new Date(it.created_at);
+        if (!isNaN(d)) { n.created_at = d.toISOString(); n.day = localDay(d); n.sort_order = d.getTime(); }
+      }
+      for (const src of it.images || []) {
+        try {
+          const blob = await dataUrlToBlob(src);
+          n.images.push(await storeImage(new File([blob], 'geteilt.jpg', { type: 'image/jpeg' }), n.id));
+        } catch (err) { console.warn('Geteiltes Bild übersprungen', err); }
+      }
+      if (!n.text.trim() && !n.images.length) { done.push(it.id); continue; }
+      applyTags(n);
+      await saveNote(n);
+      imported++;
+      done.push(it.id);
+    }
+    await clearSharedInbox(done);
+    if (imported) toast(imported === 1 ? '1 geteilte Notiz übernommen' : `${imported} geteilte Notizen übernommen`);
+  } finally {
+    inboxBusy = false;
+  }
+}
+nativeInbox();
 const darkQuery = matchMedia('(prefers-color-scheme: dark)');
 let reminderKey = '';
 let weeklyKey = '';

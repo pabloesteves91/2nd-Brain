@@ -17,7 +17,7 @@ const WEEKLY_ID = 2002;
 
 export const appPlugin = () => plugin('App');
 
-export async function initNative({ onOpenReview, onOpenWeek, onOpenNote, onNewThought, onAppState } = {}) {
+export async function initNative({ onOpenReview, onOpenWeek, onOpenNote, onNewThought, onAppState, onPendingAction } = {}) {
   if (!isNative()) return;
   document.documentElement.classList.add('native');
   const ln = plugin('LocalNotifications');
@@ -29,6 +29,8 @@ export async function initNative({ onOpenReview, onOpenWeek, onOpenNote, onNewTh
   });
   const app = plugin('App');
   app?.addListener?.('appStateChange', ({ isActive }) => onAppState?.(isActive));
+  // Eigenes Plugin (Kurzbefehl/Teilen) – fehlt es im Xcode-Projekt, passiert einfach nichts.
+  plugin('SecondBrainNative')?.addListener?.('pendingAction', () => onPendingAction?.())?.catch?.(() => {});
   app?.addListener?.('appUrlOpen', ({ url }) => {
     if (/^secondbrain:\/\/new/i.test(url || '')) onNewThought?.();
   });
@@ -167,4 +169,25 @@ export async function rescheduleTasks(notes) {
     if (stale.length) await ln.cancel({ notifications: stale });
   } catch { /* egal */ }
   for (const n of notes) if (n.remind_at) await scheduleTask(n);
+}
+
+// ---------- Kurzbefehl & Teilen-Menü (eigenes Plugin „SecondBrainNative“) ----------
+
+export async function takePendingAction() {
+  const p = plugin('SecondBrainNative');
+  if (!p) return '';
+  try { return (await p.takePendingAction()).action || ''; } catch { return ''; }
+}
+
+// Holt Notizen ab, die über „Teilen → 2nd Brain“ abgelegt wurden.
+export async function readSharedInbox() {
+  const p = plugin('SecondBrainNative');
+  if (!p) return [];
+  try { return (await p.readInbox()).items || []; } catch { return []; }
+}
+
+export async function clearSharedInbox(ids) {
+  const p = plugin('SecondBrainNative');
+  if (!p || !ids.length) return;
+  try { await p.clearInbox({ ids }); } catch { /* egal */ }
 }

@@ -162,3 +162,106 @@ Dann in Xcode unter *General* die **Build**-Nummer erhöhen (1 → 2 → 3 …, 
 | Apple-Login: `auth/invalid-credential` / „audience“ | iOS-App mit genau dieser Bundle-ID in Firebase registrieren (Schritt 4.1); Apple-Anbieter aktiv? |
 | Keine Mitteilung | iPhone-Einstellungen → Mitteilungen → 2nd Brain → erlauben |
 | Änderungen fehlen in der App | `npm run sync` vergessen |
+
+---
+
+# Erweiterungen: Widget, Kurzbefehl, Teilen-Menü
+
+Die Swift-Dateien liegen im Repo unter [`ios-extensions/`](ios-extensions). Du legst in Xcode zwei neue Targets an
+und ziehst die Dateien hinein. Einmalig ca. 20–30 Minuten.
+
+| Datei | gehört zu Target |
+|---|---|
+| `ios-extensions/Shared/AppGroup.swift` | **App** und **ShareExtension** |
+| `ios-extensions/App/SecondBrainNativePlugin.swift` | **App** |
+| `ios-extensions/App/MainViewController.swift` | **App** |
+| `ios-extensions/App/NewThoughtIntent.swift` | **App** |
+| `ios-extensions/Widget/SecondBrainWidget.swift` | **SecondBrainWidget** |
+| `ios-extensions/Share/ShareViewController.swift` | **ShareExtension** |
+
+Vorher im Terminal:
+
+```bash
+git pull && npm install && npm run sync
+```
+
+## E1. App Group anlegen (für App und Teilen-Menü)
+
+1. Xcode → links **App** (blau) → Target **App** → **Signing & Capabilities** → **+ Capability** → **App Groups**.
+2. Im neuen Feld **+** → `group.ch.fabioberta.secondbrain` eintragen → OK. Das Häkchen muss gesetzt sein.
+
+## E2. Dateien für die App hinzufügen
+
+1. Im Finder den Ordner `2nd-Brain/ios-extensions/` öffnen.
+2. Die Dateien `Shared/AppGroup.swift` und alle drei aus `App/` in Xcode links auf den gelben Ordner **App → App** ziehen.
+3. Im Dialog: **Copy items if needed** anhaken, bei *Add to targets* nur **App** anhaken → **Finish**.
+
+## E3. Plugin registrieren
+
+1. Links **App → App → Main.storyboard** öffnen.
+2. In der Mitte (Szene) den **Bridge View Controller** anklicken (links in der Szenen-Liste).
+3. Rechts oben das Symbol **Identity Inspector** (Ausweis-Symbol, 4. Reiter) → bei **Class** `MainViewController` eintragen, Enter.
+   *Module* auf **App** lassen bzw. „Inherit Module From Target“ anhaken.
+
+## E4. URL-Schema `secondbrain://`
+
+1. Target **App** → Reiter **Info** → ganz unten **URL Types** aufklappen → **+**.
+2. *Identifier*: `ch.fabioberta.secondbrain` · *URL Schemes*: `secondbrain` · *Role*: Editor.
+
+Test: App einmal starten, dann in Safari `secondbrain://new` eingeben → die App öffnet sich mit leerem Blatt.
+
+## E5. Kurzbefehl „Neuer Gedanke“
+
+Nichts weiter zu tun – kommt mit `NewThoughtIntent.swift` aus Schritt E2.
+Nach dem nächsten Start der App findest du ihn in der **Kurzbefehle**-App unter *2nd Brain*, in Spotlight und bei Siri
+(„Neuer Gedanke in 2nd Brain“). **Action-Button:** *Einstellungen → Action-Button → Kurzbefehl → 2nd Brain → Neuer Gedanke*.
+
+## E6. Widget
+
+1. Xcode → **File → New → Target…** → **iOS** → **Widget Extension** → Next.
+2. *Product Name*: `SecondBrainWidget` · **Include Live Activity** und **Include Control** und **Include Configuration App Intent**: **aus** → Finish.
+   Frage „Activate scheme?“ → **Activate**.
+3. Links erscheint der Ordner **SecondBrainWidget**. Darin alle `.swift`-Dateien **löschen** (Rechtsklick → Delete → Move to Trash).
+   `Info.plist` und `Assets.xcassets` bleiben.
+4. `ios-extensions/Widget/SecondBrainWidget.swift` in den Ordner **SecondBrainWidget** ziehen → *Copy items if needed*,
+   Target nur **SecondBrainWidget** → Finish.
+5. Target **SecondBrainWidget** → **General** → *Minimum Deployments*: **iOS 16.0** (oder höher).
+6. **Signing & Capabilities**: Team wählen. Bundle-ID ist automatisch `ch.fabioberta.secondbrain.SecondBrainWidget`.
+
+Test: App auf dem iPhone starten → Homescreen lange drücken → **Bearbeiten → Widget hinzufügen** → „2nd Brain“.
+Für den Sperrbildschirm: Sperrbildschirm lange drücken → **Anpassen** → Sperrbildschirm → Widgets → 2nd Brain.
+
+## E7. Teilen-Menü
+
+1. **File → New → Target…** → **iOS** → **Share Extension** → Next.
+2. *Product Name*: `ShareExtension` → Finish → **Activate**.
+3. Im neuen Ordner **ShareExtension**: `ShareViewController.swift` und `MainInterface.storyboard` **löschen** (Move to Trash).
+4. `ios-extensions/Share/ShareViewController.swift` **und** `ios-extensions/Shared/AppGroup.swift` hineinziehen →
+   *Copy items if needed*, Target nur **ShareExtension**.
+   (AppGroup.swift ist dann zweimal im Projekt – das ist richtig: je eine Kopie pro Target.)
+5. **ShareExtension → Info.plist** → Rechtsklick → **Open As → Source Code** → den Block `<key>NSExtension</key> <dict>…</dict>`
+   durch den Inhalt von `ios-extensions/Share/Info-NSExtension.plist.txt` ersetzen → ⌘S.
+6. Target **ShareExtension** → **Signing & Capabilities**: Team wählen → **+ Capability → App Groups** →
+   dasselbe `group.ch.fabioberta.secondbrain` anhaken.
+7. Target **ShareExtension** → **General** → *Minimum Deployments* gleich wie die App (z. B. iOS 15.0) und *Display Name* `2nd Brain`.
+
+Test: In Safari eine Seite öffnen → **Teilen** → in der App-Reihe ganz rechts **Mehr** → „2nd Brain“ aktivieren und nach vorne ziehen.
+Dann Teilen → 2nd Brain → Gedanke schreiben → **Sichern**. Beim nächsten Öffnen von 2nd Brain erscheint
+„1 geteilte Notiz übernommen“, die Notiz ist unter *heute* zu finden.
+
+## E8. Starten
+
+Oben links das Schema wieder auf **App** stellen (nicht SecondBrainWidget/ShareExtension) → iPhone wählen → **▶︎**.
+
+## Probleme bei den Erweiterungen
+
+| Problem | Lösung |
+|---|---|
+| `Cannot find 'AppGroup' in scope` | `AppGroup.swift` fehlt im betroffenen Target → Datei anklicken → rechts *Target Membership* anhaken |
+| Geteilte Notizen kommen nicht an | App Group in **beiden** Targets exakt gleich geschrieben und angehakt? Storyboard-Klasse `MainViewController` gesetzt (E3)? |
+| `'main' attribute can only apply to one type` (Widget) | In E6.3 nicht alle Vorlagen-Dateien gelöscht – die übrige `…Bundle.swift` löschen |
+| Widget fehlt in der Auswahl | App einmal per ▶︎ starten; iPhone neu starten hilft manchmal |
+| Kurzbefehl fehlt | App einmal öffnen; in der Kurzbefehle-App unter *App-Kurzbefehle* nachsehen |
+| Fehler beim Archivieren wegen Extensions | Alle drei Targets brauchen dasselbe Team; Build-Nummern von Widget/Share = App |
+
+Bei einem Kompilierfehler: Screenshot der roten Meldung schicken.
