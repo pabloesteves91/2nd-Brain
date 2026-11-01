@@ -46,7 +46,7 @@ npx cap open ios
 Es wird der in Xcode eingebaute **Swift Package Manager** verwendet – CocoaPods brauchst du nicht.
 Warte nach dem Öffnen, bis Xcode unten „Resolving Package Graph“ abgeschlossen hat.
 
-> **Bundle-ID:** Voreingestellt ist `ch.secondbrain.app` in `capacitor.config.json`. Sie muss weltweit eindeutig sein.
+> **Bundle-ID:** Voreingestellt ist `ch.fabioberta.secondbrain` in `capacitor.config.json`. Sie muss weltweit eindeutig sein.
 > Falls Xcode meldet, sie sei vergeben, nimm z. B. `ch.pabloesteves.secondbrain`, trage sie in
 > `capacitor.config.json` **und** in Xcode ein und führe `npx cap sync ios` aus.
 

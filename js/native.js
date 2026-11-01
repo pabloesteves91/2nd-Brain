@@ -61,6 +61,6 @@ export async function appleSignIn() {
   const rawNonce = [...crypto.getRandomValues(new Uint8Array(32))].map(b => b.toString(16).padStart(2, '0')).join('');
   const hash = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(rawNonce));
   const nonce = [...new Uint8Array(hash)].map(b => b.toString(16).padStart(2, '0')).join('');
-  const res = await apple.authorize({ clientId: 'ch.secondbrain.app', redirectURI: '', scopes: 'email name', nonce });
+  const res = await apple.authorize({ clientId: 'ch.fabioberta.secondbrain', redirectURI: '', scopes: 'email name', nonce });
   return { idToken: res.response.identityToken, rawNonce };
 }
