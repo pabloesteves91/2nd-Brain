@@ -98,7 +98,7 @@ In der iOS-App gibt es zusätzlich echte Abend-Mitteilungen, „Mit Apple anmeld
 Kurzfassung auf dem Mac:
 
 ```bash
-npm install && npm run build && npx cap add ios && npx cap open ios
+npm install && npm run build && npx cap add ios --packagemanager SPM && npx cap open ios
 ```
 
 Datenschutzerklärung (für den App Store): [`privacy.html`](privacy.html) →

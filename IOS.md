@@ -36,7 +36,7 @@ npm install
 npm run build
 ```
 ```bash
-npx cap add ios
+npx cap add ios --packagemanager SPM
 ```
 ```bash
 npx cap open ios
