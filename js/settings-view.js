@@ -121,6 +121,13 @@ export function openSettings(container) {
 
     syncSection(),
 
+    h('div', { class: 'group' }, h('h3', {}, 'Hilfe'),
+      row('Einführung ansehen', h('button', {
+        type: 'button', class: 'link',
+        onclick: e => e.currentTarget.dispatchEvent(new CustomEvent('open-onboarding', { bubbles: true })),
+      }, 'öffnen')),
+    ),
+
     h('div', { class: 'group' }, h('h3', {}, 'Daten'),
       row('Exportieren', h('button', { type: 'button', class: 'link', onclick: exportData }, 'JSON sichern')),
       row('Importieren', h('label', { class: 'link' }, 'Datei wählen',

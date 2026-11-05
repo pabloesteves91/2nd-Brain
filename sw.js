@@ -1,9 +1,10 @@
 // Service Worker: App-Shell offline verfügbar machen.
-const CACHE = '2nd-brain-v6';
+const CACHE = '2nd-brain-v7';
 const SHELL = [
   './', 'index.html', 'styles.css', 'manifest.webmanifest',
   'js/app.js', 'js/db.js', 'js/editor.js', 'js/images.js', 'js/ui.js',
-  'js/settings.js', 'js/settings-view.js', 'js/review.js', 'js/all.js', 'js/sync.js', 'js/config.js', 'js/native.js', 'js/swipe.js', 'js/tags.js', 'js/tasks.js', 'js/lock.js', 'js/compose.js',
+  'js/settings.js', 'js/settings-view.js', 'js/review.js', 'js/all.js', 'js/sync.js', 'js/config.js', 'js/native.js', 'js/swipe.js', 'js/tags.js', 'js/tasks.js', 'js/lock.js', 'js/compose.js', 'js/onboarding.js',
+  'onboarding/01.jpg', 'onboarding/02.jpg', 'onboarding/03.jpg', 'onboarding/04.jpg', 'onboarding/05.jpg', 'onboarding/06.jpg',
   'icons/favicon.png', 'icons/mark.png', 'icons/icon-maskable-512.png', 'icons/icon-192.png', 'icons/icon-512.png', 'icons/apple-touch-icon.png',
 ];
 

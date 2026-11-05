@@ -13,6 +13,7 @@ export const DEFAULTS = {
   weekly: true,          // Wochenrückblick-Mitteilung am Sonntag
   weeklyTime: '18:00',
   rediscover: true,      // im Rückblick alte Gedanken wiederentdecken
+  onboarded: false,      // Einführung schon gesehen
 };
 
 let current = load();

@@ -11,6 +11,7 @@ import { storeImage, dataUrlToBlob } from './images.js';
 import { applyTags } from './tags.js';
 import { toast } from './ui.js';
 import { initLock, onAppState } from './lock.js';
+import { showOnboarding } from './onboarding.js';
 
 const overlay = document.getElementById('overlay');
 const body = document.getElementById('sheet-body');
@@ -155,6 +156,8 @@ if (isNative()) listNotes().then(rescheduleTasks);
 // ---------- Native iOS-App ----------
 
 initLock();
+if (!settings().onboarded) showOnboarding();
+body.addEventListener('open-onboarding', () => { close(); showOnboarding(); });
 initNative({
   onOpenReview: () => open('review'),
   onOpenWeek: () => open('week'),
