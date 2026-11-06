@@ -711,3 +711,38 @@ select.cat.set { color: var(--fg); border-color: var(--faint); }
   .sheet, .backdrop { animation: none; }
   .status, .menu { transition: none; }
 }
+
+/* ---------- iPad / grosse Bildschirme (iPhone bleibt unverändert) ---------- */
+
+@media (min-width: 768px) {
+  #editor {
+    max-width: 880px;
+    padding: calc(env(safe-area-inset-top) + 88px) 64px 120px;
+  }
+  #note { font-size: calc(var(--fs) + 2px); line-height: 1.65; }
+  .thumb { width: 96px; height: 96px; }
+  body::before { width: min(36vw, 320px); }
+
+  .menu { font-size: 15px; gap: 44px; padding-bottom: calc(env(safe-area-inset-bottom) + 22px); }
+  .suggest { bottom: calc(env(safe-area-inset-bottom) + 60px); justify-content: center; }
+
+  .sheet { max-width: 760px; }
+  .sheet-body { padding-left: 32px; padding-right: 32px; }
+  .head h2 { font-size: 24px; }
+  .card-text { font-size: 16.5px; }
+  .summary, .row { font-size: 16px; }
+
+  .ob-slide img { max-height: 58vh; }
+  .ob-slide h2 { font-size: 28px; }
+  .ob-slide ul { font-size: 17px; }
+  .ob-next { width: 360px; align-self: center; }
+}
+
+/* iPad quer: Sheet schwebt als Karte statt am Rand zu kleben */
+@media (min-width: 1024px) and (orientation: landscape) {
+  .sheet {
+    bottom: 24px;
+    max-height: calc(100dvh - 80px);
+    border-radius: 22px;
+  }
+}

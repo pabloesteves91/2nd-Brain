@@ -71,7 +71,7 @@ export function openSettings(container) {
   };
   newCat.addEventListener('keydown', e => { if (e.key === 'Enter') addCat(); });
 
-  container.replaceChildren(
+  container.replaceChildren(...[
     aboutHeader(),
 
     h('div', { class: 'group' }, h('h3', {}, 'Schreiben'),
@@ -143,7 +143,7 @@ export function openSettings(container) {
     ),
 
 
-  );
+  ].filter(Boolean)); // ohne Filter würde „null“ als Text erscheinen
 }
 
 function syncSection() {
