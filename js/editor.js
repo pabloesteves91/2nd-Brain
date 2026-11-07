@@ -1,6 +1,6 @@
 import { db, newNote, saveNote } from './db.js';
 import { storeImage, imageUrl, removeImage } from './images.js';
-import { h, flash, findLinks, linkEl, shortUrl } from './ui.js';
+import { h, viewImage, flash, findLinks, linkEl, shortUrl } from './ui.js';
 import { applyTags } from './tags.js';
 import { tap } from './native.js';
 import { continueList, initSuggest } from './compose.js';
@@ -116,18 +116,16 @@ async function renderThumbs() {
   for (const id of current.images) {
     const src = await imageUrl(id);
     if (!src) continue;
+    const del = async () => {
+      current.images = current.images.filter(x => x !== id);
+      await removeImage(id);
+      current.dirtyLocal = true;
+      await save({ quiet: true });
+      renderThumbs();
+    };
     el.append(h('div', { class: 'thumb' },
-      h('img', { src, alt: '' }),
-      h('button', {
-        type: 'button', 'aria-label': 'Bild entfernen',
-        onclick: async () => {
-          current.images = current.images.filter(x => x !== id);
-          await removeImage(id);
-          current.dirtyLocal = true;
-          await save({ quiet: true });
-          renderThumbs();
-        },
-      }, '×'),
+      h('img', { src, alt: '', onclick: () => viewImage(src, del) }),
+      h('button', { type: 'button', 'aria-label': 'Bild entfernen', onclick: del }, '×'),
     ));
   }
 }

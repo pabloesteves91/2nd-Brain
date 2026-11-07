@@ -64,6 +64,22 @@ export function toast(text, actionLabel, onAction, onExpire) {
   toastTimer = setTimeout(() => { const d = toastDone; toastDone = null; finish(); d?.(); }, 4500);
 }
 
+// ---------- Bild gross anzeigen ----------
+
+// Antippen/Klicken/Esc schliesst; mit onDelete gibt es unten „löschen“.
+export function viewImage(src, onDelete) {
+  const close = () => { view.remove(); document.removeEventListener('keydown', onKey, true); };
+  const onKey = e => { if (e.key === 'Escape') { e.stopPropagation(); close(); } };
+  const view = h('div', { class: 'imgview', role: 'dialog', 'aria-label': 'Bild', onclick: close },
+    h('img', { src, alt: '' }),
+    h('div', { class: 'imgview-bar' },
+      h('button', { type: 'button', onclick: close }, 'schliessen'),
+      onDelete ? h('button', { type: 'button', class: 'danger', onclick: e => { e.stopPropagation(); close(); onDelete(); } }, 'löschen') : null));
+  document.addEventListener('keydown', onKey, true);
+  document.activeElement?.blur();
+  document.body.append(view);
+}
+
 // ---------- Links ----------
 
 const URL_RE = /\b(?:https?:\/\/|www\.)[^\s<>"']*[^\s<>"'.,;:!?)\]}»“”]/gi;

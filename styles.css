@@ -194,7 +194,7 @@ body::before {
   overflow: hidden;
   background: var(--line);
 }
-.thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.thumb img { width: 100%; height: 100%; object-fit: cover; display: block; cursor: zoom-in; }
 .thumb button {
   position: absolute;
   top: 4px; right: 4px;
@@ -785,3 +785,17 @@ select.cat.set { color: var(--fg); border-color: var(--faint); }
 .mac .menu { bottom: 44px; padding-bottom: 14px; }
 .mac .suggest { bottom: 104px; }
 .mac .toast { bottom: 150px; }
+
+/* ---------- Bild gross ---------- */
+.imgview {
+  position: fixed; inset: 0; z-index: 45; /* über Sheets, unter der Face-ID-Sperre */
+  background: #0b0b0b;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  padding: calc(env(safe-area-inset-top) + 16px) 16px calc(env(safe-area-inset-bottom) + 16px);
+  animation: imgview-in .18s ease;
+}
+.imgview img { max-width: 100%; max-height: calc(100% - 64px); object-fit: contain; border-radius: 8px; }
+.imgview-bar { display: flex; gap: 12px; margin-top: 16px; }
+.imgview-bar button { color: #fff; border: 1px solid rgba(255, 255, 255, .3); border-radius: 999px; padding: 8px 18px; font-size: 15px; }
+.imgview-bar .danger { color: #ff8a73; border-color: rgba(255, 138, 115, .45); }
+@keyframes imgview-in { from { opacity: 0; } }

@@ -3,7 +3,7 @@ import { reminderControl } from './tasks.js';
 import { swipeNote } from './swipe.js';
 import { imageUrl } from './images.js';
 import { settings } from './settings.js';
-import { h, fmtTime, fmtDay, shiftDay, linkify } from './ui.js';
+import { h, viewImage, fmtTime, fmtDay, shiftDay, linkify } from './ui.js';
 
 const STOP = new Set(`aber alle allem allen aller alles also auch auf aus bei beim bin bis bist dann das dass dem den denn der des die dies diese diesem diesen dieser dir doch dort durch ein eine einem einen einer eines etwas euch für gegen hab habe haben hat hatte hier ihr ihre ihm ihn ich ist jetzt kann kein keine man mehr mein meine mich mir mit muss nach nicht noch nur oder ohne schon sehr sein seine sich sie sind so soll über um und uns unser vom von vor war waren was weil wenn werden wie wieder wir wird wo zu zum zur sollte könnte würde mal immer einfach heute morgen dann denke glaube the and for that this with from have are was you not but`.split(/\s+/));
 
@@ -231,7 +231,7 @@ function card(n, container, { compact = false } = {}) {
   const thumbs = h('div', { class: 'thumbs' });
   n.images.forEach(async id => {
     const src = await imageUrl(id);
-    if (src) thumbs.append(h('div', { class: 'thumb' }, h('img', { src, alt: '' })));
+    if (src) thumbs.append(h('div', { class: 'thumb' }, h('img', { src, alt: '', onclick: e => { e.stopPropagation(); viewImage(src); } })));
   });
 
   return h('article', { class: 'card', 'data-id': n.id },

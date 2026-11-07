@@ -243,5 +243,5 @@ if (!isNative() && 'serviceWorker' in navigator && location.protocol !== 'file:'
 
 // Schwierige Fälle (iOS): Fokus nach dem ersten Tippen erzwingen
 document.addEventListener('touchend', e => {
-  if (!view && !e.target.closest('nav, .banner, .thumbs, input, label')) focusEditor();
+  if (!view && !e.target.closest('nav, .banner, .thumbs, .imgview, input, label')) focusEditor();
 }, { passive: true });
