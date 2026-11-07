@@ -251,18 +251,27 @@ if (!isNative() && 'serviceWorker' in navigator && location.protocol !== 'file:'
   navigator.serviceWorker.register('sw.js').catch(() => {});
 }
 
-// iOS: Wenn die Tastatur das Fenster verkleinert, zeichnet WebKit den Cursor in Feldern eines Sheets manchmal
-// an der alten Stelle (eine Zeile zu tief). Auswahl neu setzen → Cursor wird neu berechnet.
+// iOS schiebt beim Fokus eines Feldes die ganze Seite hoch, obwohl die App nie scrollt. Sheets sind
+// position:fixed – iOS zeichnet den Cursor dann um genau diesen Betrag zu tief. Seite deshalb immer oben
+// halten und stattdessen nur den Sheet-Inhalt so scrollen, dass das Feld sichtbar ist.
+const pinTop = () => { if (scrollY || document.documentElement.scrollTop) scrollTo(0, 0); };
+window.addEventListener('scroll', pinTop, { passive: true });
 let caretTimer;
 const fixCaret = () => {
+  pinTop();
   clearTimeout(caretTimer);
   caretTimer = setTimeout(() => {
+    pinTop();
     const el = document.activeElement;
-    if (!el?.closest?.('.sheet, .onboarding') || !('selectionStart' in el) || el.selectionStart == null) return;
-    const { selectionStart: a, selectionEnd: b, selectionDirection: d } = el;
-    el.setSelectionRange(a, b, d || 'none');
-    el.scrollIntoView({ block: 'nearest' });
-  }, 80);
+    const box = el?.closest?.('.sheet-body');
+    if (!box || !('selectionStart' in el) || el.selectionStart == null) return;
+    const r = el.getBoundingClientRect(), b = box.getBoundingClientRect();
+    const bottom = Math.min(b.bottom, visualViewport?.height ?? innerHeight) - 12;
+    if (r.bottom > bottom) box.scrollTop += r.bottom - bottom;
+    else if (r.top < b.top + 12) box.scrollTop -= b.top + 12 - r.top;
+    const { selectionStart: s, selectionEnd: e, selectionDirection: d } = el;
+    el.setSelectionRange(s, e, d || 'none'); // Cursor neu zeichnen lassen
+  }, 120);
 };
 window.addEventListener('resize', fixCaret);
 window.visualViewport?.addEventListener('resize', fixCaret);
