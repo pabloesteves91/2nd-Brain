@@ -67,14 +67,74 @@ export function toast(text, actionLabel, onAction, onExpire) {
 // ---------- Bild gross anzeigen ----------
 
 // Antippen/Klicken/Esc schliesst; mit onDelete gibt es unten „löschen“.
+// Zoomen: zwei Finger, Doppeltippen, Trackpad-Pinch (⌃/⌘ + Scrollrad); gezoomt mit einem Finger verschieben.
 export function viewImage(src, onDelete) {
-  const close = () => { view.remove(); document.removeEventListener('keydown', onKey, true); };
+  const img = h('img', { src, alt: '', draggable: false });
+  let z = 1, x = 0, y = 0, base = null, moved = false, lastTap = 0, tapTimer;
+  const pts = new Map();
+  const apply = (anim) => {
+    img.style.transition = anim ? 'transform .2s ease' : 'none';
+    img.style.transform = `translate(${x}px, ${y}px) scale(${z})`;
+  };
+  const reset = () => { z = 1; x = 0; y = 0; apply(true); };
+  const snap = () => { // Ausgangslage, wenn ein Finger dazukommt oder weggeht
+    const [a, b] = [...pts.values()];
+    base = { z, x, y, a: { ...a }, d: b ? Math.hypot(a.x - b.x, a.y - b.y) : 0, m: b ? { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 } : a };
+  };
+  const close = () => { clearTimeout(tapTimer); view.remove(); document.removeEventListener('keydown', onKey, true); };
   const onKey = e => { if (e.key === 'Escape') { e.stopPropagation(); close(); } };
-  const view = h('div', { class: 'imgview', role: 'dialog', 'aria-label': 'Bild', onclick: close },
-    h('img', { src, alt: '' }),
+  const view = h('div', { class: 'imgview', role: 'dialog', 'aria-label': 'Bild' },
+    img,
     h('div', { class: 'imgview-bar' },
       h('button', { type: 'button', onclick: close }, 'schliessen'),
-      onDelete ? h('button', { type: 'button', class: 'danger', onclick: e => { e.stopPropagation(); close(); onDelete(); } }, 'löschen') : null));
+      onDelete ? h('button', { type: 'button', class: 'danger', onclick: () => { close(); onDelete(); } }, 'löschen') : null));
+
+  view.addEventListener('pointerdown', e => {
+    if (e.target.closest('button')) return;
+    try { view.setPointerCapture(e.pointerId); } catch { /* egal */ }
+    pts.set(e.pointerId, { x: e.clientX, y: e.clientY });
+    if (pts.size === 1) moved = false;
+    snap();
+  });
+  view.addEventListener('pointermove', e => {
+    if (!pts.has(e.pointerId)) return;
+    pts.set(e.pointerId, { x: e.clientX, y: e.clientY });
+    const [a, b] = [...pts.values()];
+    if (b && base.d) {
+      const m = { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 };
+      z = Math.min(5, Math.max(1, base.z * Math.hypot(a.x - b.x, a.y - b.y) / base.d));
+      x = base.x + m.x - base.m.x; y = base.y + m.y - base.m.y;
+      moved = true;
+    } else if (Math.hypot(a.x - base.a.x, a.y - base.a.y) > 8 || moved) {
+      moved = true;
+      if (z > 1) { x = base.x + a.x - base.a.x; y = base.y + a.y - base.a.y; }
+    }
+    apply(false);
+  });
+  const up = e => {
+    if (!pts.delete(e.pointerId)) return;
+    if (pts.size) { snap(); return; }
+    if (z <= 1.02) reset();
+    if (moved || e.type === 'pointercancel') return;
+    // Doppeltippen zoomt, einfaches Tippen schliesst (nur ungezoomt)
+    if (Date.now() - lastTap < 300) {
+      clearTimeout(tapTimer); lastTap = 0;
+      if (z > 1) reset(); else { z = 2.5; x = 0; y = 0; apply(true); }
+      return;
+    }
+    lastTap = Date.now();
+    tapTimer = setTimeout(() => { if (z === 1) close(); }, 300);
+  };
+  view.addEventListener('pointerup', up);
+  view.addEventListener('pointercancel', up);
+  view.addEventListener('wheel', e => {
+    e.preventDefault();
+    if (e.ctrlKey || e.metaKey) z = Math.min(5, Math.max(1, z * Math.exp(-e.deltaY / 100)));
+    else if (z > 1) { x -= e.deltaX; y -= e.deltaY; } // shortcut: Verschieben ohne Rand-Begrenzung, bei Bedarf an Bildgrösse klemmen
+    if (z === 1) { x = 0; y = 0; }
+    apply(false);
+  }, { passive: false });
+
   document.addEventListener('keydown', onKey, true);
   document.activeElement?.blur();
   document.body.append(view);

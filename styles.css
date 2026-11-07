@@ -793,9 +793,10 @@ select.cat.set { color: var(--fg); border-color: var(--faint); }
   display: flex; flex-direction: column; align-items: center; justify-content: center;
   padding: calc(env(safe-area-inset-top) + 16px) 16px calc(env(safe-area-inset-bottom) + 16px);
   animation: imgview-in .18s ease;
+  touch-action: none; overflow: hidden; user-select: none; -webkit-user-select: none;
 }
-.imgview img { max-width: 100%; max-height: calc(100% - 64px); object-fit: contain; border-radius: 8px; }
-.imgview-bar { display: flex; gap: 12px; margin-top: 16px; }
+.imgview img { max-width: 100%; max-height: calc(100% - 64px); object-fit: contain; border-radius: 8px; will-change: transform; cursor: zoom-in; }
+.imgview-bar { display: flex; gap: 12px; margin-top: 16px; position: relative; z-index: 1; }
 .imgview-bar button { color: #fff; border: 1px solid rgba(255, 255, 255, .3); border-radius: 999px; padding: 8px 18px; font-size: 15px; }
 .imgview-bar .danger { color: #ff8a73; border-color: rgba(255, 138, 115, .45); }
 @keyframes imgview-in { from { opacity: 0; } }
