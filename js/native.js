@@ -21,7 +21,11 @@ export async function initNative({ onOpenReview, onOpenWeek, onOpenNote, onNewTh
   if (!isNative()) return;
   document.documentElement.classList.add('native');
   // iPad-App auf dem Mac: kein Touchscreen, keine Bildschirmtastatur → keinen Platz dafür reservieren
-  if (navigator.maxTouchPoints === 0) plugin('Keyboard')?.setResizeMode?.({ mode: 'none' })?.catch?.(() => {});
+  if (navigator.maxTouchPoints === 0) {
+    const kb = plugin('Keyboard');
+    kb?.setResizeMode?.({ mode: 'none' })?.catch?.(() => {});
+    kb?.setAccessoryBarVisible?.({ isVisible: false })?.catch?.(() => {}); // grauer Eingabe-Balken verdeckt sonst das Menü
+  }
   const ln = plugin('LocalNotifications');
   ln?.addListener?.('localNotificationActionPerformed', ({ notification } = {}) => {
     const extra = notification?.extra || {};
