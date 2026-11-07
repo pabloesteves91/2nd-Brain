@@ -20,6 +20,8 @@ export const appPlugin = () => plugin('App');
 export async function initNative({ onOpenReview, onOpenWeek, onOpenNote, onNewThought, onAppState, onPendingAction } = {}) {
   if (!isNative()) return;
   document.documentElement.classList.add('native');
+  // iPad-App auf dem Mac: kein Touchscreen, keine Bildschirmtastatur → keinen Platz dafür reservieren
+  if (navigator.maxTouchPoints === 0) plugin('Keyboard')?.setResizeMode?.({ mode: 'none' })?.catch?.(() => {});
   const ln = plugin('LocalNotifications');
   ln?.addListener?.('localNotificationActionPerformed', ({ notification } = {}) => {
     const extra = notification?.extra || {};
