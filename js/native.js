@@ -22,6 +22,7 @@ export async function initNative({ onOpenReview, onOpenWeek, onOpenNote, onNewTh
   document.documentElement.classList.add('native');
   // iPad-App auf dem Mac: kein Touchscreen, keine Bildschirmtastatur → keinen Platz dafür reservieren
   if (navigator.maxTouchPoints === 0) {
+    document.documentElement.classList.add('mac');
     const kb = plugin('Keyboard');
     kb?.setResizeMode?.({ mode: 'none' })?.catch?.(() => {});
     kb?.setAccessoryBarVisible?.({ isVisible: false })?.catch?.(() => {}); // grauer Eingabe-Balken verdeckt sonst das Menü

@@ -780,3 +780,8 @@ select.cat.set { color: var(--fg); border-color: var(--faint); }
   .ob-slide:not(.ob-text) ul { grid-row: 3; grid-column: 2; font-size: 18px; }
   .ob-text { flex-direction: column; align-items: flex-start; padding-left: max(64px, calc((100% - 520px) / 2)); }
 }
+
+/* iPad-App auf dem Mac: macOS legt beim Schreiben eine graue Leiste (ca. 44 px) unten über das Fenster → Menü darüber */
+.mac .menu { bottom: 44px; padding-bottom: 14px; }
+.mac .suggest { bottom: 104px; }
+.mac .toast { bottom: 150px; }
