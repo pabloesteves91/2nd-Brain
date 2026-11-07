@@ -1,6 +1,6 @@
 // Cloud-Sync über Firebase Auth + Firestore (Notizen) + Storage (Bilder).
 // Lokal (IndexedDB) bleibt die Quelle; Firestore ist der Abgleich zwischen Geräten.
-import { FIREBASE_CONFIG } from './config.js';
+import { FIREBASE_CONFIG, APP_VERSION } from './config.js';
 import { db } from './db.js';
 import { isNative, appleSignIn } from './native.js';
 
@@ -48,6 +48,17 @@ async function load() {
   // Ergebnis eines Redirect-Logins (iOS-Homescreen-App) abholen
   if (!isNative()) A.getRedirectResult(auth).catch(err => setStatus({ state: 'error', error: msg(err) }));
   return fb;
+}
+
+// Feedback aus den Einstellungen – auch ohne Konto. Lesen nur in der Firebase-Konsole (firestore.rules).
+export async function sendFeedback(text) {
+  const t = String(text || '').trim().slice(0, 2000);
+  if (!t) return;
+  const { fs, F, auth } = await load();
+  const platform = !isNative() ? 'web' : navigator.maxTouchPoints === 0 ? 'mac' : 'ios';
+  await F.addDoc(F.collection(fs, 'feedback'), {
+    text: t, created_at: F.serverTimestamp(), app: APP_VERSION, platform, uid: auth.currentUser?.uid ?? null,
+  });
 }
 
 export async function initSync() {

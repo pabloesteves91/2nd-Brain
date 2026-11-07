@@ -2,7 +2,7 @@ import { db, wipeAll, emitChange } from './db.js';
 import { blobToDataUrl, dataUrlToBlob } from './images.js';
 import { settings, setSetting } from './settings.js';
 import * as sync from './sync.js';
-import { h } from './ui.js';
+import { h, toast } from './ui.js';
 import { isNative, biometryAvailable, verifyIdentity, appInfo } from './native.js';
 import { APP_VERSION, SUPPORT_EMAIL } from './config.js';
 
@@ -53,6 +53,33 @@ const row = (label, control, hint) => {
 const toggle = (key) => h('label', { class: 'switch' },
   h('input', { type: 'checkbox', checked: settings()[key], onchange: e => setSetting(key, e.target.checked) }),
   h('span'));
+
+// Feedback: aufklappbares Textfeld, landet in Firestore (Sammlung „feedback“).
+function feedbackRow() {
+  const field = h('textarea', { class: 'feedback-text', rows: 4, maxlength: 2000, 'aria-label': 'Feedback',
+    placeholder: 'Was fehlt dir, was stört dich?', oninput: () => { send.disabled = !field.value.trim(); } });
+  const send = h('button', { type: 'button', class: 'primary', disabled: true, onclick: async () => {
+    send.disabled = true;
+    send.textContent = 'Wird gesendet …';
+    try {
+      await Promise.race([sync.sendFeedback(field.value), new Promise((_, no) => setTimeout(() => no(new Error('timeout')), 15000))]);
+      field.value = '';
+      box.hidden = true;
+      toast('Danke für dein Feedback!');
+    } catch (err) {
+      toast(!navigator.onLine || err?.message === 'timeout' ? 'Keine Verbindung – später nochmal versuchen' : 'Senden fehlgeschlagen – später nochmal versuchen');
+      send.disabled = false;
+    }
+    send.textContent = 'Senden';
+  } }, 'Senden');
+  const box = h('div', { class: 'feedback', hidden: true }, field, send);
+  const toggleBtn = h('button', { type: 'button', class: 'link', 'aria-expanded': 'false', onclick: () => {
+    box.hidden = !box.hidden;
+    toggleBtn.setAttribute('aria-expanded', String(!box.hidden));
+    if (!box.hidden) field.focus();
+  } }, 'schreiben');
+  return [row('Feedback senden', toggleBtn, 'Ideen, Fehler, Wünsche – direkt an mich'), box];
+}
 
 export function openSettings(container) {
   const s = settings();
@@ -130,6 +157,7 @@ export function openSettings(container) {
         type: 'button', class: 'link',
         onclick: e => e.currentTarget.dispatchEvent(new CustomEvent('open-onboarding', { bubbles: true })),
       }, 'öffnen')),
+      sync.syncEnabled ? feedbackRow() : null,
       h('p', { class: 'small kbd-hint' }, 'Tastatur: ⌘N neu · ⌘F suchen · ⌘T heute · ⌘, Einstellungen · Esc schliessen'),
     ),
 

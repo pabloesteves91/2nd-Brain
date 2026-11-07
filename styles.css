@@ -847,3 +847,13 @@ select.cat.set { color: var(--fg); border-color: var(--faint); }
 @media (prefers-contrast: more) and (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) { --muted: #c2bfb8; --faint: #77746e; --line: #44423e; }
 }
+
+/* ---------- Feedback ---------- */
+.feedback { padding: 4px 0 12px; }
+.feedback[hidden] { display: none; }
+.feedback-text {
+  display: block; width: 100%; resize: vertical; min-height: 96px;
+  border: 1px solid var(--line); border-radius: 12px; padding: 10px 14px;
+  background: var(--card); font-size: 0.8824rem; line-height: 1.45;
+}
+.feedback .primary { margin-top: 10px; }
