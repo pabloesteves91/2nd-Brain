@@ -39,6 +39,6 @@ export function apply() {
   root.dataset.font = current.font;
   if (current.theme === 'system') delete root.dataset.theme;
   else root.dataset.theme = current.theme;
-  root.style.setProperty('--fs', `${current.size}px`);
+  root.style.setProperty('--fs', `${current.size / 17}rem`); // rem: folgt der iOS-Textgrösse
   document.dispatchEvent(new CustomEvent('settings-changed'));
 }

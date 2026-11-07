@@ -26,7 +26,8 @@ export function reminderControl(n, rerender) {
   // iOS meldet „change“ schon bei jedem Drehen am Rad. Neu zeichnen würde die Auswahl schliessen,
   // deshalb erst speichern, wenn die Auswahl zu ist (blur).
   let picked = null;
-  const text = h('span', {}, n.remind_at ? `⏰ ${fmt.format(new Date(n.remind_at))}` : 'erinnern');
+  const isDue = n.remind_at && new Date(n.remind_at) <= new Date();
+  const text = h('span', {}, n.remind_at ? `⏰ ${fmt.format(new Date(n.remind_at))}${isDue ? ' · fällig' : ''}` : 'erinnern');
   const commit = async () => {
     if (!picked) return;
     const iso = picked; picked = null;

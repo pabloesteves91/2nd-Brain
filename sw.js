@@ -1,5 +1,5 @@
 // Service Worker: App-Shell offline verfügbar machen.
-const CACHE = '2nd-brain-v14';
+const CACHE = '2nd-brain-v15';
 const SHELL = [
   './', 'index.html', 'styles.css', 'manifest.webmanifest',
   'js/app.js', 'js/db.js', 'js/editor.js', 'js/images.js', 'js/ui.js',

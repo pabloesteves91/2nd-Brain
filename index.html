@@ -33,7 +33,7 @@
 
   <div id="status" class="status" aria-live="polite"></div>
 
-  <div id="suggest" class="suggest" hidden role="listbox" aria-label="Kategorie-Vorschläge"></div>
+  <div id="suggest" class="suggest" hidden role="group" aria-label="Kategorie-Vorschläge"></div>
 
   <nav id="menu" class="menu" aria-label="Menü">
     <button type="button" data-view="review">heute</button>
@@ -47,7 +47,7 @@
   <div id="overlay" class="overlay" hidden>
     <div class="backdrop" data-close></div>
     <section class="sheet" role="dialog" aria-modal="true">
-      <div class="sheet-grip" data-close></div>
+      <button type="button" class="sheet-grip" data-close aria-label="Schliessen"></button>
       <div id="sheet-body" class="sheet-body"></div>
     </section>
   </div>

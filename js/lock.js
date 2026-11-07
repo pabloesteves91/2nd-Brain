@@ -6,6 +6,7 @@
 import { settings } from './settings.js';
 import { isNative, verifyIdentity } from './native.js';
 import { focusEditor } from './editor.js';
+import { updateInert } from './ui.js';
 
 const el = () => document.getElementById('lock');
 const QUIET_MS = 1500;   // so lange nach einem Face-ID-Dialog App-Status-Ereignisse ignorieren
@@ -20,6 +21,7 @@ const isShown = () => !el().hidden;
 
 function hide() {
   el().hidden = true;
+  updateInert();
   document.body.classList.remove('locked');
 }
 
@@ -28,6 +30,9 @@ function show() {
   document.body.classList.add('locked');
   el().querySelector('.lock-hint').textContent = '';
   document.activeElement?.blur();
+  updateInert();
+  el().tabIndex = -1;
+  el().focus({ preventScroll: true });
 }
 
 export async function unlock() {

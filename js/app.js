@@ -9,7 +9,7 @@ import { isNative, initNative, scheduleReminder, scheduleWeekly, rescheduleTasks
   takePendingAction, readSharedInbox, clearSharedInbox } from './native.js';
 import { storeImage, dataUrlToBlob } from './images.js';
 import { applyTags } from './tags.js';
-import { toast } from './ui.js';
+import { toast, updateInert } from './ui.js';
 import { initLock, onAppState } from './lock.js';
 import { showOnboarding } from './onboarding.js';
 
@@ -37,12 +37,22 @@ async function open(name) {
   document.activeElement?.blur();
   view = name;
   overlay.hidden = false;
+  updateInert();
   body.scrollTop = 0;
   await views[name](body);
+  // VoiceOver: Fokus auf die Überschrift des Fensters
+  if (!body.contains(document.activeElement)) {
+    const sheet = overlay.querySelector('.sheet');
+    const title = body.querySelector('h2') || sheet;
+    sheet.setAttribute('aria-label', body.querySelector('h2')?.textContent || 'Einstellungen');
+    title.tabIndex = -1;
+    title.focus({ preventScroll: true });
+  }
 }
 
 function close() {
   overlay.hidden = true;
+  updateInert();
   view = null;
   body.replaceChildren();
   focusEditor();

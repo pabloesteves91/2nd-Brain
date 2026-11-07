@@ -64,6 +64,25 @@ export function toast(text, actionLabel, onAction, onExpire) {
   toastTimer = setTimeout(() => { const d = toastDone; toastDone = null; finish(); d?.(); }, 4500);
 }
 
+// ---------- Bedienungshilfen ----------
+
+// Nur die oberste Ebene ist für VoiceOver/Tastatur erreichbar, alles dahinter ist inert.
+// Nach jedem Öffnen/Schliessen einer Ebene aufrufen.
+const LAYERS = ['#lock:not([hidden])', '.onboarding', '.imgview', '#overlay:not([hidden])'];
+export function updateInert() {
+  const top = LAYERS.map(s => document.querySelector(s)).find(Boolean);
+  for (const el of document.body.children) el.inert = !!top && el !== top && !el.classList.contains('toast');
+}
+
+export const reducedMotion = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+// Vorschaubild, das per Tippen/Enter/VoiceOver gross aufgeht.
+export function thumbImg(src, onDelete) {
+  const open = e => { e.stopPropagation(); viewImage(src, onDelete); };
+  return h('img', { src, alt: 'Bild', role: 'button', tabindex: '0', 'aria-label': 'Bild öffnen', onclick: open,
+    onkeydown: e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); open(e); } } });
+}
+
 // ---------- Bild gross anzeigen ----------
 
 // App: in die Fotos-App; Browser/ältere App: als Datei herunterladen.
@@ -84,7 +103,7 @@ async function saveImage(src) {
 // Antippen/Klicken/Esc schliesst; mit onDelete gibt es unten „löschen“.
 // Zoomen: zwei Finger, Doppeltippen, Trackpad-Pinch (⌃/⌘ + Scrollrad); gezoomt mit einem Finger verschieben.
 export function viewImage(src, onDelete) {
-  const img = h('img', { src, alt: '', draggable: false });
+  const img = h('img', { src, alt: 'Bild', draggable: false });
   let z = 1, x = 0, y = 0, base = null, moved = false, lastTap = 0, tapTimer;
   const pts = new Map();
   const apply = (anim) => {
@@ -96,12 +115,13 @@ export function viewImage(src, onDelete) {
     const [a, b] = [...pts.values()];
     base = { z, x, y, a: { ...a }, d: b ? Math.hypot(a.x - b.x, a.y - b.y) : 0, m: b ? { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 } : a };
   };
-  const close = () => { clearTimeout(tapTimer); view.remove(); document.removeEventListener('keydown', onKey, true); };
+  const opener = document.activeElement;
+  const close = () => { clearTimeout(tapTimer); view.remove(); updateInert(); document.removeEventListener('keydown', onKey, true); opener?.focus?.({ preventScroll: true }); };
   const onKey = e => { if (e.key === 'Escape') { e.stopPropagation(); close(); } };
-  const view = h('div', { class: 'imgview', role: 'dialog', 'aria-label': 'Bild' },
+  const view = h('div', { class: 'imgview', role: 'dialog', 'aria-modal': 'true', 'aria-label': 'Bild' },
     img,
     h('div', { class: 'imgview-bar' },
-      h('button', { type: 'button', onclick: close }, 'schliessen'),
+      h('button', { type: 'button', onclick: () => close() }, 'schliessen'),
       h('button', { type: 'button', onclick: () => saveImage(src) }, 'sichern'),
       onDelete ? h('button', { type: 'button', class: 'danger', onclick: () => { close(); onDelete(); } }, 'löschen') : null));
 
@@ -152,8 +172,10 @@ export function viewImage(src, onDelete) {
   }, { passive: false });
 
   document.addEventListener('keydown', onKey, true);
-  document.activeElement?.blur();
   document.body.append(view);
+  updateInert();
+  view.tabIndex = -1;
+  view.focus({ preventScroll: true });
 }
 
 // ---------- Links ----------

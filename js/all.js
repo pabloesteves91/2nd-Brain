@@ -1,7 +1,7 @@
 import { listNotes, saveNote } from './db.js';
 import { imageUrl } from './images.js';
 import { settings } from './settings.js';
-import { h, viewImage, fmtTime, fmtDay, linkify } from './ui.js';
+import { h, thumbImg, fmtTime, fmtDay, linkify } from './ui.js';
 import { swipeNote } from './swipe.js';
 import { reminderControl } from './tasks.js';
 
@@ -66,7 +66,7 @@ function card(n, container, rerender) {
   const thumbs = h('div', { class: 'thumbs' });
   n.images.forEach(async id => {
     const src = await imageUrl(id);
-    if (src) thumbs.append(h('div', { class: 'thumb' }, h('img', { src, alt: '', onclick: e => { e.stopPropagation(); viewImage(src); } })));
+    if (src) thumbs.append(h('div', { class: 'thumb' }, thumbImg(src)));
   });
   return h('article', { class: 'card' + (n.status === 'archived' ? ' archived' : '') },
     h('div', { class: 'card-top' },

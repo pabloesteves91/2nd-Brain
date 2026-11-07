@@ -1,5 +1,5 @@
 // Kurze Bilder-Einführung beim ersten Start (und jederzeit über die Einstellungen).
-import { h } from './ui.js';
+import { h, updateInert, reducedMotion } from './ui.js';
 import { setSetting } from './settings.js';
 import { focusEditor } from './editor.js';
 
@@ -45,7 +45,7 @@ export function showOnboarding() {
   document.activeElement?.blur();
   const track = h('div', { class: 'ob-track' },
     SLIDES.map(({ img, title, points }) => h('div', { class: 'ob-slide' + (img ? '' : ' ob-text') },
-      img ? h('img', { src: `onboarding/${img}`, alt: '', draggable: false }) : null,
+      img ? h('img', { src: `onboarding/${img}`, alt: `Bildschirm: ${title}`, draggable: false }) : null,
       h('h2', {}, title),
       h('ul', {}, points.map(t => h('li', {}, t))))));
   const dots = h('div', { class: 'ob-dots', 'aria-hidden': 'true' }, SLIDES.map(() => h('i')));
@@ -60,14 +60,17 @@ export function showOnboarding() {
     [...dots.children].forEach((d, k) => d.classList.toggle('on', k === i));
     next.textContent = i === SLIDES.length - 1 ? 'Los geht’s' : 'Weiter';
   };
-  const done = () => { el.remove(); setSetting('onboarded', true); focusEditor(); };
+  const done = () => { el.remove(); updateInert(); setSetting('onboarded', true); focusEditor(); };
 
   track.addEventListener('scroll', update, { passive: true });
   next.addEventListener('click', () => {
     const i = index();
     if (i >= SLIDES.length - 1) done();
-    else track.scrollTo({ left: (i + 1) * track.clientWidth, behavior: 'smooth' });
+    else track.scrollTo({ left: (i + 1) * track.clientWidth, behavior: reducedMotion() ? 'auto' : 'smooth' });
   });
   document.body.append(el);
+  updateInert();
+  el.tabIndex = -1;
+  el.focus({ preventScroll: true });
   update();
 }

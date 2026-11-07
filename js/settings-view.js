@@ -43,8 +43,12 @@ const seg = (key, options) => h('div', { class: 'seg' }, options.map(([v, label]
     },
   }, label)));
 
-const row = (label, control, hint) => h('div', { class: 'row' },
-  h('div', {}, label, hint ? h('div', { class: 'hint' }, hint) : null), control);
+const row = (label, control, hint) => {
+  // VoiceOver: Schalter/Felder bekommen den Zeilentitel als Namen
+  const fields = control instanceof Element ? [control, ...control.querySelectorAll('input, select')].filter(el => el.matches('input, select')) : [];
+  for (const f of fields) if (!f.hasAttribute('aria-label') && typeof label === 'string') f.setAttribute('aria-label', label);
+  return h('div', { class: 'row' }, h('div', {}, label, hint ? h('div', { class: 'hint' }, hint) : null), control);
+};
 
 const toggle = (key) => h('label', { class: 'switch' },
   h('input', { type: 'checkbox', checked: settings()[key], onchange: e => setSetting(key, e.target.checked) }),
@@ -90,13 +94,13 @@ export function openSettings(container) {
 
     h('div', { class: 'group' }, h('h3', {}, 'Tagesrückblick'),
       row('Abend-Hinweis', toggle('reminder'), isNative() ? 'Mitteilung zur eingestellten Zeit' : 'Dezenter Hinweis zum Sortieren'),
-      row(isNative() ? 'Um' : 'Ab', h('input', { type: 'time', value: s.reviewTime, onchange: e => setSetting('reviewTime', e.target.value) })),
+      row(isNative() ? 'Um' : 'Ab', h('input', { type: 'time', 'aria-label': 'Abend-Hinweis Uhrzeit', value: s.reviewTime, onchange: e => setSetting('reviewTime', e.target.value) })),
       row('Wiederentdecken', toggle('rediscover'), 'Alte Gedanken von vor 7, 30 oder 365 Tagen'),
     ),
 
     h('div', { class: 'group' }, h('h3', {}, 'Wochenrückblick'),
       isNative() ? row('Sonntags erinnern', toggle('weekly'), 'Mitteilung mit Blick auf die Woche') : null,
-      isNative() ? row('Um', h('input', { type: 'time', value: s.weeklyTime, onchange: e => setSetting('weeklyTime', e.target.value) })) : null,
+      isNative() ? row('Um', h('input', { type: 'time', 'aria-label': 'Wochenrückblick Uhrzeit', value: s.weeklyTime, onchange: e => setSetting('weeklyTime', e.target.value) })) : null,
       h('p', { class: 'small' }, 'Unter „heute“ → „Woche“ jederzeit ansehen.'),
     ),
 
@@ -189,7 +193,7 @@ function syncSection() {
     }
     const err = h('p', { class: 'small' });
     const email = h('input', { type: 'email', placeholder: 'E-Mail', autocomplete: 'email' });
-    const pw = h('input', { type: 'password', placeholder: 'Passwort', autocomplete: 'current-password', style: 'flex:1;min-width:0;border:1px solid var(--line);border-radius:8px;padding:6px 10px;background:var(--card);font-size:15px' });
+    const pw = h('input', { type: 'password', placeholder: 'Passwort', autocomplete: 'current-password', style: 'flex:1;min-width:0;border:1px solid var(--line);border-radius:8px;padding:6px 10px;background:var(--card);font-size:.8824rem' });
     const go = create => async () => {
       err.textContent = '';
       try { await sync.signInEmail(email.value.trim(), pw.value, create); render(); }

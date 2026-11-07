@@ -1,6 +1,6 @@
 import { db, newNote, saveNote } from './db.js';
 import { storeImage, imageUrl, removeImage } from './images.js';
-import { h, viewImage, flash, findLinks, linkEl, shortUrl } from './ui.js';
+import { h, thumbImg, reducedMotion, flash, findLinks, linkEl, shortUrl } from './ui.js';
 import { applyTags } from './tags.js';
 import { tap, canUseCamera, cameraPhotos } from './native.js';
 import { continueList, initSuggest } from './compose.js';
@@ -150,7 +150,7 @@ async function renderThumbs() {
       renderThumbs();
     };
     el.append(h('div', { class: 'thumb' },
-      h('img', { src, alt: '', onclick: () => viewImage(src, del) }),
+      thumbImg(src, del),
       h('button', { type: 'button', 'aria-label': 'Bild entfernen', onclick: del }, '×'),
     ));
   }
@@ -162,6 +162,9 @@ export async function putAway() {
   const page = document.getElementById('page');
   const hasContent = t.value.trim() || current?.images.length;
   if (!hasContent) { spring(page); page.style.opacity = ''; return; }
+  if (reducedMotion()) { // Bewegung reduzieren: ohne Wegflieg-Animation
+    await flush(); tap(); await startFresh({ focus: false }); focusEditor(); flash('weggelegt'); return;
+  }
 
   // Abbild für die Animation
   const r = page.getBoundingClientRect();
