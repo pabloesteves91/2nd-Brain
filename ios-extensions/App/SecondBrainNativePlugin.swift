@@ -2,6 +2,7 @@
 // Target Membership: App.
 import Foundation
 import Capacitor
+import Photos
 
 @objc(SecondBrainNativePlugin)
 public class SecondBrainNativePlugin: CAPPlugin, CAPBridgedPlugin {
@@ -11,6 +12,7 @@ public class SecondBrainNativePlugin: CAPPlugin, CAPBridgedPlugin {
         CAPPluginMethod(name: "readInbox", returnType: CAPPluginReturnPromise),
         CAPPluginMethod(name: "clearInbox", returnType: CAPPluginReturnPromise),
         CAPPluginMethod(name: "takePendingAction", returnType: CAPPluginReturnPromise),
+        CAPPluginMethod(name: "saveToPhotos", returnType: CAPPluginReturnPromise),
     ]
 
     override public func load() {
@@ -64,5 +66,26 @@ public class SecondBrainNativePlugin: CAPPlugin, CAPBridgedPlugin {
         let action = defaults?.string(forKey: AppGroup.pendingActionKey) ?? ""
         defaults?.removeObject(forKey: AppGroup.pendingActionKey)
         call.resolve(["action": action])
+    }
+
+    /// Bild (data-URL) in der Fotos-App sichern – mit iCloud-Fotos landet es auf allen Geräten.
+    @objc func saveToPhotos(_ call: CAPPluginCall) {
+        let raw = call.getString("dataUrl") ?? ""
+        guard let comma = raw.firstIndex(of: ","),
+              let data = Data(base64Encoded: String(raw[raw.index(after: comma)...])) else {
+            call.reject("Kein Bild")
+            return
+        }
+        PHPhotoLibrary.requestAuthorization(for: .addOnly) { status in
+            guard status == .authorized || status == .limited else {
+                call.reject("Kein Zugriff auf Fotos")
+                return
+            }
+            PHPhotoLibrary.shared().performChanges({
+                PHAssetCreationRequest.forAsset().addResource(with: .photo, data: data, options: nil)
+            }) { ok, error in
+                if ok { call.resolve() } else { call.reject(error?.localizedDescription ?? "Sichern fehlgeschlagen") }
+            }
+        }
     }
 }

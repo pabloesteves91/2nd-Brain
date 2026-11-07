@@ -66,6 +66,21 @@ export function toast(text, actionLabel, onAction, onExpire) {
 
 // ---------- Bild gross anzeigen ----------
 
+// App: in die Fotos-App; Browser/ältere App: als Datei herunterladen.
+async function saveImage(src) {
+  const { canSaveToPhotos, saveToPhotos } = await import('./native.js');
+  const blob = await (await fetch(src)).blob();
+  if (canSaveToPhotos()) {
+    try {
+      await saveToPhotos(await new Promise(r => { const f = new FileReader(); f.onload = () => r(f.result); f.readAsDataURL(blob); }));
+      toast('In Fotos gesichert');
+    } catch (err) { toast(err?.message || 'Sichern fehlgeschlagen'); }
+    return;
+  }
+  const a = h('a', { href: src, download: `2nd-brain-${Date.now()}.jpg` });
+  document.body.append(a); a.click(); a.remove();
+}
+
 // Antippen/Klicken/Esc schliesst; mit onDelete gibt es unten „löschen“.
 // Zoomen: zwei Finger, Doppeltippen, Trackpad-Pinch (⌃/⌘ + Scrollrad); gezoomt mit einem Finger verschieben.
 export function viewImage(src, onDelete) {
@@ -87,6 +102,7 @@ export function viewImage(src, onDelete) {
     img,
     h('div', { class: 'imgview-bar' },
       h('button', { type: 'button', onclick: close }, 'schliessen'),
+      h('button', { type: 'button', onclick: () => saveImage(src) }, 'sichern'),
       onDelete ? h('button', { type: 'button', class: 'danger', onclick: () => { close(); onDelete(); } }, 'löschen') : null));
 
   view.addEventListener('pointerdown', e => {

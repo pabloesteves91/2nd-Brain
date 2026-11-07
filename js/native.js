@@ -1,6 +1,8 @@
 // Brücke zu nativen iOS-Funktionen (Capacitor). Im Browser ist alles ein No-op.
 // Ohne Bundler: Capacitor stellt window.Capacitor in der App bereit.
 
+import { toast } from './ui.js';
+
 const C = globalThis.Capacitor;
 const cache = {};
 
@@ -202,7 +204,7 @@ export async function clearSharedInbox(ids) {
 // ---------- Kamera ----------
 
 // Nur iPhone/iPad (nicht Mac): Fotos laufen über das Kamera-Plugin, damit sie auch in der Mediathek landen.
-export const canUseCamera = () => isNative() && navigator.maxTouchPoints > 0 && !!plugin('Camera');
+export const canUseCamera = () => isNative() && navigator.maxTouchPoints > 0 && !!C.isPluginAvailable?.('Camera');
 
 // Liefert Blobs; leer, wenn abgebrochen.
 export async function cameraPhotos(fromLibrary) {
@@ -211,10 +213,18 @@ export async function cameraPhotos(fromLibrary) {
     const photos = fromLibrary
       ? (await cam.pickImages({ quality: 90, limit: 0 })).photos
       : [await cam.getPhoto({ source: 'CAMERA', resultType: 'uri', quality: 90, correctOrientation: true, saveToGallery: true })];
+    if (!fromLibrary && photos[0]?.saved === false) toast('Nicht in Fotos gesichert – Zugriff in den iOS-Einstellungen erlauben');
     return Promise.all(photos.map(async ph => (await fetch(ph.webPath)).blob()));
-  } catch {
-    return []; // abgebrochen oder keine Berechtigung
+  } catch (err) {
+    if (!/cancel/i.test(err?.message || '')) toast(`Kamera: ${err?.message || 'Fehler'}`);
+    return [];
   }
+}
+
+// In der Fotos-App sichern (eigenes Plugin). false = nicht verfügbar (z. B. ältere App-Version).
+export const canSaveToPhotos = () => isNative() && !!C.isPluginAvailable?.('SecondBrainNative');
+export async function saveToPhotos(dataUrl) {
+  await plugin('SecondBrainNative').saveToPhotos({ dataUrl });
 }
 
 export async function appInfo() {
