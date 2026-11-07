@@ -132,7 +132,7 @@ In App Store Connect → deine App → Version **1.0**:
   > 2nd Brain ist ein leeres Blatt für deine Gedanken – ohne Ordner, ohne Ablenkung. Beim Öffnen kannst du sofort
   > schreiben und Bilder anhängen. Am Abend sortierst du im Tagesrückblick, was hängen geblieben ist.
 - **Untertitel:** `Gedanken ohne Ablenkung` · **Keywords:** `notizen,ideen,gedanken,minimal,journal,tagebuch,fokus`
-- **Support-URL:** `https://github.com/pabloesteves91/2nd-Brain`
+- **Support-URL:** `https://2ndbrain.ch/#kontakt` · **Marketing-URL:** `https://2ndbrain.ch`
 - **App-Prüfungsinformationen:** Ein **Demo-Konto** (E-Mail + Passwort) angeben, das du vorher in der App angelegt hast,
   und dazu schreiben: „Die App funktioniert auch ohne Konto; das Konto dient nur dem optionalen Sync.“
 - Build auswählen → **Zur Prüfung hinzufügen** → Einreichen. Die Prüfung dauert meist 1–2 Tage.

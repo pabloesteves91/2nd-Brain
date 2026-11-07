@@ -29,6 +29,7 @@ function aboutHeader() {
       sub),
     h('div', { class: 'about-actions' },
       mail,
+      h('a', { class: 'link', href: 'https://2ndbrain.ch', target: '_blank', rel: 'noopener' }, 'Website'),
       h('a', { class: 'link', href: 'https://2ndbrain.ch/privacy.html', target: '_blank', rel: 'noopener' }, 'Datenschutz')),
   );
 }

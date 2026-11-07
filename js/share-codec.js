@@ -1,5 +1,5 @@
 // Notiz ⇄ Link-Text. Die Notiz steckt komprimiert im Link (#…), es wird nichts auf einem Server gespeichert.
-// Wird von der App (js/share.js) und der Empfangsseite (note.html) benutzt.
+// Wird von der App (js/share.js) benutzt. Kopie im Repo 2ndbrain-webseite (note.html) – bei Änderungen dort mitziehen.
 
 const b64url = bytes => btoa(String.fromCharCode(...bytes)).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
 const unb64url = s => Uint8Array.from(atob(s.replace(/-/g, '+').replace(/_/g, '/')), c => c.charCodeAt(0));

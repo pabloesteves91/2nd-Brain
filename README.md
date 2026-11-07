@@ -32,12 +32,11 @@ python3 -m http.server 8000
 
 Dann <http://localhost:8000> öffnen.
 
-## Auf GitHub Pages veröffentlichen
+## Website
 
-1. Repo → **Settings → Pages → Build and deployment → Source: „GitHub Actions“**.
-2. Auf `main` pushen (oder den Workflow „Deploy to GitHub Pages“ manuell starten).
-3. Die App liegt dann unter `https://<user>.github.io/2nd-Brain/`.
-4. Auf dem iPhone in Safari öffnen → Teilen → **„Zum Home-Bildschirm“** – startet dann wie eine App.
+Die Website **https://2ndbrain.ch** (Startseite, Datenschutz, Empfangsseite für geteilte Notizen, Universal Links)
+liegt im eigenen Repo [`pabloesteves91/2ndbrain-webseite`](https://github.com/pabloesteves91/2ndbrain-webseite).
+Eine Web-App wird nicht mehr veröffentlicht; dieser Ordner läuft lokal im Browser nur noch zum Entwickeln.
 
 ## Cloud-Sync mit Firebase einrichten
 
@@ -101,5 +100,4 @@ Kurzfassung auf dem Mac:
 npm install && npm run build && npx cap add ios --packagemanager SPM && npx cap open ios
 ```
 
-Datenschutzerklärung (für den App Store): [`privacy.html`](privacy.html) →
-<https://2ndbrain.ch/privacy.html>
+Datenschutzerklärung (für den App Store): <https://2ndbrain.ch/privacy.html> (im Website-Repo)
