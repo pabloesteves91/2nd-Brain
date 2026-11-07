@@ -126,6 +126,7 @@ export function openSettings(container) {
         type: 'button', class: 'link',
         onclick: e => e.currentTarget.dispatchEvent(new CustomEvent('open-onboarding', { bubbles: true })),
       }, 'öffnen')),
+      h('p', { class: 'small kbd-hint' }, 'Tastatur: ⌘N neu · ⌘F suchen · ⌘T heute · ⌘, Einstellungen · Esc schliessen'),
     ),
 
     h('div', { class: 'group' }, h('h3', {}, 'Daten'),

@@ -50,7 +50,21 @@ function close() {
 
 document.querySelectorAll('[data-view]').forEach(b => b.addEventListener('click', () => open(b.dataset.view)));
 overlay.addEventListener('click', e => { if (e.target.closest('[data-close]')) close(); });
-document.addEventListener('keydown', e => { if (e.key === 'Escape' && view) close(); });
+document.addEventListener('keydown', e => {
+  if (!document.getElementById('lock').hidden) return;
+  if (e.key === 'Escape') {
+    if (view) close();
+    else document.querySelector('.onboarding .ob-skip')?.click();
+    return;
+  }
+  if (!(e.metaKey || e.ctrlKey) || e.altKey) return;
+  const k = e.key.toLowerCase();
+  const act = { n: () => { if (view) close(); putAway(); }, t: () => open('review'), ',': () => open('settings'),
+    f: async () => { await open('all'); body.querySelector('.search')?.focus(); } }[k];
+  if (!act || document.querySelector('.onboarding')) return;
+  e.preventDefault();
+  act();
+});
 document.getElementById('new').addEventListener('click', () => putAway());
 
 body.addEventListener('open-note', async e => {

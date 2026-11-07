@@ -84,7 +84,7 @@ export function swipeable(card, { left, right }) {
 export function swipeNote(n, cardEl, rerender) {
   const archived = n.status === 'archived';
   const prevStatus = n.status;
-  const wrap = swipeable(cardEl, {
+  const actions = {
     right: {
       label: archived ? 'wiederherstellen' : 'archivieren',
       tone: 'archive',
@@ -114,7 +114,12 @@ export function swipeNote(n, cardEl, rerender) {
           });
       },
     },
-  });
+  };
+  const wrap = swipeable(cardEl, actions);
   wrap.dataset.id = n.id;
+  // Für Maus/Trackpad (Mac, iPad mit Trackpad): dieselben Aktionen als Knöpfe, per CSS nur dort sichtbar
+  cardEl.append(h('div', { class: 'mouse-actions' },
+    h('button', { type: 'button', onclick: e => { e.stopPropagation(); actions.right.run(); } }, actions.right.label),
+    h('button', { type: 'button', class: 'danger', onclick: e => { e.stopPropagation(); actions.left.run(); } }, actions.left.label)));
   return wrap;
 }

@@ -746,3 +746,18 @@ select.cat.set { color: var(--fg); border-color: var(--faint); }
     border-radius: 22px;
   }
 }
+
+/* ---------- Maus & Trackpad (Mac, iPad mit Trackpad) – auf Touch unsichtbar ---------- */
+
+.mouse-actions, .kbd-hint { display: none; }
+@media (hover: hover) and (pointer: fine) {
+  .kbd-hint { display: block; padding-top: 8px; }
+  .mouse-actions { display: flex; gap: 14px; justify-content: flex-end; margin-top: 4px; opacity: 0; transition: opacity .15s; font-size: 12.5px; }
+  .mouse-actions button { color: var(--muted); padding: 4px 0; }
+  .mouse-actions button:hover { color: var(--fg); text-decoration: underline; text-underline-offset: 3px; }
+  .mouse-actions .danger:hover { color: #c4553c; }
+  .card:hover .mouse-actions, .card:focus-within .mouse-actions { opacity: 1; }
+  .card:hover { border-color: var(--faint); }
+  .menu button:hover, .menu .menu-btn:hover { color: var(--fg); }
+  .chip:hover, .seg button:hover { color: var(--fg); }
+}
