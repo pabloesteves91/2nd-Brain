@@ -732,7 +732,9 @@ select.cat.set { color: var(--fg); border-color: var(--faint); }
 /* Tastatur (iPad/Mac, „Tastaturbedienung“): sichtbarer Fokus */
 :focus-visible { outline: 2px solid var(--fg); outline-offset: 2px; border-radius: 6px; }
 #note:focus-visible, [tabindex="-1"]:focus { outline: none; }
-.search:focus-visible { outline: 2px solid var(--fg); outline-offset: 0; }
+/* Textfelder: kein dicker Rahmen – der Cursor zeigt den Fokus, die Linie wird nur etwas kräftiger */
+textarea:focus-visible, select:focus-visible,
+input:not([type="checkbox"]):not([type="range"]):not([type="radio"]):focus-visible { outline: none; border-color: var(--muted); }
 
 /* ---------- iPad / grosse Bildschirme (iPhone bleibt unverändert) ---------- */
 

@@ -251,6 +251,23 @@ if (!isNative() && 'serviceWorker' in navigator && location.protocol !== 'file:'
   navigator.serviceWorker.register('sw.js').catch(() => {});
 }
 
+// iOS: Wenn die Tastatur das Fenster verkleinert, zeichnet WebKit den Cursor in Feldern eines Sheets manchmal
+// an der alten Stelle (eine Zeile zu tief). Auswahl neu setzen → Cursor wird neu berechnet.
+let caretTimer;
+const fixCaret = () => {
+  clearTimeout(caretTimer);
+  caretTimer = setTimeout(() => {
+    const el = document.activeElement;
+    if (!el?.closest?.('.sheet, .onboarding') || !('selectionStart' in el) || el.selectionStart == null) return;
+    const { selectionStart: a, selectionEnd: b, selectionDirection: d } = el;
+    el.setSelectionRange(a, b, d || 'none');
+    el.scrollIntoView({ block: 'nearest' });
+  }, 80);
+};
+window.addEventListener('resize', fixCaret);
+window.visualViewport?.addEventListener('resize', fixCaret);
+document.addEventListener('focusin', fixCaret);
+
 // Schwierige Fälle (iOS): Fokus nach dem ersten Tippen erzwingen
 document.addEventListener('touchend', e => {
   if (!view && !e.target.closest('nav, .banner, .thumbs, .imgview, .pick, input, label')) focusEditor();
