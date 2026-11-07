@@ -2,7 +2,7 @@
   "applinks": {
     "details": [
       {
-        "appIDs": ["TEAMID.ch.fabioberta.secondbrain"],
+        "appIDs": ["G4UW44PPT2.ch.fabioberta.secondbrain"],
         "components": [{ "/": "/note.html", "comment": "Geteilte Notizen öffnen direkt die App" }]
       }
     ]
