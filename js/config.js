@@ -12,5 +12,5 @@ export const FIREBASE_CONFIG = {
 };
 
 // Version der Web-App (in der iOS-App kommt die Version aus Xcode).
-export const APP_VERSION = '1.1.0';
+export const APP_VERSION = '2.1';
 export const SUPPORT_EMAIL = 'fabioberta@me.com';
