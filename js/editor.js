@@ -210,9 +210,14 @@ function initPullDown() {
   const editor = document.getElementById('editor');
   const page = document.getElementById('page');
   let y0 = null, dy = 0;
-  const startAt = y => { if (editor.scrollTop <= 0) { y0 = y; dy = 0; } };
+  // Beim Markieren von Text (Griffe ziehen, lange drücken) nicht weglegen und nichts verschieben
+  const selecting = () => { const t = ta(); return document.activeElement === t && t.selectionStart !== t.selectionEnd; };
+  const cancel = () => { if (y0 == null) return; y0 = null; dy = 0; spring(page); page.style.opacity = ''; };
+  document.addEventListener('selectionchange', () => { if (selecting()) cancel(); });
+  const startAt = y => { if (editor.scrollTop <= 0 && !selecting()) { y0 = y; dy = 0; } };
   const moveTo = (y, e) => {
     if (y0 == null) return;
+    if (selecting()) return cancel();
     dy = y - y0;
     if (dy <= 0 || editor.scrollTop > 0) { if (dy < 0) y0 = null; return; }
     if (dy > 8) e?.cancelable && e.preventDefault();
