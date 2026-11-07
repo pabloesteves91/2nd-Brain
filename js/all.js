@@ -4,6 +4,7 @@ import { settings } from './settings.js';
 import { h, thumbImg, fmtTime, fmtDay, linkify } from './ui.js';
 import { swipeNote } from './swipe.js';
 import { reminderControl } from './tasks.js';
+import { shareMenu } from './share.js';
 
 let state = { q: '', cat: null, archived: false };
 
@@ -80,8 +81,9 @@ function card(n, container, rerender) {
       onclick: () => container.dispatchEvent(new CustomEvent('open-note', { bubbles: true, detail: n.id })),
     }, n.text.trim() ? linkify(n.text.trim()) : 'Nur Bild'),
     thumbs,
-    n.status === 'archived' ? h('div', { class: 'card-actions' },
-      h('button', { type: 'button', onclick: async () => { n.status = 'sorted'; await saveNote(n); rerender(); } }, 'wiederherstellen'),
-    ) : (reminderControl(n, rerender) ? h('div', { class: 'card-actions' }, reminderControl(n, rerender)) : null),
+    h('div', { class: 'card-actions' },
+      n.status === 'archived' ? h('button', { type: 'button', onclick: async () => { n.status = 'sorted'; await saveNote(n); rerender(); } }, 'wiederherstellen') : null,
+      n.text.trim() ? h('button', { type: 'button', onclick: e => { e.stopPropagation(); shareMenu(n, e.currentTarget); } }, 'teilen') : null,
+      n.status === 'archived' ? null : reminderControl(n, rerender)),
   );
 }

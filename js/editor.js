@@ -1,6 +1,6 @@
 import { db, newNote, saveNote } from './db.js';
 import { storeImage, imageUrl, removeImage } from './images.js';
-import { h, thumbImg, reducedMotion, flash, findLinks, linkEl, shortUrl } from './ui.js';
+import { h, thumbImg, reducedMotion, popMenu, flash, findLinks, linkEl, shortUrl } from './ui.js';
 import { applyTags } from './tags.js';
 import { tap, canUseCamera, cameraPhotos } from './native.js';
 import { continueList, initSuggest } from './compose.js';
@@ -99,22 +99,11 @@ async function save({ quiet = false } = {}) {
 }
 
 function pickSource(anchor) {
-  document.querySelector('.pick')?.remove();
   const take = fromLibrary => async () => {
-    close();
     const blobs = await cameraPhotos(fromLibrary);
     if (blobs.length) await addImages(blobs.map((b, i) => new File([b], `foto-${i}.jpg`, { type: b.type || 'image/jpeg' })));
   };
-  const pop = h('div', { class: 'pick', role: 'menu' },
-    h('button', { type: 'button', onclick: take(false) }, 'Foto aufnehmen'),
-    h('button', { type: 'button', onclick: take(true) }, 'Aus Mediathek'));
-  const outside = e => { if (!pop.contains(e.target)) close(); };
-  function close() { pop.remove(); document.removeEventListener('pointerdown', outside, true); }
-  const r = anchor.getBoundingClientRect();
-  pop.style.left = `${r.left + r.width / 2}px`;
-  pop.style.bottom = `${innerHeight - r.top + 4}px`;
-  document.body.append(pop);
-  setTimeout(() => document.addEventListener('pointerdown', outside, true));
+  popMenu(anchor, [['Foto aufnehmen', take(false)], ['Aus Mediathek', take(true)]]);
 }
 
 export async function addImages(files) {

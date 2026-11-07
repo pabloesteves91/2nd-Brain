@@ -19,7 +19,7 @@ const WEEKLY_ID = 2002;
 
 export const appPlugin = () => plugin('App');
 
-export async function initNative({ onOpenReview, onOpenWeek, onOpenNote, onNewThought, onAppState, onPendingAction } = {}) {
+export async function initNative({ onOpenReview, onOpenWeek, onOpenNote, onNewThought, onAppState, onPendingAction, onImport } = {}) {
   if (!isNative()) return;
   document.documentElement.classList.add('native');
   // iPad-App auf dem Mac: kein Touchscreen, keine Bildschirmtastatur → keinen Platz dafür reservieren
@@ -42,6 +42,8 @@ export async function initNative({ onOpenReview, onOpenWeek, onOpenNote, onNewTh
   plugin('SecondBrainNative')?.addListener?.('pendingAction', () => onPendingAction?.())?.catch?.(() => {});
   app?.addListener?.('appUrlOpen', ({ url }) => {
     if (/^secondbrain:\/\/new/i.test(url || '')) onNewThought?.();
+    const m = /^secondbrain:\/\/import\?d=([\w-]+)/i.exec(url || '');
+    if (m) onImport?.(m[1]);
   });
 }
 
@@ -225,6 +227,13 @@ export async function cameraPhotos(fromLibrary) {
 export const canSaveToPhotos = () => isNative() && !!C.isPluginAvailable?.('SecondBrainNative');
 export async function saveToPhotos(dataUrl) {
   await plugin('SecondBrainNative').saveToPhotos({ dataUrl });
+}
+
+// Teilen-Menü von iOS (Plugin @capacitor/share). false = nicht verfügbar → Aufrufer nimmt Web-Teilen.
+export async function shareNative({ text, url }) {
+  if (!isNative() || !C.isPluginAvailable?.('Share')) return false;
+  try { await plugin('Share').share({ text, url }); } catch { /* abgebrochen */ }
+  return true;
 }
 
 export async function appInfo() {

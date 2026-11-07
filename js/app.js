@@ -12,6 +12,7 @@ import { applyTags } from './tags.js';
 import { toast, updateInert } from './ui.js';
 import { initLock, onAppState } from './lock.js';
 import { showOnboarding } from './onboarding.js';
+import { importShared } from './share.js';
 
 const overlay = document.getElementById('overlay');
 const body = document.getElementById('sheet-body');
@@ -189,7 +190,24 @@ initNative({
   onNewThought: async () => { if (view) close(); await startFresh(); },
   onAppState: active => { onAppState(active); if (active) nativeInbox(); },
   onPendingAction: () => nativeInbox(),
+  onImport: code => openShared(code),
 });
+
+// Geteilte Notiz aus einem Link (App: secondbrain://import?d=…, Web: …/#import=…)
+async function openShared(code) {
+  try {
+    const id = await importShared(code);
+    if (view) close();
+    await openNote(id);
+    toast('Geteilte Notiz übernommen');
+  } catch { toast('Dieser Link enthält keine gültige Notiz'); }
+}
+function checkImportHash() {
+  const m = /^#import=([\w-]+)/.exec(location.hash);
+  if (m) { history.replaceState(null, '', location.pathname + location.search); openShared(m[1]); }
+}
+checkImportHash();
+window.addEventListener('hashchange', checkImportHash);
 
 // Kurzbefehl „Neuer Gedanke“ und geteilte Inhalte übernehmen.
 let inboxBusy = false;

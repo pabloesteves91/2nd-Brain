@@ -71,7 +71,7 @@ export function toast(text, actionLabel, onAction, onExpire) {
 const LAYERS = ['#lock:not([hidden])', '.onboarding', '.imgview', '#overlay:not([hidden])'];
 export function updateInert() {
   const top = LAYERS.map(s => document.querySelector(s)).find(Boolean);
-  for (const el of document.body.children) el.inert = !!top && el !== top && !el.classList.contains('toast');
+  for (const el of document.body.children) el.inert = !!top && el !== top && !el.classList.contains('toast') && !el.classList.contains('pick');
 }
 
 export const reducedMotion = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -81,6 +81,21 @@ export function thumbImg(src, onDelete) {
   const open = e => { e.stopPropagation(); viewImage(src, onDelete); };
   return h('img', { src, alt: 'Bild', role: 'button', tabindex: '0', 'aria-label': 'Bild öffnen', onclick: open,
     onkeydown: e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); open(e); } } });
+}
+
+// Kleines Auswahlmenü an einem Knopf: items = [[Beschriftung, Aktion], …]
+export function popMenu(anchor, items) {
+  document.querySelector('.pick')?.remove();
+  const close = () => { pop.remove(); document.removeEventListener('pointerdown', outside, true); };
+  const outside = e => { if (!pop.contains(e.target)) close(); };
+  const pop = h('div', { class: 'pick', role: 'menu' },
+    items.map(([label, run]) => h('button', { type: 'button', role: 'menuitem', onclick: () => { close(); run(); } }, label)));
+  const r = anchor.getBoundingClientRect();
+  pop.style.left = `${Math.min(Math.max(r.left + r.width / 2, 100), innerWidth - 100)}px`;
+  if (r.top > 150) pop.style.bottom = `${innerHeight - r.top + 4}px`; else pop.style.top = `${r.bottom + 4}px`;
+  document.body.append(pop);
+  pop.querySelector('button').focus({ preventScroll: true });
+  setTimeout(() => document.addEventListener('pointerdown', outside, true));
 }
 
 // ---------- Bild gross anzeigen ----------

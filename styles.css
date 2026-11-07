@@ -417,6 +417,7 @@ body.typing .menu:hover, body.typing .menu:focus-within { opacity: 1; }
 
 .card-actions {
   display: flex;
+  align-items: center;
   gap: 2px;
   margin-top: 8px;
   font-size: 0.7353rem;
@@ -829,7 +830,7 @@ input:not([type="checkbox"]):not([type="range"]):not([type="radio"]):focus-visib
 
 /* ---------- Bild: Kamera oder Mediathek (iOS-App) ---------- */
 .pick {
-  position: fixed; z-index: 7; transform: translateX(-50%);
+  position: fixed; z-index: 47; transform: translateX(-50%); /* auch über Sheets */
   display: flex; flex-direction: column; min-width: 180px;
   background: var(--card); border: 1px solid var(--line); border-radius: 14px;
   box-shadow: 0 10px 30px rgba(0, 0, 0, .12); overflow: hidden;
@@ -859,3 +860,5 @@ input:not([type="checkbox"]):not([type="range"]):not([type="radio"]):focus-visib
   background: var(--card); font-size: 0.8824rem; line-height: 1.45;
 }
 .feedback .primary { margin-top: 10px; }
+
+.card-actions:empty { display: none; }

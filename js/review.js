@@ -1,5 +1,6 @@
 import { db, localDay, notesOfDay, saveNote, listNotes } from './db.js';
 import { reminderControl } from './tasks.js';
+import { shareMenu } from './share.js';
 import { swipeNote } from './swipe.js';
 import { imageUrl } from './images.js';
 import { settings } from './settings.js';
@@ -249,6 +250,7 @@ function card(n, container, { compact = false } = {}) {
     thumbs,
     compact ? null : h('div', { class: 'card-actions' },
       h('button', { type: 'button', class: n.pinned ? 'on' : '', onclick: async () => { n.pinned = !n.pinned; await saveNote(n); render(container); } }, n.pinned ? 'gepinnt' : 'pinnen'),
+      n.text.trim() ? h('button', { type: 'button', onclick: e => { e.stopPropagation(); shareMenu(n, e.currentTarget); } }, 'teilen') : null,
       reminderControl(n, () => render(container)),
     ),
   );
