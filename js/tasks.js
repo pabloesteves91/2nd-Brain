@@ -23,19 +23,30 @@ export async function setReminder(n, iso) {
 // Kleines Bedienelement für die Kartenleiste.
 export function reminderControl(n, rerender) {
   if (!isTask(n)) return null;
+  // iOS meldet „change“ schon bei jedem Drehen am Rad. Neu zeichnen würde die Auswahl schliessen,
+  // deshalb erst speichern, wenn die Auswahl zu ist (blur).
+  let picked = null;
+  const text = h('span', {}, n.remind_at ? `⏰ ${fmt.format(new Date(n.remind_at))}` : 'erinnern');
+  const commit = async () => {
+    if (!picked) return;
+    const iso = picked; picked = null;
+    await setReminder(n, iso);
+    rerender();
+  };
   const input = h('input', {
     type: 'datetime-local', class: 'remind-input', value: toLocalInput(n.remind_at),
     'aria-label': 'Erinnerung',
-    onchange: async e => {
+    onchange: e => {
       if (!e.target.value) return;
-      await setReminder(n, new Date(e.target.value).toISOString());
-      rerender();
+      picked = new Date(e.target.value).toISOString();
+      text.textContent = `⏰ ${fmt.format(new Date(picked))}`;
+      if (document.activeElement !== e.target) commit(); // Desktop: Auswahl schon geschlossen
     },
+    onblur: commit,
   });
   const due = n.remind_at && new Date(n.remind_at) <= new Date();
-  const label = n.remind_at ? `⏰ ${fmt.format(new Date(n.remind_at))}` : 'erinnern';
   return h('span', { class: 'remind' + (n.remind_at ? ' on' : '') + (due ? ' due' : '') },
-    h('label', { class: 'remind-label' }, label, input),
+    h('label', { class: 'remind-label' }, text, input),
     n.remind_at ? h('button', {
       type: 'button', 'aria-label': 'Erinnerung entfernen',
       onclick: async () => { await setReminder(n, null); rerender(); },
