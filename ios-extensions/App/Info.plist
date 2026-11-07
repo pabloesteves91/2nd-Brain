@@ -58,6 +58,8 @@
 	<string>Um Fotos zu deinen Notizen hinzuzufügen.</string>
 	<key>NSFaceIDUsageDescription</key>
 	<string>Um deine Notizen mit Face ID zu schützen.</string>
+	<key>NSPhotoLibraryAddUsageDescription</key>
+	<string>Um Fotos, die du in 2nd Brain aufnimmst, in deiner Mediathek zu sichern.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>Um Bilder aus deiner Mediathek zu Notizen hinzuzufügen.</string>
 	<key>UILaunchStoryboardName</key>

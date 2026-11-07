@@ -199,6 +199,24 @@ export async function clearSharedInbox(ids) {
   try { await p.clearInbox({ ids }); } catch { /* egal */ }
 }
 
+// ---------- Kamera ----------
+
+// Nur iPhone/iPad (nicht Mac): Fotos laufen über das Kamera-Plugin, damit sie auch in der Mediathek landen.
+export const canUseCamera = () => isNative() && navigator.maxTouchPoints > 0 && !!plugin('Camera');
+
+// Liefert Blobs; leer, wenn abgebrochen.
+export async function cameraPhotos(fromLibrary) {
+  const cam = plugin('Camera');
+  try {
+    const photos = fromLibrary
+      ? (await cam.pickImages({ quality: 90, limit: 0 })).photos
+      : [await cam.getPhoto({ source: 'CAMERA', resultType: 'uri', quality: 90, correctOrientation: true, saveToGallery: true })];
+    return Promise.all(photos.map(async ph => (await fetch(ph.webPath)).blob()));
+  } catch {
+    return []; // abgebrochen oder keine Berechtigung
+  }
+}
+
 export async function appInfo() {
   const app = plugin('App');
   if (!app) return null;

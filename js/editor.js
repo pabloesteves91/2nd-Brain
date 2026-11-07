@@ -2,7 +2,7 @@ import { db, newNote, saveNote } from './db.js';
 import { storeImage, imageUrl, removeImage } from './images.js';
 import { h, viewImage, flash, findLinks, linkEl, shortUrl } from './ui.js';
 import { applyTags } from './tags.js';
-import { tap } from './native.js';
+import { tap, canUseCamera, cameraPhotos } from './native.js';
 import { continueList, initSuggest } from './compose.js';
 
 const ta = () => document.getElementById('note');
@@ -54,6 +54,13 @@ export function initEditor() {
     e.target.value = '';
     if (files.length) await addImages(files);
   });
+  // iPhone/iPad-App: eigene Auswahl, damit Kamera-Fotos auch in der Mediathek gespeichert werden
+  const fileBtn = document.querySelector('label[for=file]');
+  fileBtn.addEventListener('click', e => {
+    if (!canUseCamera()) return;
+    e.preventDefault();
+    pickSource(fileBtn);
+  });
 
   // Schreibhilfen: #Vorschläge und automatische Listen
   const suggest = initSuggest(t);
@@ -89,6 +96,25 @@ async function save({ quiet = false } = {}) {
   current.dirtyLocal = false;
   await saveNote(current);
   if (!quiet && !empty) flash('gespeichert');
+}
+
+function pickSource(anchor) {
+  document.querySelector('.pick')?.remove();
+  const take = fromLibrary => async () => {
+    close();
+    const blobs = await cameraPhotos(fromLibrary);
+    if (blobs.length) await addImages(blobs.map((b, i) => new File([b], `foto-${i}.jpg`, { type: b.type || 'image/jpeg' })));
+  };
+  const pop = h('div', { class: 'pick', role: 'menu' },
+    h('button', { type: 'button', onclick: take(false) }, 'Foto aufnehmen'),
+    h('button', { type: 'button', onclick: take(true) }, 'Aus Mediathek'));
+  const outside = e => { if (!pop.contains(e.target)) close(); };
+  function close() { pop.remove(); document.removeEventListener('pointerdown', outside, true); }
+  const r = anchor.getBoundingClientRect();
+  pop.style.left = `${r.left + r.width / 2}px`;
+  pop.style.bottom = `${innerHeight - r.top + 4}px`;
+  document.body.append(pop);
+  setTimeout(() => document.addEventListener('pointerdown', outside, true));
 }
 
 export async function addImages(files) {

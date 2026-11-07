@@ -69,6 +69,7 @@ Links im Navigator **App** (blaues Symbol) → Target **App** auswählen.
    |---|---|
    | Privacy - Camera Usage Description | `Um Fotos zu deinen Notizen hinzuzufügen.` |
    | Privacy - Photo Library Usage Description | `Um Bilder aus deiner Mediathek zu Notizen hinzuzufügen.` |
+   | Privacy - Photo Library Additions Usage Description | `Um Fotos, die du in 2nd Brain aufnimmst, in deiner Mediathek zu sichern.` |
    | Privacy - Face ID Usage Description | `Um deine Notizen mit Face ID zu schützen.` |
    | App Uses Non-Exempt Encryption | `NO` |
 

@@ -800,3 +800,15 @@ select.cat.set { color: var(--fg); border-color: var(--faint); }
 .imgview-bar button { color: #fff; border: 1px solid rgba(255, 255, 255, .3); border-radius: 999px; padding: 8px 18px; font-size: 15px; }
 .imgview-bar .danger { color: #ff8a73; border-color: rgba(255, 138, 115, .45); }
 @keyframes imgview-in { from { opacity: 0; } }
+
+/* ---------- Bild: Kamera oder Mediathek (iOS-App) ---------- */
+.pick {
+  position: fixed; z-index: 7; transform: translateX(-50%);
+  display: flex; flex-direction: column; min-width: 180px;
+  background: var(--card); border: 1px solid var(--line); border-radius: 14px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, .12); overflow: hidden;
+  animation: imgview-in .15s ease;
+}
+.pick button { padding: 13px 18px; text-align: left; font-size: 15px; color: var(--fg); }
+.pick button + button { border-top: 1px solid var(--line); }
+.pick button:active { background: var(--line); }
