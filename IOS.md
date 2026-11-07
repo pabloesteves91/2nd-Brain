@@ -110,7 +110,7 @@ Links im Navigator **App** (blaues Symbol) → Target **App** auswählen.
 - **App-Datenschutz:** *Datenerfassung: Ja* →
   - **Kontaktinformationen → E-Mail-Adresse**: App-Funktionalität, mit Identität verknüpft, kein Tracking
   - **Nutzerinhalte → Andere Nutzerinhalte** und **Fotos**: App-Funktionalität, mit Identität verknüpft, kein Tracking
-- **Datenschutzrichtlinie-URL:** `https://pabloesteves91.github.io/2nd-Brain/privacy.html`
+- **Datenschutzrichtlinie-URL:** `https://2ndbrain.ch/privacy.html`
 - Kategorie: *Produktivität*
 
 ## 7. Hochladen (TestFlight)

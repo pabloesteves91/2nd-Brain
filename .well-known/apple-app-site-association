@@ -1,0 +1,10 @@
+{
+  "applinks": {
+    "details": [
+      {
+        "appIDs": ["TEAMID.ch.fabioberta.secondbrain"],
+        "components": [{ "/": "/note.html", "comment": "Geteilte Notizen öffnen direkt die App" }]
+      }
+    ]
+  }
+}

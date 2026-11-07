@@ -5,7 +5,7 @@ import { applyTags } from './tags.js';
 import { popMenu, toast } from './ui.js';
 import { shareNative } from './native.js';
 
-export const SHARE_PAGE = 'https://pabloesteves91.github.io/2nd-Brain/note.html';
+export const SHARE_PAGE = 'https://2ndbrain.ch/note.html';
 const MAX_CODE = 6000; // längere Links gehen in manchen Apps kaputt
 
 async function share({ text, url }) {

@@ -42,7 +42,8 @@ export async function initNative({ onOpenReview, onOpenWeek, onOpenNote, onNewTh
   plugin('SecondBrainNative')?.addListener?.('pendingAction', () => onPendingAction?.())?.catch?.(() => {});
   app?.addListener?.('appUrlOpen', ({ url }) => {
     if (/^secondbrain:\/\/new/i.test(url || '')) onNewThought?.();
-    const m = /^secondbrain:\/\/import\?d=([\w-]+)/i.exec(url || '');
+    const m = /^secondbrain:\/\/import\?d=([\w-]+)/i.exec(url || '')
+      || /^https:\/\/(?:www\.)?2ndbrain\.ch\/note\.html#([\w-]+)/i.exec(url || ''); // Universal Link
     if (m) onImport?.(m[1]);
   });
 }

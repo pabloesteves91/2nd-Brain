@@ -26,6 +26,7 @@ jobs:
         run: |
           mkdir _site
           cp -r index.html note.html privacy.html styles.css sw.js manifest.webmanifest js icons onboarding _site/
+          cp -r .well-known _site/  # Universal Links (apple-app-site-association)
           touch _site/.nojekyll
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3

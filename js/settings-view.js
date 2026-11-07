@@ -29,7 +29,7 @@ function aboutHeader() {
       sub),
     h('div', { class: 'about-actions' },
       mail,
-      h('a', { class: 'link', href: 'https://pabloesteves91.github.io/2nd-Brain/privacy.html', target: '_blank', rel: 'noopener' }, 'Datenschutz')),
+      h('a', { class: 'link', href: 'https://2ndbrain.ch/privacy.html', target: '_blank', rel: 'noopener' }, 'Datenschutz')),
   );
 }
 

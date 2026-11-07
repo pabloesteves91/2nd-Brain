@@ -102,4 +102,4 @@ npm install && npm run build && npx cap add ios --packagemanager SPM && npx cap 
 ```
 
 Datenschutzerklärung (für den App Store): [`privacy.html`](privacy.html) →
-<https://pabloesteves91.github.io/2nd-Brain/privacy.html>
+<https://2ndbrain.ch/privacy.html>
