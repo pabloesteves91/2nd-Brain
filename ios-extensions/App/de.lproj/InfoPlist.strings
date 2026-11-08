@@ -1,0 +1,5 @@
+/* Deutsche Texte der iOS-Berechtigungsfragen */
+"NSCameraUsageDescription" = "Um Fotos zu deinen Notizen hinzuzufügen.";
+"NSPhotoLibraryUsageDescription" = "Um Bilder aus deiner Mediathek zu Notizen hinzuzufügen.";
+"NSPhotoLibraryAddUsageDescription" = "Um Fotos, die du in 2nd Brain aufnimmst, in deiner Mediathek zu sichern.";
+"NSFaceIDUsageDescription" = "Um deine Notizen mit Face ID zu schützen.";

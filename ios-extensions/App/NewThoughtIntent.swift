@@ -5,7 +5,7 @@ import Foundation
 
 @available(iOS 16.0, *)
 struct NewThoughtIntent: AppIntent {
-    static let title: LocalizedStringResource = "Neuer Gedanke"
+    static let title: LocalizedStringResource = "New thought" // Deutsch: de.lproj/Localizable.strings
     static let openAppWhenRun: Bool = true
 
     @MainActor
@@ -22,13 +22,13 @@ struct SecondBrainShortcuts: AppShortcutsProvider {
         AppShortcut(
             intent: NewThoughtIntent(),
             phrases: [
-                "Neuer Gedanke in \(.applicationName)",
-                "\(.applicationName) neuer Gedanke",
-                "Gedanke in \(.applicationName) notieren",
-                "Notiz in \(.applicationName)",
-                "Neue Notiz in \(.applicationName)",
+                "New thought in \(.applicationName)",
+                "\(.applicationName) new thought",
+                "Note a thought in \(.applicationName)",
+                "Note in \(.applicationName)",
+                "New note in \(.applicationName)",
             ],
-            shortTitle: "Neuer Gedanke",
+            shortTitle: "New thought", // Deutsch: de.lproj/Localizable.strings
             systemImageName: "square.and.pencil"
         )
     }

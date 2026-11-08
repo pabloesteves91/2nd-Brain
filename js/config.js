@@ -1,3 +1,4 @@
+import { isEn } from './i18n.js';
 // Cloud-Sync über Firebase.
 // Diese Werte sind öffentlich gedacht; die Daten schützen die Regeln (firestore.rules, storage.rules).
 // FIREBASE_CONFIG = null setzen, um die App nur lokal zu nutzen.
@@ -19,8 +20,8 @@ export const PLUS_IDS = {
 };
 // Sync-Konten, die vor diesem Tag angelegt wurden, gehören frühen Nutzern → Plus für immer geschenkt.
 export const PLUS_SINCE = '2026-11-08';
-export const TERMS_URL = 'https://2ndbrain.ch/terms.html';
-export const PRIVACY_URL = 'https://2ndbrain.ch/privacy.html';
+// Website-Seiten in der Sprache der App (englisch unter /en/).
+export const siteUrl = (page = '') => `https://2ndbrain.ch/${isEn() ? 'en/' : ''}${page}`;
 
 export const APP_VERSION = '2.3';
 export const SUPPORT_EMAIL = 'fabioberta@me.com';

@@ -1,4 +1,5 @@
 // Mini-Helfer zum Bauen von DOM ohne innerHTML (kein XSS über Notiztext).
+import { t, locale } from './i18n.js';
 export function h(tag, attrs = {}, ...children) {
   const el = document.createElement(tag);
   for (const [k, v] of Object.entries(attrs || {})) {
@@ -15,19 +16,19 @@ export function h(tag, attrs = {}, ...children) {
   return el;
 }
 
-const timeFmt = new Intl.DateTimeFormat('de-CH', { hour: '2-digit', minute: '2-digit' });
-const dayFmt = new Intl.DateTimeFormat('de-CH', { weekday: 'long', day: 'numeric', month: 'long' });
+const timeFmt = () => new Intl.DateTimeFormat(locale(), { hour: '2-digit', minute: '2-digit' });
+const dayFmt = () => new Intl.DateTimeFormat(locale(), { weekday: 'long', day: 'numeric', month: 'long' });
 
-export const fmtTime = iso => timeFmt.format(new Date(iso));
+export const fmtTime = iso => timeFmt().format(new Date(iso));
 
 export function fmtDay(day) {
   const [y, m, d] = day.split('-').map(Number);
   const date = new Date(y, m - 1, d);
   const today = new Date(); today.setHours(0, 0, 0, 0);
   const diff = Math.round((today - date) / 86400000);
-  if (diff === 0) return 'Heute';
-  if (diff === 1) return 'Gestern';
-  return dayFmt.format(date);
+  if (diff === 0) return t('Heute');
+  if (diff === 1) return t('Gestern');
+  return dayFmt().format(date);
 }
 
 export function shiftDay(day, delta) {
@@ -79,7 +80,7 @@ export const reducedMotion = () => matchMedia('(prefers-reduced-motion: reduce)'
 // Vorschaubild, das per Tippen/Enter/VoiceOver gross aufgeht.
 export function thumbImg(src, onDelete) {
   const open = e => { e.stopPropagation(); viewImage(src, onDelete); };
-  return h('img', { src, alt: 'Bild', role: 'button', tabindex: '0', 'aria-label': 'Bild öffnen', onclick: open,
+  return h('img', { src, alt: t('Bild'), role: 'button', tabindex: '0', 'aria-label': t('Bild öffnen'), onclick: open,
     onkeydown: e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); open(e); } } });
 }
 
@@ -104,7 +105,7 @@ export function askConfirm({ title, text, ok }) {
   return new Promise(resolve => {
     const done = v => { box.remove(); document.removeEventListener('keydown', onKey, true); updateInert(); resolve(v); };
     const onKey = e => { if (e.key === 'Escape') { e.stopPropagation(); done(false); } };
-    const cancel = h('button', { type: 'button', class: 'confirm-cancel', onclick: () => done(false) }, 'Abbrechen');
+    const cancel = h('button', { type: 'button', class: 'confirm-cancel', onclick: () => done(false) }, t('Abbrechen'));
     const box = h('div', { class: 'confirm', role: 'alertdialog', 'aria-modal': 'true', 'aria-labelledby': 'confirm-t', 'aria-describedby': 'confirm-d' },
       h('div', { class: 'confirm-card' },
         h('h2', { id: 'confirm-t' }, title),
@@ -128,8 +129,8 @@ async function saveImage(src) {
   if (canSaveToPhotos()) {
     try {
       await saveToPhotos(await new Promise(r => { const f = new FileReader(); f.onload = () => r(f.result); f.readAsDataURL(blob); }));
-      toast('In Fotos gesichert');
-    } catch (err) { toast(err?.message || 'Sichern fehlgeschlagen'); }
+      toast(t('In Fotos gesichert'));
+    } catch (err) { toast(err?.message || t('Sichern fehlgeschlagen')); }
     return;
   }
   const a = h('a', { href: src, download: `2nd-brain-${Date.now()}.jpg` });
@@ -139,7 +140,7 @@ async function saveImage(src) {
 // Antippen/Klicken/Esc schliesst; mit onDelete gibt es unten „löschen“.
 // Zoomen: zwei Finger, Doppeltippen, Trackpad-Pinch (⌃/⌘ + Scrollrad); gezoomt mit einem Finger verschieben.
 export function viewImage(src, onDelete) {
-  const img = h('img', { src, alt: 'Bild', draggable: false });
+  const img = h('img', { src, alt: t('Bild'), draggable: false });
   let z = 1, x = 0, y = 0, base = null, moved = false, lastTap = 0, tapTimer;
   const pts = new Map();
   const apply = (anim) => {
@@ -154,12 +155,12 @@ export function viewImage(src, onDelete) {
   const opener = document.activeElement;
   const close = () => { clearTimeout(tapTimer); view.remove(); updateInert(); document.removeEventListener('keydown', onKey, true); opener?.focus?.({ preventScroll: true }); };
   const onKey = e => { if (e.key === 'Escape') { e.stopPropagation(); close(); } };
-  const view = h('div', { class: 'imgview', role: 'dialog', 'aria-modal': 'true', 'aria-label': 'Bild' },
+  const view = h('div', { class: 'imgview', role: 'dialog', 'aria-modal': 'true', 'aria-label': t('Bild') },
     img,
     h('div', { class: 'imgview-bar' },
-      h('button', { type: 'button', onclick: () => close() }, 'schliessen'),
-      h('button', { type: 'button', onclick: () => saveImage(src) }, 'sichern'),
-      onDelete ? h('button', { type: 'button', class: 'danger', onclick: () => { close(); onDelete(); } }, 'löschen') : null));
+      h('button', { type: 'button', onclick: () => close() }, t('schliessen')),
+      h('button', { type: 'button', onclick: () => saveImage(src) }, t('sichern')),
+      onDelete ? h('button', { type: 'button', class: 'danger', onclick: () => { close(); onDelete(); } }, t('löschen')) : null));
 
   view.addEventListener('pointerdown', e => {
     if (e.target.closest('button')) return;

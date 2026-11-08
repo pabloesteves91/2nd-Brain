@@ -6,8 +6,9 @@ import { imageUrl } from './images.js';
 import { settings } from './settings.js';
 import { isPlus } from './plus.js';
 import { h, thumbImg, fmtTime, fmtDay, shiftDay, linkify } from './ui.js';
+import { t, locale } from './i18n.js';
 
-const STOP = new Set(`aber alle allem allen aller alles also auch auf aus bei beim bin bis bist dann das dass dem den denn der des die dies diese diesem diesen dieser dir doch dort durch ein eine einem einen einer eines etwas euch für gegen hab habe haben hat hatte hier ihr ihre ihm ihn ich ist jetzt kann kein keine man mehr mein meine mich mir mit muss nach nicht noch nur oder ohne schon sehr sein seine sich sie sind so soll über um und uns unser vom von vor war waren was weil wenn werden wie wieder wir wird wo zu zum zur sollte könnte würde mal immer einfach heute morgen dann denke glaube the and for that this with from have are was you not but`.split(/\s+/));
+const STOP = new Set(`aber alle allem allen aller alles also auch auf aus bei beim bin bis bist dann das dass dem den denn der des die dies diese diesem diesen dieser dir doch dort durch ein eine einem einen einer eines etwas euch für gegen hab habe haben hat hatte hier ihr ihre ihm ihn ich ist jetzt kann kein keine man mehr mein meine mich mir mit muss nach nicht noch nur oder ohne schon sehr sein seine sich sie sind so soll über um und uns unser vom von vor war waren was weil wenn werden wie wieder wir wird wo zu zum zur sollte könnte würde mal immer einfach heute morgen dann denke glaube the and for that this with from have are was you not but a an to of in on at it is be as or if so do my me we he she they them our your his her its just what when how why who all any can will would should could about into than then there their more some also very really still even only like get got make made need want think know today tomorrow`.split(/\s+/));
 
 let state = { day: localDay(), sort: 'eigene', filter: null, mode: 'day' };
 
@@ -25,9 +26,9 @@ function topTags(notes) {
 }
 
 function modeSwitch(container) {
-  return h('div', { class: 'seg mode' }, [['day', 'Tag'], ['week', 'Woche']].map(([m, label]) =>
+  return h('div', { class: 'seg mode' }, [['day', t('Tag')], ['week', t('Woche')]].map(([m, label]) =>
     h('button', { type: 'button', class: state.mode === m ? 'on' : '', onclick: () => { state.mode = m; state.filter = null; render(container); } },
-      label, m === 'week' && !isPlus() ? h('span', { class: 'plus-tag' }, 'Plus') : null)));
+      label, m === 'week' && !isPlus() ? h('span', { class: 'plus-tag' }, t('Plus')) : null)));
 }
 
 // Stabile „Zufalls“-Zahl pro Tag, damit die wiederentdeckte Notiz nicht bei jedem Öffnen wechselt.
@@ -44,7 +45,7 @@ async function rediscover(container) {
     const list = pinned.length ? pinned : pool;
     const n = list[seed(state.day) % list.length];
     return h('div', { class: 'rediscover' },
-      h('div', { class: 'section-label' }, `Wiederentdecken · ${label}`),
+      h('div', { class: 'section-label' }, t('Wiederentdecken · {label}', { label: t(label) })),
       card(n, container, { compact: true }));
   }
   return null;
@@ -97,9 +98,9 @@ async function render(container) {
   const closedDays = (await db.getMeta('closedDays')) || [];
 
   const summary = all.length === 0 ? null : [
-    `${all.length} ${all.length === 1 ? 'Gedanke' : 'Gedanken'}`,
-    withImages ? `${withImages} mit ${withImages === 1 ? 'Bild' : 'Bildern'}` : null,
-    unsorted ? `${unsorted} unsortiert` : 'alles sortiert',
+    t(all.length === 1 ? '{n} Gedanke' : '{n} Gedanken', { n: all.length }),
+    withImages ? t(withImages === 1 ? '{n} mit Bild' : '{n} mit Bildern', { n: withImages }) : null,
+    unsorted ? t('{n} unsortiert', { n: unsorted }) : t('alles sortiert'),
   ].filter(Boolean).join(' · ');
 
   const catLine = byCat.size ? [...byCat].map(([c, n]) => `${c} ${n}`).join(' · ') : null;
@@ -109,15 +110,15 @@ async function render(container) {
 
   container.replaceChildren(...[
     h('div', { class: 'head' },
-      h('h2', {}, isToday ? 'Heute' : fmtDay(state.day)),
+      h('h2', {}, isToday ? t('Heute') : fmtDay(state.day)),
       h('div', { class: 'nav' },
-        h('button', { type: 'button', 'aria-label': 'Vorheriger Tag', onclick: () => { state.day = shiftDay(state.day, -1); state.filter = null; render(container); } }, '‹'),
-        h('button', { type: 'button', 'aria-label': 'Nächster Tag', disabled: isToday, onclick: () => { state.day = shiftDay(state.day, 1); state.filter = null; render(container); } }, '›'),
+        h('button', { type: 'button', 'aria-label': t('Vorheriger Tag'), onclick: () => { state.day = shiftDay(state.day, -1); state.filter = null; render(container); } }, '‹'),
+        h('button', { type: 'button', 'aria-label': t('Nächster Tag'), disabled: isToday, onclick: () => { state.day = shiftDay(state.day, 1); state.filter = null; render(container); } }, '›'),
       ),
     ),
     modeSwitch(container),
     all.length === 0
-      ? h('div', { class: 'empty-state' }, isToday ? 'Noch nichts notiert heute.' : 'An diesem Tag gibt es keine Notizen.')
+      ? h('div', { class: 'empty-state' }, isToday ? t('Noch nichts notiert heute.') : t('An diesem Tag gibt es keine Notizen.'))
       : [
         h('div', { class: 'summary' }, summary, catLine ? h('br') : null, catLine),
         words.length ? h('div', { class: 'chips' }, words.map(w =>
@@ -126,12 +127,12 @@ async function render(container) {
             onclick: () => { state.filter = state.filter === w ? null : w; render(container); },
           }, w))) : null,
         h('div', { class: 'toolbar' },
-          h('span', {}, 'sortieren'),
+          h('span', {}, t('sortieren')),
           h('div', { class: 'seg' }, ['eigene', 'zeit', 'kategorie'].map(s =>
-            h('button', { type: 'button', class: state.sort === s ? 'on' : '', onclick: () => { state.sort = s; render(container); } }, s))),
+            h('button', { type: 'button', class: state.sort === s ? 'on' : '', onclick: () => { state.sort = s; render(container); } }, t(s)))),
         ),
         cards,
-        h('p', { class: 'swipe-hint' }, '→ archivieren · ← löschen'),
+        h('p', { class: 'swipe-hint' }, t('→ archivieren · ← löschen')),
         h('button', {
           type: 'button', class: 'primary',
           disabled: unsorted === 0 && closedDays.includes(state.day),
@@ -142,7 +143,7 @@ async function render(container) {
             document.dispatchEvent(new CustomEvent('day-closed'));
             render(container);
           },
-        }, unsorted === 0 && closedDays.includes(state.day) ? 'Tag abgeschlossen ✓' : 'Tag abschliessen'),
+        }, unsorted === 0 && closedDays.includes(state.day) ? t('Tag abgeschlossen ✓') : t('Tag abschliessen')),
       ],
     await rediscover(container),
   ].flat().filter(Boolean));
@@ -151,7 +152,7 @@ async function render(container) {
 // ---------- Woche ----------
 
 const DAY_NAMES = ['Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa', 'So'];
-const rangeFmt = new Intl.DateTimeFormat('de-CH', { day: 'numeric', month: 'short' });
+const rangeFmt = { format: d => new Intl.DateTimeFormat(locale(), { day: 'numeric', month: 'short' }).format(d) };
 
 function weekStart(day) {
   const [y, m, d] = day.split('-').map(Number);
@@ -162,12 +163,12 @@ function weekStart(day) {
 async function renderWeek(container) {
   if (!isPlus()) {
     container.replaceChildren(
-      h('div', { class: 'head' }, h('h2', {}, 'Diese Woche')),
+      h('div', { class: 'head' }, h('h2', {}, t('Diese Woche'))),
       modeSwitch(container),
       h('div', { class: 'plus-teaser' },
-        h('b', {}, 'Deine Woche auf einen Blick'),
-        h('p', {}, 'Themen, Kategorien und Tage – der Wochenrückblick gehört zu 2nd Brain Plus.'),
-        h('button', { type: 'button', class: 'primary', onclick: e => e.currentTarget.dispatchEvent(new CustomEvent('open-plus', { bubbles: true })) }, 'Plus ansehen')));
+        h('b', {}, t('Deine Woche auf einen Blick')),
+        h('p', {}, t('Themen, Kategorien und Tage – der Wochenrückblick gehört zu 2nd Brain Plus.')),
+        h('button', { type: 'button', class: 'primary', onclick: e => e.currentTarget.dispatchEvent(new CustomEvent('open-plus', { bubbles: true })) }, t('Plus ansehen'))));
     return;
   }
   const start = weekStart(state.day);
@@ -176,14 +177,14 @@ async function renderWeek(container) {
   const notes = (await listNotes()).filter(n => days.includes(n.day) && n.status !== 'archived');
   const isThisWeek = days.includes(today);
   const toDate = d => { const [y, m, dd] = d.split('-').map(Number); return new Date(y, m - 1, dd); };
-  const title = isThisWeek ? 'Diese Woche' : `${rangeFmt.format(toDate(days[0]))} – ${rangeFmt.format(toDate(days[6]))}`;
+  const title = isThisWeek ? t('Diese Woche') : `${rangeFmt.format(toDate(days[0]))} – ${rangeFmt.format(toDate(days[6]))}`;
 
   const perDay = days.map(d => notes.filter(n => n.day === d));
   const activeDays = perDay.filter(x => x.length).length;
   const unsorted = notes.filter(n => n.status === 'inbox');
   const words = [...topTags(notes), ...keywords(notes)].slice(0, 10);
   const byCat = new Map();
-  for (const n of notes) { const c = n.category || 'ohne Kategorie'; byCat.set(c, (byCat.get(c) || 0) + 1); }
+  for (const n of notes) { const c = n.category || t('ohne Kategorie'); byCat.set(c, (byCat.get(c) || 0) + 1); }
   const maxCat = Math.max(1, ...byCat.values());
   const pinned = notes.filter(n => n.pinned);
 
@@ -193,35 +194,35 @@ async function renderWeek(container) {
     h('div', { class: 'head' },
       h('h2', {}, title),
       h('div', { class: 'nav' },
-        h('button', { type: 'button', 'aria-label': 'Vorherige Woche', onclick: () => { state.day = shiftDay(start, -7); render(container); } }, '‹'),
-        h('button', { type: 'button', 'aria-label': 'Nächste Woche', disabled: isThisWeek, onclick: () => { state.day = shiftDay(start, 7); render(container); } }, '›'),
+        h('button', { type: 'button', 'aria-label': t('Vorherige Woche'), onclick: () => { state.day = shiftDay(start, -7); render(container); } }, '‹'),
+        h('button', { type: 'button', 'aria-label': t('Nächste Woche'), disabled: isThisWeek, onclick: () => { state.day = shiftDay(start, 7); render(container); } }, '›'),
       ),
     ),
     modeSwitch(container),
     notes.length === 0
-      ? h('div', { class: 'empty-state' }, 'In dieser Woche gibt es keine Notizen.')
+      ? h('div', { class: 'empty-state' }, t('In dieser Woche gibt es keine Notizen.'))
       : [
         h('div', { class: 'summary' },
-          `${notes.length} ${notes.length === 1 ? 'Gedanke' : 'Gedanken'} an ${activeDays} ${activeDays === 1 ? 'Tag' : 'Tagen'}`,
-          unsorted.length ? ` · ${unsorted.length} unsortiert` : ' · alles sortiert'),
+          t(`${notes.length === 1 ? '{n} Gedanke' : '{n} Gedanken'} an {d} ${activeDays === 1 ? 'Tag' : 'Tagen'}`, { n: notes.length, d: activeDays }),
+          unsorted.length ? t(' · {n} unsortiert', { n: unsorted.length }) : t(' · alles sortiert')),
         h('div', { class: 'week-days' }, days.map((d, i) => h('button', {
           type: 'button',
           class: 'week-day' + (perDay[i].length ? ' has' : '') + (perDay[i].some(n => n.status === 'inbox') ? ' open' : '') + (d === today ? ' today' : ''),
           onclick: () => goDay(d),
-          'aria-label': `${DAY_NAMES[i]}: ${perDay[i].length} Notizen${perDay[i].some(n => n.status === 'inbox') ? ', unsortierte dabei' : ''}`,
-        }, h('span', {}, DAY_NAMES[i]), h('span', { class: 'dot' }, perDay[i].length || '')))),
-        words.length ? [h('div', { class: 'section-label' }, 'Themen'), h('div', { class: 'chips' }, words.map(w => h('span', { class: 'chip' }, w)))] : null,
-        h('div', { class: 'section-label' }, 'Kategorien'),
+          'aria-label': t('{day}: {n} Notizen', { day: t(DAY_NAMES[i]), n: perDay[i].length }) + (perDay[i].some(n => n.status === 'inbox') ? t(', unsortierte dabei') : ''),
+        }, h('span', {}, t(DAY_NAMES[i])), h('span', { class: 'dot' }, perDay[i].length || '')))),
+        words.length ? [h('div', { class: 'section-label' }, t('Themen')), h('div', { class: 'chips' }, words.map(w => h('span', { class: 'chip' }, w)))] : null,
+        h('div', { class: 'section-label' }, t('Kategorien')),
         h('div', { class: 'bars' }, [...byCat].sort((a, b) => b[1] - a[1]).map(([c, n]) =>
           h('div', { class: 'bar' }, h('span', {}, c), h('i', { style: `width:${Math.round(n / maxCat * 100)}%` }), h('span', {}, n)))),
         pinned.length ? [
-          h('div', { class: 'section-label' }, 'Gepinnt'),
+          h('div', { class: 'section-label' }, t('Gepinnt')),
           h('div', { class: 'cards' }, pinned.map(n => card(n, container, { compact: true }))),
         ] : null,
         unsorted.length ? h('button', {
           type: 'button', class: 'primary',
           onclick: () => goDay(unsorted.map(n => n.day).sort()[0]),
-        }, `${unsorted.length} unsortierte ansehen`) : null,
+        }, t('{n} unsortierte ansehen', { n: unsorted.length })) : null,
       ],
   ].flat(2).filter(Boolean));
 }
@@ -229,7 +230,7 @@ async function renderWeek(container) {
 function card(n, container, { compact = false } = {}) {
   const cats = settings().categories;
   const select = h('select', {
-    class: 'cat' + (n.category ? ' set' : ''), 'aria-label': 'Kategorie',
+    class: 'cat' + (n.category ? ' set' : ''), 'aria-label': t('Kategorie'),
     onchange: async e => {
       n.category = e.target.value || null;
       n.status = n.category ? 'sorted' : n.status;
@@ -237,7 +238,7 @@ function card(n, container, { compact = false } = {}) {
       render(container);
     },
   },
-  h('option', { value: '' }, 'Kategorie'),
+  h('option', { value: '' }, t('Kategorie')),
   [...new Set([...cats, ...(n.category ? [n.category] : [])])].map(c =>
     h('option', { value: c, selected: c === n.category }, c)));
 
@@ -253,16 +254,16 @@ function card(n, container, { compact = false } = {}) {
       n.pinned ? h('span', {}, '★') : null,
       h('span', { class: 'grow' }),
       compact ? (n.category ? h('span', {}, n.category) : null) : select,
-      !compact && state.sort === 'eigene' ? h('span', { class: 'handle', 'aria-label': 'Verschieben' }, '⋮⋮') : null,
+      !compact && state.sort === 'eigene' ? h('span', { class: 'handle', 'aria-label': t('Verschieben') }, '⋮⋮') : null,
     ),
     h('div', {
       class: 'card-text' + (n.text.trim() ? '' : ' empty'),
       onclick: () => container.dispatchEvent(new CustomEvent('open-note', { bubbles: true, detail: n.id })),
-    }, n.text.trim() ? linkify(n.text.trim()) : 'Nur Bild'),
+    }, n.text.trim() ? linkify(n.text.trim()) : t('Nur Bild')),
     thumbs,
     compact ? null : h('div', { class: 'card-actions' },
-      h('button', { type: 'button', class: n.pinned ? 'on' : '', onclick: async () => { n.pinned = !n.pinned; await saveNote(n); render(container); } }, n.pinned ? 'gepinnt' : 'pinnen'),
-      n.text.trim() ? h('button', { type: 'button', onclick: e => { e.stopPropagation(); shareMenu(n, e.currentTarget); } }, 'teilen') : null,
+      h('button', { type: 'button', class: n.pinned ? 'on' : '', onclick: async () => { n.pinned = !n.pinned; await saveNote(n); render(container); } }, n.pinned ? t('gepinnt') : t('pinnen')),
+      n.text.trim() ? h('button', { type: 'button', onclick: e => { e.stopPropagation(); shareMenu(n, e.currentTarget); } }, t('teilen')) : null,
       reminderControl(n, () => render(container)),
     ),
   );

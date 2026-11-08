@@ -3,6 +3,11 @@
 import WidgetKit
 import SwiftUI
 
+/// Deutsch, wenn das Gerät auf Deutsch steht, sonst Englisch (ohne .strings-Datei in diesem Target).
+private func L(_ de: String, _ en: String) -> String {
+    (Locale.preferredLanguages.first ?? "en").hasPrefix("de") ? de : en
+}
+
 struct ThoughtEntry: TimelineEntry {
     let date: Date
 }
@@ -48,21 +53,21 @@ struct ThoughtWidgetView: View {
         case .accessoryRectangular:
             VStack(alignment: .leading, spacing: 2) {
                 Text("2nd Brain").font(.headline)
-                Text("Neuer Gedanke").font(.caption)
+                Text(L("Neuer Gedanke", "New thought")).font(.caption)
             }
             .frame(maxWidth: .infinity, alignment: .leading)
         case .accessoryInline:
-            Label("Neuer Gedanke", systemImage: "square.and.pencil")
+            Label(L("Neuer Gedanke", "New thought"), systemImage: "square.and.pencil")
         default:
             VStack(alignment: .leading, spacing: 0) {
                 RoundedRectangle(cornerRadius: 1.5)
                     .fill(ink)
                     .frame(width: 3, height: 26)
                 Spacer()
-                Text("Neuer Gedanke")
+                Text(L("Neuer Gedanke", "New thought"))
                     .font(.system(size: 15, weight: .semibold))
                     .foregroundColor(ink)
-                Text("Was geht dir durch den Kopf?")
+                Text(L("Was geht dir durch den Kopf?", "What’s on your mind?"))
                     .font(.system(size: 12))
                     .foregroundColor(muted)
                     .lineLimit(2)
@@ -93,8 +98,8 @@ struct SecondBrainWidget: Widget {
                 .paperBackground()
                 .widgetURL(URL(string: "secondbrain://new"))
         }
-        .configurationDisplayName("Neuer Gedanke")
-        .description("Ein Tipp – und du schreibst.")
+        .configurationDisplayName(L("Neuer Gedanke", "New thought"))
+        .description(L("Ein Tipp – und du schreibst.", "One tap – and you’re writing."))
         .supportedFamilies([.systemSmall, .accessoryCircular, .accessoryRectangular, .accessoryInline])
     }
 }

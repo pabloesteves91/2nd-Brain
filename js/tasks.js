@@ -2,10 +2,11 @@
 import { saveNote } from './db.js';
 import { scheduleTask } from './native.js';
 import { h } from './ui.js';
+import { t, locale } from './i18n.js';
 
-const fmt = new Intl.DateTimeFormat('de-CH', { weekday: 'short', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
+const fmt = { format: d => new Intl.DateTimeFormat(locale(), { weekday: 'short', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }).format(d) };
 
-export const isTask = n => n.category === 'Aufgabe' || !!n.remind_at;
+export const isTask = n => n.category === 'Aufgabe' || n.category === 'Task' || !!n.remind_at;
 
 function toLocalInput(iso) {
   const d = iso ? new Date(iso) : new Date(Date.now() + 3600_000);
@@ -27,7 +28,7 @@ export function reminderControl(n, rerender) {
   // deshalb erst speichern, wenn die Auswahl zu ist (blur).
   let picked = null;
   const isDue = n.remind_at && new Date(n.remind_at) <= new Date();
-  const text = h('span', {}, n.remind_at ? `⏰ ${fmt.format(new Date(n.remind_at))}${isDue ? ' · fällig' : ''}` : 'erinnern');
+  const text = h('span', {}, n.remind_at ? `⏰ ${fmt.format(new Date(n.remind_at))}${isDue ? ` · ${t('fällig')}` : ''}` : t('erinnern'));
   const commit = async () => {
     if (!picked) return;
     const iso = picked; picked = null;
@@ -36,7 +37,7 @@ export function reminderControl(n, rerender) {
   };
   const input = h('input', {
     type: 'datetime-local', class: 'remind-input', value: toLocalInput(n.remind_at),
-    'aria-label': 'Erinnerung',
+    'aria-label': t('Erinnerung'),
     onchange: e => {
       if (!e.target.value) return;
       picked = new Date(e.target.value).toISOString();
@@ -49,7 +50,7 @@ export function reminderControl(n, rerender) {
   return h('span', { class: 'remind' + (n.remind_at ? ' on' : '') + (due ? ' due' : '') },
     h('label', { class: 'remind-label' }, text, input),
     n.remind_at ? h('button', {
-      type: 'button', 'aria-label': 'Erinnerung entfernen',
+      type: 'button', 'aria-label': t('Erinnerung entfernen'),
       onclick: async () => { await setReminder(n, null); rerender(); },
     }, '×') : null,
   );

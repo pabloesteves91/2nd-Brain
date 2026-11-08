@@ -5,13 +5,14 @@ import { h, thumbImg, fmtTime, fmtDay, linkify } from './ui.js';
 import { swipeNote } from './swipe.js';
 import { reminderControl } from './tasks.js';
 import { shareMenu } from './share.js';
+import { t } from './i18n.js';
 
 let state = { q: '', cat: null, archived: false };
 
 export function openAll(container) {
   state = { ...state, q: '' };
   const search = h('input', {
-    class: 'search', type: 'search', placeholder: 'Suchen …', value: state.q,
+    class: 'search', type: 'search', placeholder: t('Suchen …'), value: state.q,
     oninput: e => { state.q = e.target.value; renderList(); },
   });
   const chips = h('div', { class: 'chips' });
@@ -22,11 +23,11 @@ export function openAll(container) {
       ...[null, ...settings().categories].map(c => h('button', {
         type: 'button', class: 'chip' + (state.cat === c ? ' on' : ''),
         onclick: () => { state.cat = c; renderChips(); renderList(); },
-      }, c ?? 'alle')),
+      }, c ?? t('alle'))),
       h('button', {
         type: 'button', class: 'chip' + (state.archived ? ' on' : ''),
         onclick: () => { state.archived = !state.archived; renderChips(); renderList(); },
-      }, 'archiv'),
+      }, t('archiv')),
     );
   };
 
@@ -38,7 +39,7 @@ export function openAll(container) {
       (!q || n.text.toLowerCase().includes(q) || (n.category || '').toLowerCase().includes(q)));
 
     if (!notes.length) {
-      list.replaceChildren(h('div', { class: 'empty-state' }, q || state.cat || state.archived ? 'Nichts gefunden.' : 'Noch keine Notizen.'));
+      list.replaceChildren(h('div', { class: 'empty-state' }, q || state.cat || state.archived ? t('Nichts gefunden.') : t('Noch keine Notizen.')));
       return;
     }
     const groups = new Map();
@@ -49,11 +50,11 @@ export function openAll(container) {
     list.replaceChildren(...[...groups].map(([day, items]) => [
       h('div', { class: 'day-label' }, fmtDay(day)),
       h('div', { class: 'cards' }, items.map(n => swipeCard(n, container, renderList))),
-    ]).flat(), h('p', { class: 'swipe-hint' }, state.archived ? '→ wiederherstellen · ← löschen' : '→ archivieren · ← löschen'));
+    ]).flat(), h('p', { class: 'swipe-hint' }, state.archived ? t('→ wiederherstellen · ← löschen') : t('→ archivieren · ← löschen')));
   }
 
   container.replaceChildren(
-    h('div', { class: 'head' }, h('h2', {}, 'Alle Notizen')),
+    h('div', { class: 'head' }, h('h2', {}, t('Alle Notizen'))),
     search, chips, list,
   );
   renderChips();
@@ -79,11 +80,11 @@ function card(n, container, rerender) {
     h('div', {
       class: 'card-text' + (n.text.trim() ? '' : ' empty'),
       onclick: () => container.dispatchEvent(new CustomEvent('open-note', { bubbles: true, detail: n.id })),
-    }, n.text.trim() ? linkify(n.text.trim()) : 'Nur Bild'),
+    }, n.text.trim() ? linkify(n.text.trim()) : t('Nur Bild')),
     thumbs,
     h('div', { class: 'card-actions' },
-      n.status === 'archived' ? h('button', { type: 'button', onclick: async () => { n.status = 'sorted'; await saveNote(n); rerender(); } }, 'wiederherstellen') : null,
-      n.text.trim() ? h('button', { type: 'button', onclick: e => { e.stopPropagation(); shareMenu(n, e.currentTarget); } }, 'teilen') : null,
+      n.status === 'archived' ? h('button', { type: 'button', onclick: async () => { n.status = 'sorted'; await saveNote(n); rerender(); } }, t('wiederherstellen')) : null,
+      n.text.trim() ? h('button', { type: 'button', onclick: e => { e.stopPropagation(); shareMenu(n, e.currentTarget); } }, t('teilen')) : null,
       n.status === 'archived' ? null : reminderControl(n, rerender)),
   );
 }

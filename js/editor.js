@@ -4,6 +4,7 @@ import { h, thumbImg, reducedMotion, popMenu, flash, findLinks, linkEl, shortUrl
 import { applyTags } from './tags.js';
 import { tap, canUseCamera, cameraPhotos } from './native.js';
 import { continueList, initSuggest } from './compose.js';
+import { t as tr } from './i18n.js';
 
 const ta = () => document.getElementById('note');
 const thumbsEl = () => document.getElementById('thumbs');
@@ -95,7 +96,7 @@ async function save({ quiet = false } = {}) {
   applyTags(current);
   current.dirtyLocal = false;
   await saveNote(current);
-  if (!quiet && !empty) flash('gespeichert');
+  if (!quiet && !empty) flash(tr('gespeichert'));
 }
 
 function pickSource(anchor) {
@@ -103,7 +104,7 @@ function pickSource(anchor) {
     const blobs = await cameraPhotos(fromLibrary);
     if (blobs.length) await addImages(blobs.map((b, i) => new File([b], `foto-${i}.jpg`, { type: b.type || 'image/jpeg' })));
   };
-  popMenu(anchor, [['Foto aufnehmen', take(false)], ['Aus Mediathek', take(true)]]);
+  popMenu(anchor, [[tr('Foto aufnehmen'), take(false)], [tr('Aus Mediathek'), take(true)]]);
 }
 
 export async function addImages(files) {
@@ -114,7 +115,7 @@ export async function addImages(files) {
       current.images.push(id);
     } catch (err) {
       console.error(err);
-      flash('Bild konnte nicht geladen werden');
+      flash(tr('Bild konnte nicht geladen werden'));
     }
   }
   current.text = ta().value;
@@ -140,7 +141,7 @@ async function renderThumbs() {
     };
     el.append(h('div', { class: 'thumb' },
       thumbImg(src, del),
-      h('button', { type: 'button', 'aria-label': 'Bild entfernen', onclick: del }, '×'),
+      h('button', { type: 'button', 'aria-label': tr('Bild entfernen'), onclick: del }, '×'),
     ));
   }
 }
@@ -152,7 +153,7 @@ export async function putAway() {
   const hasContent = t.value.trim() || current?.images.length;
   if (!hasContent) { spring(page); page.style.opacity = ''; return; }
   if (reducedMotion()) { // Bewegung reduzieren: ohne Wegflieg-Animation
-    await flush(); tap(); await startFresh({ focus: false }); focusEditor(); flash('weggelegt'); return;
+    await flush(); tap(); await startFresh({ focus: false }); focusEditor(); flash(tr('weggelegt')); return;
   }
 
   // Abbild für die Animation
@@ -186,7 +187,7 @@ export async function putAway() {
     page.style.opacity = '';
   });
   setTimeout(() => ghost.remove(), 420);
-  flash('weggelegt');
+  flash(tr('weggelegt'));
 }
 
 function spring(page) {

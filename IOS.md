@@ -289,3 +289,50 @@ Oben links das Schema wieder auf **App** stellen (nicht SecondBrainWidget/ShareE
 | Fehler beim Archivieren wegen Extensions | Alle drei Targets brauchen dasselbe Team; Build-Nummern von Widget/Share = App |
 
 Bei einem Kompilierfehler: Screenshot der roten Meldung schicken.
+
+---
+
+# App Store auf Englisch
+
+App Store Connect → App → links **„+“ neben der Sprache** (oben rechts bei der Version) → **English (U.S.)** und
+**English (U.K.)** hinzufügen. Bildschirmfotos: Ordner `en-…` aus `appstore-en.zip`.
+
+- **Name:** `2nd Brain`
+- **Subtitle:** `Thoughts without distraction`
+- **Promotional Text:**
+  > Open. Write. Close. A blank page is ready the moment you open the app – sort your thoughts calmly in the evening. New: 2nd Brain Plus with sync and weekly review.
+- **Keywords:** `notes,ideas,thoughts,journal,minimal,focus,diary,quick note,memo,brain dump,inbox,daily review`
+- **Description:**
+  > Open. Write. Close.
+  >
+  > 2nd Brain is a blank page for your thoughts – no folders, no distractions. Open the app and start typing right away. Attach photos, add a #category, put the note away. In the evening you calmly sort what stuck with you during the day.
+  >
+  > • Write instantly – a blank page with the cursor ready, everything saves automatically
+  > • Images – take or attach photos, view them large, zoom and save to Photos
+  > • #Categories & lists – type # and 2nd Brain suggests categories, lists continue by themselves
+  > • Evening review – your day at a glance, sort, pin and archive
+  > • Reminders – turn a #task into a reminder at the time you choose
+  > • Share – as text or as a link that opens in the other person’s 2nd Brain
+  > • Widget, Siri & share sheet – a new thought in one tap
+  > • Face ID – private thoughts stay private
+  > • iPad & Mac – large layout, keyboard shortcuts, mouse and trackpad
+  > • Accessibility – VoiceOver, larger text, high contrast, reduced motion
+  >
+  > 2nd Brain Plus (optional): sync on iPhone, iPad and Mac plus the weekly review. Monthly, yearly (14 days free) or once for a lifetime. Everyone who used 2nd Brain before Plus gets it free forever.
+  >
+  > No ads. No tracking. Without an account everything stays on your device.
+  >
+  > Terms of Use: https://2ndbrain.ch/en/terms.html · Privacy: https://2ndbrain.ch/en/privacy.html
+- **What’s New (2.3):**
+  > New: 2nd Brain is now available in English. 2nd Brain Plus brings sync on all your devices and the weekly review – monthly, yearly (14 days free) or once for a lifetime. Everyone who used 2nd Brain before gets Plus free forever. Plus: safer delete confirmations and no keyboard during the introduction.
+- **Support URL:** `https://2ndbrain.ch/en/#kontakt` · **Marketing URL:** `https://2ndbrain.ch/en/` ·
+  **Privacy Policy URL (App Information, English):** `https://2ndbrain.ch/en/privacy.html`
+
+### iOS-Texte auf Englisch (Xcode, einmalig)
+1. Projekt **App** (blau) → **Info** → **Localizations**: **English** und **German** müssen in der Liste stehen
+   (sonst **+** → German).
+2. Finder: `ios-extensions/App/en.lproj/InfoPlist.strings` und den ganzen Ordner `ios-extensions/App/de.lproj`
+   (InfoPlist.strings, Localizable.strings, AppShortcuts.strings) in Xcode auf **App → App** ziehen →
+   *Copy items if needed*, Target nur **App**. Ist `AppShortcuts.strings` schon drin: Inhalt ersetzen (pbcopy).
+3. Den Inhalt von `NewThoughtIntent.swift`, `Widget/SecondBrainWidget.swift` und `Share/ShareViewController.swift`
+   in Xcode ersetzen (`pbcopy < …`, dann ⌘A ⌘V ⌘S).

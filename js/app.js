@@ -16,12 +16,14 @@ import { importShared } from './share.js';
 import { openPlus } from './plus-view.js';
 import { isPlus, grantEarlyUsers, refreshPurchases, shouldAskOnStart } from './plus.js';
 import { setSetting } from './settings.js';
+import { t, translateDom } from './i18n.js';
 
 const overlay = document.getElementById('overlay');
 const body = document.getElementById('sheet-body');
 const HIDDEN_KEY = 'sb.hiddenAt';
 let view = null;
 
+translateDom();
 apply();
 initEditor();
 document.addEventListener('settings-changed', autosize);
@@ -49,7 +51,7 @@ async function open(name) {
   if (!body.contains(document.activeElement)) {
     const sheet = overlay.querySelector('.sheet');
     const title = body.querySelector('h2') || sheet;
-    sheet.setAttribute('aria-label', body.querySelector('h2')?.textContent || 'Einstellungen');
+    sheet.setAttribute('aria-label', body.querySelector('h2')?.textContent || t('Einstellungen'));
     title.tabIndex = -1;
     title.focus({ preventScroll: true });
   }
@@ -150,7 +152,7 @@ async function checkDue() {
   if (!due.length) return false;
   const n = due[0];
   const text = n.text.replace(/\s+/g, ' ').trim();
-  bannerOpen.textContent = `⏰ ${text.length > 34 ? text.slice(0, 32) + '…' : text || 'Erinnerung'} →`;
+  bannerOpen.textContent = `⏰ ${text.length > 34 ? text.slice(0, 32) + '…' : text || t('Erinnerung')} →`;
   const mark = async () => db.setMeta('remindersSeen', [...seen, n.id + n.remind_at].slice(-200));
   bannerAction = async () => { await mark(); if (view) close(); openNote(n.id); };
   bannerDismiss = mark;
@@ -160,7 +162,7 @@ async function checkDue() {
 
 async function checkReminder() {
   if (await checkDue()) return;
-  bannerOpen.textContent = 'Tag abschliessen →';
+  bannerOpen.textContent = t('Tag abschliessen →');
   bannerAction = () => open('review');
   bannerDismiss = async () => db.setMeta('bannerDismissed', localDay());
   const s = settings();
@@ -215,8 +217,8 @@ async function openShared(code) {
     const id = await importShared(code);
     if (view) close();
     await openNote(id);
-    toast('Geteilte Notiz übernommen');
-  } catch { toast('Dieser Link enthält keine gültige Notiz'); }
+    toast(t('Geteilte Notiz übernommen'));
+  } catch { toast(t('Dieser Link enthält keine gültige Notiz')); }
 }
 function checkImportHash() {
   const m = /^#import=([\w-]+)/.exec(location.hash);
@@ -258,7 +260,7 @@ async function nativeInbox() {
       done.push(it.id);
     }
     await clearSharedInbox(done);
-    if (imported) toast(imported === 1 ? '1 geteilte Notiz übernommen' : `${imported} geteilte Notizen übernommen`);
+    if (imported) toast(imported === 1 ? t('1 geteilte Notiz übernommen') : t('{n} geteilte Notizen übernommen', { n: imported }));
   } finally {
     inboxBusy = false;
   }

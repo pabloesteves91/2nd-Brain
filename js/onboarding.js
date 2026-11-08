@@ -2,6 +2,7 @@
 import { h, updateInert, reducedMotion } from './ui.js';
 import { setSetting } from './settings.js';
 import { focusEditor } from './editor.js';
+import { t, isEn } from './i18n.js';
 
 const SLIDES = [
   { img: '01.jpg', title: 'Öffnen. Schreiben. Schliessen.', points: [
@@ -45,20 +46,20 @@ export function showOnboarding() {
   document.activeElement?.blur();
   const track = h('div', { class: 'ob-track' },
     SLIDES.map(({ img, title, points }) => h('div', { class: 'ob-slide' + (img ? '' : ' ob-text') },
-      img ? h('img', { src: `onboarding/${img}`, alt: `Bildschirm: ${title}`, draggable: false }) : null,
-      h('h2', {}, title),
-      h('ul', {}, points.map(t => h('li', {}, t))))));
+      img ? h('img', { src: `onboarding/${isEn() ? 'en/' : ''}${img}`, alt: t('Bildschirm: {title}', { title: t(title) }), draggable: false }) : null,
+      h('h2', {}, t(title)),
+      h('ul', {}, points.map(p => h('li', {}, t(p)))))));
   const dots = h('div', { class: 'ob-dots', 'aria-hidden': 'true' }, SLIDES.map(() => h('i')));
-  const next = h('button', { type: 'button', class: 'primary ob-next' }, 'Weiter');
-  const el = h('div', { class: 'onboarding', role: 'dialog', 'aria-modal': 'true', 'aria-label': 'Einführung' },
-    h('button', { type: 'button', class: 'ob-skip', onclick: () => done() }, 'Überspringen'),
+  const next = h('button', { type: 'button', class: 'primary ob-next' }, t('Weiter'));
+  const el = h('div', { class: 'onboarding', role: 'dialog', 'aria-modal': 'true', 'aria-label': t('Einführung') },
+    h('button', { type: 'button', class: 'ob-skip', onclick: () => done() }, t('Überspringen')),
     track, dots, next);
 
   const index = () => Math.round(track.scrollLeft / track.clientWidth);
   const update = () => {
     const i = index();
     [...dots.children].forEach((d, k) => d.classList.toggle('on', k === i));
-    next.textContent = i === SLIDES.length - 1 ? 'Los geht’s' : 'Weiter';
+    next.textContent = i === SLIDES.length - 1 ? t('Los geht’s') : t('Weiter');
   };
   const done = () => { el.remove(); updateInert(); setSetting('onboarded', true); focusEditor(); document.dispatchEvent(new CustomEvent('onboarding-done')); };
 

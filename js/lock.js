@@ -7,6 +7,7 @@ import { settings } from './settings.js';
 import { isNative, verifyIdentity } from './native.js';
 import { focusEditor } from './editor.js';
 import { updateInert } from './ui.js';
+import { t } from './i18n.js';
 
 const el = () => document.getElementById('lock');
 const QUIET_MS = 1500;   // so lange nach einem Face-ID-Dialog App-Status-Ereignisse ignorieren
@@ -42,7 +43,7 @@ export async function unlock() {
   unlocking = false;
   promptEndedAt = Date.now();
   if (ok) { hide(); focusEditor(); }
-  else el().querySelector('.lock-hint').textContent = 'Nicht entsperrt – nochmal versuchen';
+  else el().querySelector('.lock-hint').textContent = t('Nicht entsperrt – nochmal versuchen');
 }
 
 export function initLock() {

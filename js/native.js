@@ -2,6 +2,7 @@
 // Ohne Bundler: Capacitor stellt window.Capacitor in der App bereit.
 
 import { toast } from './ui.js';
+import { t } from './i18n.js';
 
 const C = globalThis.Capacitor;
 const cache = {};
@@ -62,8 +63,8 @@ export async function scheduleReminder({ enabled, time }) {
     await ln.schedule({
       notifications: [{
         id: REMINDER_ID,
-        title: 'Dein Tag',
-        body: 'Ein kurzer Blick auf deine Gedanken von heute?',
+        title: t('Dein Tag'),
+        body: t('Ein kurzer Blick auf deine Gedanken von heute?'),
         schedule: { on: { hour, minute }, repeats: true, allowWhileIdle: true },
       }],
     });
@@ -84,7 +85,7 @@ export function tap() {
 // „Mit Apple anmelden“: liefert Token + Roh-Nonce für Firebase.
 export async function appleSignIn() {
   const apple = plugin('SignInWithApple');
-  if (!apple) throw new Error('Mit Apple anmelden gibt es nur in der iOS-App.');
+  if (!apple) throw new Error(t('Mit Apple anmelden gibt es nur in der iOS-App.'));
   const rawNonce = [...crypto.getRandomValues(new Uint8Array(32))].map(b => b.toString(16).padStart(2, '0')).join('');
   const hash = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(rawNonce));
   const nonce = [...new Uint8Array(hash)].map(b => b.toString(16).padStart(2, '0')).join('');
@@ -104,7 +105,7 @@ export async function verifyIdentity() {
   const bio = plugin('NativeBiometric');
   if (!bio) return true;
   try {
-    await bio.verifyIdentity({ reason: '2nd Brain entsperren', title: '2nd Brain', useFallback: true });
+    await bio.verifyIdentity({ reason: t('2nd Brain entsperren'), title: '2nd Brain', useFallback: true });
     return true;
   } catch {
     return false;
@@ -126,8 +127,8 @@ export async function scheduleWeekly({ enabled, time }) {
     await ln.schedule({
       notifications: [{
         id: WEEKLY_ID,
-        title: 'Deine Woche',
-        body: 'Ein ruhiger Blick zurück auf deine Gedanken der Woche.',
+        title: t('Deine Woche'),
+        body: t('Ein ruhiger Blick zurück auf deine Gedanken der Woche.'),
         schedule: { on: { weekday: 1, hour, minute }, repeats: true, allowWhileIdle: true }, // 1 = Sonntag
         extra: { open: 'week' },
       }],
@@ -161,8 +162,8 @@ export async function scheduleTask(note) {
     await ln.schedule({
       notifications: [{
         id,
-        title: 'Erinnerung',
-        body: text.length > 120 ? text.slice(0, 117) + '…' : (text || 'Notiz mit Bild'),
+        title: t('Erinnerung'),
+        body: text.length > 120 ? text.slice(0, 117) + '…' : (text || t('Notiz mit Bild')),
         schedule: { at, allowWhileIdle: true },
         extra: { open: 'note', id: note.id },
       }],
@@ -216,10 +217,10 @@ export async function cameraPhotos(fromLibrary) {
     const photos = fromLibrary
       ? (await cam.pickImages({ quality: 90, limit: 0 })).photos
       : [await cam.getPhoto({ source: 'CAMERA', resultType: 'uri', quality: 90, correctOrientation: true, saveToGallery: true })];
-    if (!fromLibrary && photos[0]?.saved === false) toast('Nicht in Fotos gesichert – Zugriff in den iOS-Einstellungen erlauben');
+    if (!fromLibrary && photos[0]?.saved === false) toast(t('Nicht in Fotos gesichert – Zugriff in den iOS-Einstellungen erlauben'));
     return Promise.all(photos.map(async ph => (await fetch(ph.webPath)).blob()));
   } catch (err) {
-    if (!/cancel/i.test(err?.message || '')) toast(`Kamera: ${err?.message || 'Fehler'}`);
+    if (!/cancel/i.test(err?.message || '')) toast(t('Kamera: {e}', { e: err?.message || t('Fehler') }));
     return [];
   }
 }

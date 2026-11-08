@@ -18,13 +18,13 @@
 </head>
 <body>
   <div id="banner" class="banner" hidden>
-    <button id="banner-open" type="button">Tag abschliessen →</button>
-    <button id="banner-close" type="button" aria-label="Ausblenden">×</button>
+    <button id="banner-open" type="button" data-t>Tag abschliessen →</button>
+    <button id="banner-close" type="button" aria-label="Ausblenden" data-t-attr="aria-label">×</button>
   </div>
 
   <main id="editor">
     <div id="page" class="page">
-    <textarea id="note" placeholder="Was geht dir durch den Kopf?" autocomplete="off" autocapitalize="sentences" spellcheck="true" aria-label="Notiz"></textarea>
+    <textarea id="note" placeholder="Was geht dir durch den Kopf?" autocomplete="off" autocapitalize="sentences" spellcheck="true" aria-label="Notiz" data-t-attr="placeholder,aria-label"></textarea>
     <div id="links" class="links"></div>
     <div id="thumbs" class="thumbs"></div>
     <div class="tap-area" id="tap-area"></div>
@@ -33,28 +33,28 @@
 
   <div id="status" class="status" aria-live="polite"></div>
 
-  <div id="suggest" class="suggest" hidden role="group" aria-label="Kategorie-Vorschläge"></div>
+  <div id="suggest" class="suggest" hidden role="group" aria-label="Kategorie-Vorschläge" data-t-attr="aria-label"></div>
 
-  <nav id="menu" class="menu" aria-label="Menü">
-    <button type="button" data-view="review">heute</button>
-    <button type="button" data-view="all">alle</button>
-    <label class="menu-btn" for="file">bild</label>
+  <nav id="menu" class="menu" aria-label="Menü" data-t-attr="aria-label">
+    <button type="button" data-view="review" data-t>heute</button>
+    <button type="button" data-view="all" data-t>alle</button>
+    <label class="menu-btn" for="file" data-t>bild</label>
     <input id="file" type="file" accept="image/*" multiple hidden>
-    <button type="button" id="new">neu</button>
-    <button type="button" data-view="settings" aria-label="Einstellungen">···</button>
+    <button type="button" id="new" data-t>neu</button>
+    <button type="button" data-view="settings" aria-label="Einstellungen" data-t-attr="aria-label">···</button>
   </nav>
 
   <div id="overlay" class="overlay" hidden>
     <div class="backdrop" data-close></div>
     <section class="sheet" role="dialog" aria-modal="true">
-      <button type="button" class="sheet-grip" data-close aria-label="Schliessen"></button>
+      <button type="button" class="sheet-grip" data-close aria-label="Schliessen" data-t-attr="aria-label"></button>
       <div id="sheet-body" class="sheet-body"></div>
     </section>
   </div>
 
   <div id="lock" class="lock" hidden>
     <div class="lock-mark" aria-hidden="true"></div>
-    <button type="button">Entsperren</button>
+    <button type="button" data-t>Entsperren</button>
     <p class="lock-hint"></p>
   </div>
 

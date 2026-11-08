@@ -4,6 +4,7 @@ import { FIREBASE_CONFIG, APP_VERSION } from './config.js';
 import { db } from './db.js';
 import { isNative, appleSignIn } from './native.js';
 import { isPlus, setFirebaseGift, grantEarlyAccount } from './plus.js';
+import { t } from './i18n.js';
 
 const V = '10.12.2';
 const CDN = `https://www.gstatic.com/firebasejs/${V}`;
@@ -83,7 +84,7 @@ async function checkGift(user) {
 
 export async function initSync() {
   if (!syncEnabled) return;
-  try { await load(); } catch (err) { setStatus({ state: 'error', error: 'Firebase konnte nicht geladen werden (offline?)' }); }
+  try { await load(); } catch (err) { setStatus({ state: 'error', error: t('Firebase konnte nicht geladen werden (offline?)') }); }
 }
 
 export async function currentUser() {
@@ -95,15 +96,15 @@ export async function currentUser() {
 
 function msg(err) {
   const code = err?.code || '';
-  if (code.includes('configuration-not-found') || code.includes('operation-not-allowed')) return 'Diese Anmeldeart ist in Firebase noch nicht aktiviert (Authentication → Sign-in method).';
-  if (code.includes('wrong-password') || code.includes('invalid-credential')) return 'E-Mail oder Passwort falsch.';
-  if (code.includes('email-already-in-use')) return 'Diese E-Mail ist schon registriert – bitte anmelden.';
-  if (code.includes('weak-password')) return 'Passwort zu kurz (mind. 6 Zeichen).';
-  if (code.includes('invalid-email')) return 'Ungültige E-Mail.';
-  if (code.includes('unauthorized-domain')) return 'Diese Domain ist in Firebase nicht freigegeben (Authentication → Settings → Authorized domains).';
-  if (code.includes('popup-closed')) return 'Anmeldung abgebrochen.';
-  if (code.includes('permission-denied')) return 'Kein Zugriff – Firestore-Regeln prüfen (firestore.rules).';
-  if (code.includes('storage/unauthorized')) return 'Kein Zugriff auf Bilder – Storage-Regeln prüfen (storage.rules).';
+  if (code.includes('configuration-not-found') || code.includes('operation-not-allowed')) return t('Diese Anmeldeart ist in Firebase noch nicht aktiviert (Authentication → Sign-in method).');
+  if (code.includes('wrong-password') || code.includes('invalid-credential')) return t('E-Mail oder Passwort falsch.');
+  if (code.includes('email-already-in-use')) return t('Diese E-Mail ist schon registriert – bitte anmelden.');
+  if (code.includes('weak-password')) return t('Passwort zu kurz (mind. 6 Zeichen).');
+  if (code.includes('invalid-email')) return t('Ungültige E-Mail.');
+  if (code.includes('unauthorized-domain')) return t('Diese Domain ist in Firebase nicht freigegeben (Authentication → Settings → Authorized domains).');
+  if (code.includes('popup-closed')) return t('Anmeldung abgebrochen.');
+  if (code.includes('permission-denied')) return t('Kein Zugriff – Firestore-Regeln prüfen (firestore.rules).');
+  if (code.includes('storage/unauthorized')) return t('Kein Zugriff auf Bilder – Storage-Regeln prüfen (storage.rules).');
   return err?.message || String(err);
 }
 
@@ -132,7 +133,7 @@ export async function signInApple() {
     const credential = new A.OAuthProvider('apple.com').credential({ idToken, rawNonce });
     await A.signInWithCredential(auth, credential);
   } catch (err) {
-    if (String(err?.message || err).includes('1001')) throw new Error('Anmeldung abgebrochen.');
+    if (String(err?.message || err).includes('1001')) throw new Error(t('Anmeldung abgebrochen.'));
     throw new Error(msg(err));
   }
 }
@@ -152,7 +153,7 @@ export async function deleteAccount() {
   try {
     await A.deleteUser(user);
   } catch (err) {
-    if (err?.code === 'auth/requires-recent-login') throw new Error('Bitte ab- und wieder anmelden und dann erneut löschen.');
+    if (err?.code === 'auth/requires-recent-login') throw new Error(t('Bitte ab- und wieder anmelden und dann erneut löschen.'));
     throw new Error(msg(err));
   }
   await db.setMeta('lastPull', 0);

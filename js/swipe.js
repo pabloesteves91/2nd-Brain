@@ -5,6 +5,7 @@ import { h, toast } from './ui.js';
 import { db, saveNote } from './db.js';
 import { removeImage } from './images.js';
 import { scheduleTask } from './native.js';
+import { t } from './i18n.js';
 
 const START = 10;        // ab so vielen px gilt es als Wischen
 const TRIGGER = 0.35;    // Anteil der Breite, ab dem die Aktion ausgelöst wird
@@ -86,27 +87,27 @@ export function swipeNote(n, cardEl, rerender) {
   const prevStatus = n.status;
   const actions = {
     right: {
-      label: archived ? 'wiederherstellen' : 'archivieren',
+      label: archived ? t('wiederherstellen') : t('archivieren'),
       tone: 'archive',
       run: async () => {
         n.status = archived ? 'sorted' : 'archived';
         await saveNote(n);
         scheduleTask(n);
         rerender();
-        toast(archived ? 'Wiederhergestellt' : 'Archiviert', 'Rückgängig', async () => {
+        toast(archived ? t('Wiederhergestellt') : t('Archiviert'), t('Rückgängig'), async () => {
           n.status = prevStatus; await saveNote(n); scheduleTask(n); rerender();
         });
       },
     },
     left: {
-      label: 'löschen',
+      label: t('löschen'),
       tone: 'delete',
       run: async () => {
         n.deleted = true;
         await saveNote(n);
         scheduleTask(n);
         rerender();
-        toast('Gelöscht', 'Rückgängig',
+        toast(t('Gelöscht'), t('Rückgängig'),
           async () => { n.deleted = false; await saveNote(n); scheduleTask(n); rerender(); },
           async () => { // erst wenn nicht rückgängig gemacht: Bilder lokal entfernen
             const now = await db.get('notes', n.id);

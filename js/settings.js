@@ -1,5 +1,7 @@
 const KEY = 'sb.settings';
 
+import { lang } from './i18n.js';
+
 export const DEFAULTS = {
   font: 'sans',          // sans | serif | mono
   size: 19,              // px
@@ -7,7 +9,8 @@ export const DEFAULTS = {
   freshAfterMin: 5,      // nach so vielen Minuten im Hintergrund: leeres Blatt
   reminder: true,        // Abend-Hinweis für den Rückblick
   reviewTime: '20:00',
-  categories: ['Idee', 'Aufgabe', 'Projekt', 'Persönlich'],
+  categories: lang() === 'en' ? ['Idea', 'Task', 'Project', 'Personal'] : ['Idee', 'Aufgabe', 'Projekt', 'Persönlich'],
+  lang: 'auto',          // auto (wie das Gerät) | de | en
   tagsAsCategory: false, // neue #Tags automatisch als Kategorie anlegen
   faceId: false,         // App mit Face ID sperren (nur iOS)
   weekly: true,          // Wochenrückblick-Mitteilung am Sonntag

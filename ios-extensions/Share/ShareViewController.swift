@@ -4,6 +4,11 @@
 import UIKit
 import UniformTypeIdentifiers
 
+/// Deutsch, wenn das Gerät auf Deutsch steht, sonst Englisch (ohne .strings-Datei in diesem Target).
+private func L(_ de: String, _ en: String) -> String {
+    (Locale.preferredLanguages.first ?? "en").hasPrefix("de") ? de : en
+}
+
 final class ShareViewController: UIViewController, UITextViewDelegate {
 
     // MARK: Geteilte Inhalte
@@ -61,7 +66,7 @@ final class ShareViewController: UIViewController, UITextViewDelegate {
         view.addSubview(card)
 
         let cancel = UIButton(type: .system)
-        cancel.setTitle("Abbrechen", for: .normal)
+        cancel.setTitle(L("Abbrechen", "Cancel"), for: .normal)
         cancel.setTitleColor(muted, for: .normal)
         cancel.titleLabel?.font = .systemFont(ofSize: 16)
         cancel.addTarget(self, action: #selector(cancelTapped), for: .touchUpInside)
@@ -72,7 +77,7 @@ final class ShareViewController: UIViewController, UITextViewDelegate {
         title.textColor = ink
         title.textAlignment = .center
 
-        saveButton.setTitle("Sichern", for: .normal)
+        saveButton.setTitle(L("Sichern", "Save"), for: .normal)
         saveButton.setTitleColor(ink, for: .normal)
         saveButton.titleLabel?.font = .systemFont(ofSize: 16, weight: .semibold)
         saveButton.addTarget(self, action: #selector(saveTapped), for: .touchUpInside)
@@ -119,7 +124,7 @@ final class ShareViewController: UIViewController, UITextViewDelegate {
         thought.delegate = self
         thought.heightAnchor.constraint(greaterThanOrEqualToConstant: 90).isActive = true
 
-        placeholder.text = "Gedanke dazu …"
+        placeholder.text = L("Gedanke dazu …", "Add a thought …")
         placeholder.font = thought.font
         placeholder.textColor = muted.withAlphaComponent(0.7)
         placeholder.translatesAutoresizingMaskIntoConstraints = false
@@ -158,10 +163,10 @@ final class ShareViewController: UIViewController, UITextViewDelegate {
             previewTitle.text = sharedText
             previewDetail.text = nil
         } else if images.isEmpty {
-            previewTitle.text = "Wird geladen …"
+            previewTitle.text = L("Wird geladen …", "Loading …")
             previewDetail.text = nil
         } else {
-            previewTitle.text = images.count == 1 ? "1 Bild" : "\(images.count) Bilder"
+            previewTitle.text = images.count == 1 ? L("1 Bild", "1 image") : L("\(images.count) Bilder", "\(images.count) images")
             previewDetail.text = nil
         }
         previewDetail.isHidden = previewDetail.text == nil
@@ -248,7 +253,7 @@ final class ShareViewController: UIViewController, UITextViewDelegate {
     @objc private func saveTapped() {
         saveButton.isEnabled = false
         guard let dir = AppGroup.inbox else {
-            showDone("App Group fehlt")
+            showDone(L("App Group fehlt", "App Group missing"))
             return
         }
         let id = UUID().uuidString.lowercased()
@@ -277,7 +282,7 @@ final class ShareViewController: UIViewController, UITextViewDelegate {
         if let json = try? JSONSerialization.data(withJSONObject: entry) {
             try? json.write(to: dir.appendingPathComponent("\(id).json"), options: .atomic)
         }
-        showDone("Gesichert ✓")
+        showDone(L("Gesichert ✓", "Saved ✓"))
     }
 
     private func showDone(_ text: String) {

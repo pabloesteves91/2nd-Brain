@@ -1,0 +1,5 @@
+/* Englische Texte der iOS-Berechtigungsfragen */
+"NSCameraUsageDescription" = "To add photos to your notes.";
+"NSPhotoLibraryUsageDescription" = "To add images from your library to notes.";
+"NSPhotoLibraryAddUsageDescription" = "To save photos you take in 2nd Brain to your library.";
+"NSFaceIDUsageDescription" = "To protect your notes with Face ID.";
