@@ -253,6 +253,7 @@ export async function openNote(id) {
 }
 
 export function focusEditor(toEnd = false) {
+  if (document.querySelector('.onboarding')) return; // Einführung offen → keine Tastatur
   const t = ta();
   t.focus({ preventScroll: true });
   if (toEnd) t.setSelectionRange(t.value.length, t.value.length);

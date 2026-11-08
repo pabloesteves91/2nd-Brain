@@ -68,7 +68,7 @@ export function toast(text, actionLabel, onAction, onExpire) {
 
 // Nur die oberste Ebene ist für VoiceOver/Tastatur erreichbar, alles dahinter ist inert.
 // Nach jedem Öffnen/Schliessen einer Ebene aufrufen.
-const LAYERS = ['#lock:not([hidden])', '.onboarding', '.imgview', '#overlay:not([hidden])'];
+const LAYERS = ['#lock:not([hidden])', '.confirm', '.onboarding', '.imgview', '#overlay:not([hidden])'];
 export function updateInert() {
   const top = LAYERS.map(s => document.querySelector(s)).find(Boolean);
   for (const el of document.body.children) el.inert = !!top && el !== top && !el.classList.contains('toast') && !el.classList.contains('pick');
@@ -96,6 +96,27 @@ export function popMenu(anchor, items) {
   document.body.append(pop);
   pop.querySelector('button').focus({ preventScroll: true });
   setTimeout(() => document.addEventListener('pointerdown', outside, true));
+}
+
+// Eigene Rückfrage statt confirm() – das Systemfenster erscheint in der iOS-App nicht zuverlässig.
+// Liefert true nur bei Klick auf den roten Knopf; Abbrechen ist vorausgewählt.
+export function askConfirm({ title, text, ok }) {
+  return new Promise(resolve => {
+    const done = v => { box.remove(); document.removeEventListener('keydown', onKey, true); updateInert(); resolve(v); };
+    const onKey = e => { if (e.key === 'Escape') { e.stopPropagation(); done(false); } };
+    const cancel = h('button', { type: 'button', class: 'confirm-cancel', onclick: () => done(false) }, 'Abbrechen');
+    const box = h('div', { class: 'confirm', role: 'alertdialog', 'aria-modal': 'true', 'aria-labelledby': 'confirm-t', 'aria-describedby': 'confirm-d' },
+      h('div', { class: 'confirm-card' },
+        h('h2', { id: 'confirm-t' }, title),
+        h('p', { id: 'confirm-d' }, text),
+        h('div', { class: 'confirm-actions' }, cancel,
+          h('button', { type: 'button', class: 'confirm-ok', onclick: () => done(true) }, ok))));
+    document.addEventListener('keydown', onKey, true);
+    document.activeElement?.blur();
+    document.body.append(box);
+    updateInert();
+    cancel.focus({ preventScroll: true });
+  });
 }
 
 // ---------- Bild gross anzeigen ----------

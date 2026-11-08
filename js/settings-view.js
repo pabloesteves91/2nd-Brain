@@ -2,7 +2,7 @@ import { db, wipeAll, emitChange } from './db.js';
 import { blobToDataUrl, dataUrlToBlob } from './images.js';
 import { settings, setSetting } from './settings.js';
 import * as sync from './sync.js';
-import { h, toast } from './ui.js';
+import { h, toast, askConfirm } from './ui.js';
 import { isNative, biometryAvailable, verifyIdentity, appInfo } from './native.js';
 import { APP_VERSION, SUPPORT_EMAIL } from './config.js';
 
@@ -144,7 +144,7 @@ export function openSettings(container) {
           type: 'checkbox', checked: s.faceId,
           onchange: async e => {
             const want = e.target.checked;
-            if (want && !(await biometryAvailable())) { alert('Face ID ist auf diesem Gerät nicht verfügbar oder nicht eingerichtet.'); e.target.checked = false; return; }
+            if (want && !(await biometryAvailable())) { toast('Face ID ist auf diesem Gerät nicht verfügbar oder nicht eingerichtet.'); e.target.checked = false; return; }
             if (!(await verifyIdentity())) { e.target.checked = !want; return; }
             setSetting('faceId', want);
           },
@@ -169,7 +169,7 @@ export function openSettings(container) {
       row('Alles löschen', h('button', {
         type: 'button', class: 'danger',
         onclick: async () => {
-          if (!confirm('Wirklich alle Notizen auf diesem Gerät löschen?')) return;
+          if (!(await askConfirm({ title: 'Alles löschen?', text: 'Alle Notizen und Bilder auf diesem Gerät werden gelöscht. Das lässt sich nicht rückgängig machen.', ok: 'Alles löschen' }))) return;
           await wipeAll();
           location.reload();
         },
@@ -213,8 +213,8 @@ function syncSection() {
         row('Konto löschen', h('button', {
           type: 'button', class: 'danger',
           onclick: async () => {
-            if (!confirm('Konto und alle Notizen in der Cloud endgültig löschen? Die Notizen auf diesem Gerät bleiben erhalten.')) return;
-            try { await sync.deleteAccount(); render(); } catch (e) { alert(e.message); }
+            if (!(await askConfirm({ title: 'Konto wirklich löschen?', text: 'Dein Konto und alle Notizen und Bilder in der Cloud werden endgültig gelöscht. Die Notizen auf diesem Gerät bleiben erhalten.', ok: 'Konto löschen' }))) return;
+            try { await sync.deleteAccount(); render(); toast('Konto gelöscht'); } catch (e) { toast(e.message); }
           },
         }, 'löschen'), 'Entfernt alle Cloud-Daten'),
       );
@@ -283,8 +283,8 @@ async function importData(e) {
     }
     emitChange();
     sync.scheduleSync(500);
-    alert(`${count} Notizen importiert.`);
+    toast(`${count} Notizen importiert.`);
   } catch (err) {
-    alert(`Import fehlgeschlagen: ${err.message}`);
+    toast(`Import fehlgeschlagen: ${err.message}`);
   }
 }

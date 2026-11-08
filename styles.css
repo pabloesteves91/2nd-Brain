@@ -862,3 +862,13 @@ input:not([type="checkbox"]):not([type="range"]):not([type="radio"]):focus-visib
 .feedback .primary { margin-top: 10px; }
 
 .card-actions:empty { display: none; }
+
+/* ---------- Rückfrage ---------- */
+.confirm { position: fixed; inset: 0; z-index: 48; background: rgba(0, 0, 0, .35); display: grid; place-items: center; padding: 24px; animation: imgview-in .15s ease; }
+.confirm-card { width: 100%; max-width: 340px; background: var(--sheet); border-radius: 18px; padding: 22px 20px 16px; box-shadow: 0 20px 60px rgba(0, 0, 0, .25); }
+.confirm-card h2 { margin: 0 0 8px; font-size: 1.0588rem; font-weight: 650; }
+.confirm-card p { margin: 0 0 18px; color: var(--muted); font-size: .8824rem; line-height: 1.45; }
+.confirm-actions { display: flex; gap: 10px; }
+.confirm-actions button { flex: 1; padding: 12px; border-radius: 12px; font-weight: 550; }
+.confirm-cancel { border: 1px solid var(--line); background: var(--card); color: var(--fg); }
+.confirm-ok { background: var(--danger); color: var(--bg); }
