@@ -3,7 +3,7 @@
 import { FIREBASE_CONFIG, APP_VERSION } from './config.js';
 import { db } from './db.js';
 import { isNative, appleSignIn } from './native.js';
-import { isPlus, setFirebaseGift } from './plus.js';
+import { isPlus, setFirebaseGift, grantEarlyAccount } from './plus.js';
 
 const V = '10.12.2';
 const CDN = `https://www.gstatic.com/firebasejs/${V}`;
@@ -44,6 +44,7 @@ async function load() {
   });
   A.onAuthStateChanged(auth, async u => {
     document.dispatchEvent(new CustomEvent('auth-changed', { detail: u }));
+    grantEarlyAccount(u);
     await checkGift(u);
     if (u) scheduleSync(0);
   });

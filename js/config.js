@@ -17,6 +17,8 @@ export const PLUS_IDS = {
   yearly: 'ch.fabioberta.secondbrain.plus.yearly',
   lifetime: 'ch.fabioberta.secondbrain.plus.lifetime',
 };
+// Sync-Konten, die vor diesem Tag angelegt wurden, gehören frühen Nutzern → Plus für immer geschenkt.
+export const PLUS_SINCE = '2026-11-08';
 export const TERMS_URL = 'https://2ndbrain.ch/terms.html';
 export const PRIVACY_URL = 'https://2ndbrain.ch/privacy.html';
 

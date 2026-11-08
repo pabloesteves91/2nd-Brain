@@ -1,7 +1,7 @@
 // „2nd Brain Plus“: Sync auf allen Geräten + Wochenrückblick. Alles andere bleibt gratis.
 // Plus gilt, wenn gekauft (Abo/für immer), früher Nutzer (Geschenk) oder in Firebase geschenkt (plusGifts).
 import { settings, setSetting } from './settings.js';
-import { PLUS_IDS } from './config.js';
+import { PLUS_IDS, PLUS_SINCE } from './config.js';
 import { isNative, canBuy, ownedPurchases } from './native.js';
 import { db } from './db.js';
 
@@ -44,6 +44,12 @@ export async function refreshPurchases() {
 }
 
 // Geschenk aus Firebase (Sammlung plusGifts) übernehmen – gift = { note, until } oder null.
+// Frühe Nutzer auch auf neuem Gerät/nach Neuinstallation: Konto vor PLUS_SINCE angelegt.
+export function grantEarlyAccount(user) {
+  const created = new Date(user?.metadata?.creationTime || NaN);
+  if (!isNaN(created) && created < new Date(PLUS_SINCE) && !settings().plusEarly) { setSetting('plusEarly', true); changed(); }
+}
+
 export function setFirebaseGift(gift) {
   const before = JSON.stringify(settings().plusFbGift || null);
   if (before !== JSON.stringify(gift || null)) { setSetting('plusFbGift', gift || null); changed(); }
