@@ -60,7 +60,7 @@ export function showOnboarding() {
     [...dots.children].forEach((d, k) => d.classList.toggle('on', k === i));
     next.textContent = i === SLIDES.length - 1 ? 'Los geht’s' : 'Weiter';
   };
-  const done = () => { el.remove(); updateInert(); setSetting('onboarded', true); focusEditor(); };
+  const done = () => { el.remove(); updateInert(); setSetting('onboarded', true); focusEditor(); document.dispatchEvent(new CustomEvent('onboarding-done')); };
 
   track.addEventListener('scroll', update, { passive: true });
   next.addEventListener('click', () => {

@@ -4,6 +4,7 @@ import { shareMenu } from './share.js';
 import { swipeNote } from './swipe.js';
 import { imageUrl } from './images.js';
 import { settings } from './settings.js';
+import { isPlus } from './plus.js';
 import { h, thumbImg, fmtTime, fmtDay, shiftDay, linkify } from './ui.js';
 
 const STOP = new Set(`aber alle allem allen aller alles also auch auf aus bei beim bin bis bist dann das dass dem den denn der des die dies diese diesem diesen dieser dir doch dort durch ein eine einem einen einer eines etwas euch für gegen hab habe haben hat hatte hier ihr ihre ihm ihn ich ist jetzt kann kein keine man mehr mein meine mich mir mit muss nach nicht noch nur oder ohne schon sehr sein seine sich sie sind so soll über um und uns unser vom von vor war waren was weil wenn werden wie wieder wir wird wo zu zum zur sollte könnte würde mal immer einfach heute morgen dann denke glaube the and for that this with from have are was you not but`.split(/\s+/));
@@ -25,7 +26,8 @@ function topTags(notes) {
 
 function modeSwitch(container) {
   return h('div', { class: 'seg mode' }, [['day', 'Tag'], ['week', 'Woche']].map(([m, label]) =>
-    h('button', { type: 'button', class: state.mode === m ? 'on' : '', onclick: () => { state.mode = m; state.filter = null; render(container); } }, label)));
+    h('button', { type: 'button', class: state.mode === m ? 'on' : '', onclick: () => { state.mode = m; state.filter = null; render(container); } },
+      label, m === 'week' && !isPlus() ? h('span', { class: 'plus-tag' }, 'Plus') : null)));
 }
 
 // Stabile „Zufalls“-Zahl pro Tag, damit die wiederentdeckte Notiz nicht bei jedem Öffnen wechselt.
@@ -158,6 +160,16 @@ function weekStart(day) {
 }
 
 async function renderWeek(container) {
+  if (!isPlus()) {
+    container.replaceChildren(
+      h('div', { class: 'head' }, h('h2', {}, 'Diese Woche')),
+      modeSwitch(container),
+      h('div', { class: 'plus-teaser' },
+        h('b', {}, 'Deine Woche auf einen Blick'),
+        h('p', {}, 'Themen, Kategorien und Tage – der Wochenrückblick gehört zu 2nd Brain Plus.'),
+        h('button', { type: 'button', class: 'primary', onclick: e => e.currentTarget.dispatchEvent(new CustomEvent('open-plus', { bubbles: true })) }, 'Plus ansehen')));
+    return;
+  }
   const start = weekStart(state.day);
   const days = [...Array(7)].map((_, i) => shiftDay(start, i));
   const today = localDay();

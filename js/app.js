@@ -13,6 +13,9 @@ import { toast, updateInert } from './ui.js';
 import { initLock, onAppState } from './lock.js';
 import { showOnboarding } from './onboarding.js';
 import { importShared } from './share.js';
+import { openPlus } from './plus-view.js';
+import { isPlus, grantEarlyUsers, refreshPurchases, shouldAskOnStart } from './plus.js';
+import { setSetting } from './settings.js';
 
 const overlay = document.getElementById('overlay');
 const body = document.getElementById('sheet-body');
@@ -31,6 +34,7 @@ const views = {
   week: c => openReview(c, { mode: 'week' }),
   all: c => openAll(c),
   settings: c => openSettings(c),
+  plus: c => openPlus(c, close),
 };
 
 async function open(name) {
@@ -181,14 +185,26 @@ if (isNative()) listNotes().then(rescheduleTasks);
 // ---------- Native iOS-App ----------
 
 initLock();
-if (!settings().onboarded) showOnboarding();
+// Plus: frühe Nutzer beschenken (vor der Einführung prüfen), Käufe abfragen, Kaufbildschirm ggf. anbieten.
+grantEarlyUsers().then(async () => {
+  if (!settings().onboarded) showOnboarding();
+  else if (shouldAskOnStart()) { setSetting('plusAskedAgain', true); open('plus'); }
+  await refreshPurchases();
+});
+document.addEventListener('onboarding-done', () => { if (isNative() && !isPlus()) open('plus'); });
+body.addEventListener('open-plus', () => open('plus'));
+document.addEventListener('plus-changed', () => {
+  nativeSettings();
+  scheduleSync(300);
+  if (view === 'settings' || view === 'review' || view === 'week') views[view](body);
+});
 body.addEventListener('open-onboarding', () => { close(); showOnboarding(); });
 initNative({
   onOpenReview: () => open('review'),
   onOpenWeek: () => open('week'),
   onOpenNote: async id => { if (view) close(); await openNote(id); },
   onNewThought: async () => { if (view) close(); await startFresh(); },
-  onAppState: active => { onAppState(active); if (active) nativeInbox(); },
+  onAppState: active => { onAppState(active); if (active) { nativeInbox(); refreshPurchases(); } },
   onPendingAction: () => nativeInbox(),
   onImport: code => openShared(code),
 });
@@ -257,8 +273,9 @@ function nativeSettings() {
   setStatusBar(s.theme === 'dark' || (s.theme === 'system' && darkQuery.matches));
   const key = `${s.reminder}|${s.reviewTime}`;
   if (key !== reminderKey) { reminderKey = key; scheduleReminder({ enabled: s.reminder, time: s.reviewTime }); }
-  const wkey = `${s.weekly}|${s.weeklyTime}`;
-  if (wkey !== weeklyKey) { weeklyKey = wkey; scheduleWeekly({ enabled: s.weekly, time: s.weeklyTime }); }
+  const weekly = s.weekly && isPlus(); // Wochenrückblick gehört zu Plus
+  const wkey = `${weekly}|${s.weeklyTime}`;
+  if (wkey !== weeklyKey) { weeklyKey = wkey; scheduleWeekly({ enabled: weekly, time: s.weeklyTime }); }
 }
 nativeSettings();
 document.addEventListener('settings-changed', nativeSettings);

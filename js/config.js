@@ -12,5 +12,13 @@ export const FIREBASE_CONFIG = {
 };
 
 // Version der Web-App (in der iOS-App kommt die Version aus Xcode).
-export const APP_VERSION = '2.2';
+export const PLUS_IDS = {
+  monthly: 'ch.fabioberta.secondbrain.plus.monthly',
+  yearly: 'ch.fabioberta.secondbrain.plus.yearly',
+  lifetime: 'ch.fabioberta.secondbrain.plus.lifetime',
+};
+export const TERMS_URL = 'https://2ndbrain.ch/terms.html';
+export const PRIVACY_URL = 'https://2ndbrain.ch/privacy.html';
+
+export const APP_VERSION = '2.3';
 export const SUPPORT_EMAIL = 'fabioberta@me.com';

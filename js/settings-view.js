@@ -5,6 +5,8 @@ import * as sync from './sync.js';
 import { h, toast, askConfirm } from './ui.js';
 import { isNative, biometryAvailable, verifyIdentity, appInfo } from './native.js';
 import { APP_VERSION, SUPPORT_EMAIL } from './config.js';
+import { isPlus, plusKind } from './plus.js';
+import { canBuy } from './native.js';
 
 function aboutHeader() {
   const sub = h('div', { class: 'about-sub' }, `Version ${APP_VERSION}`);
@@ -82,6 +84,22 @@ function feedbackRow() {
   return [row('Feedback senden', toggleBtn, 'Ideen, Fehler, Wünsche – direkt an mich'), box];
 }
 
+const openPlusEvt = e => e.currentTarget.dispatchEvent(new CustomEvent('open-plus', { bubbles: true }));
+const plusLink = label => h('button', { type: 'button', class: 'link', onclick: openPlusEvt }, label);
+const KIND_TEXT = { monthly: 'Monatsabo', yearly: 'Jahresabo', lifetime: 'für immer', early: 'Geschenk für frühe Nutzer', gift: 'geschenkt' };
+
+// Immer sichtbar (in der App mit Store): Plus ansehen bzw. Status.
+function plusSection() {
+  if (!canBuy()) return null;
+  const kind = plusKind();
+  return h('div', { class: 'group' }, h('h3', {}, '2nd Brain Plus'),
+    kind
+      ? row('Plus aktiv ✓', (kind === 'monthly' || kind === 'yearly')
+        ? h('a', { class: 'link', href: 'https://apps.apple.com/account/subscriptions', target: '_blank', rel: 'noopener' }, 'Abo verwalten') : null,
+      KIND_TEXT[kind])
+      : row('Unterstütze 2nd Brain', plusLink('Ansehen'), 'Sync auf allen Geräten und Wochenrückblick'));
+}
+
 export function openSettings(container) {
   const s = settings();
 
@@ -105,6 +123,7 @@ export function openSettings(container) {
 
   container.replaceChildren(...[
     aboutHeader(),
+    plusSection(),
 
     h('div', { class: 'group' }, h('h3', {}, 'Schreiben'),
       row('Schrift', seg('font', [['sans', 'Sans'], ['serif', 'Serif'], ['mono', 'Mono']])),
@@ -127,7 +146,7 @@ export function openSettings(container) {
     ),
 
     h('div', { class: 'group' }, h('h3', {}, 'Wochenrückblick'),
-      isNative() ? row('Sonntags erinnern', toggle('weekly'), 'Mitteilung mit Blick auf die Woche') : null,
+      isNative() ? row('Sonntags erinnern', isPlus() ? toggle('weekly') : plusLink('Mit Plus'), 'Mitteilung mit Blick auf die Woche') : null,
       isNative() ? row('Um', h('input', { type: 'time', 'aria-label': 'Wochenrückblick Uhrzeit', value: s.weeklyTime, onchange: e => setSetting('weeklyTime', e.target.value) })) : null,
       h('p', { class: 'small' }, 'Unter „heute“ → „Woche“ jederzeit ansehen.'),
     ),
@@ -195,6 +214,7 @@ function syncSection() {
     if (st.state === 'syncing') return 'synchronisiert …';
     if (st.state === 'error') return `Fehler: ${st.error}`;
     if (st.state === 'offline') return 'offline – wird später nachgeholt';
+    if (st.state === 'plus' || !isPlus()) return 'pausiert – Sync gehört zu Plus';
     if (st.at) return `zuletzt ${new Date(st.at).toLocaleTimeString('de-CH', { hour: '2-digit', minute: '2-digit' })}`;
     return 'bereit';
   };
@@ -229,7 +249,9 @@ function syncSection() {
       catch (e) { err.textContent = e.message; }
     };
     body.replaceChildren(
-      h('p', { class: 'small' }, 'Melde dich an, um deine Notizen auf allen Geräten zu haben.'),
+      isPlus() ? h('p', { class: 'small' }, 'Melde dich an, um deine Notizen auf allen Geräten zu haben.')
+        : h('div', { class: 'plus-teaser' }, h('b', {}, 'Sync auf allen Geräten'), h('p', {}, 'Der Sync gehört zu 2nd Brain Plus. Hast du Plus geschenkt bekommen? Dann melde dich unten an.'),
+          h('button', { type: 'button', class: 'primary', onclick: e => e.currentTarget.dispatchEvent(new CustomEvent('open-plus', { bubbles: true })) }, 'Sync einschalten')),
       isNative()
         ? row('Apple', h('button', {
           type: 'button', class: 'link',

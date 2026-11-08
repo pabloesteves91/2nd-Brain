@@ -237,6 +237,28 @@ export async function shareNative({ text, url }) {
   return true;
 }
 
+// ---------- In-App-Käufe (Plugin @capgo/native-purchases, StoreKit 2) ----------
+
+export const canBuy = () => isNative() && !!C.isPluginAvailable?.('NativePurchases');
+
+// type: 'subs' (Abo) oder 'inapp' (Einmalkauf). Leere Liste, wenn der Store nichts liefert.
+export async function storeProducts(ids, type) {
+  try { return (await plugin('NativePurchases').getProducts({ productIdentifiers: ids, productType: type })).products || []; }
+  catch { return []; }
+}
+
+export async function buyProduct(id, type) {
+  return plugin('NativePurchases').purchaseProduct({ productIdentifier: id, productType: type, quantity: 1 });
+}
+
+export async function ownedPurchases() {
+  try { return (await plugin('NativePurchases').getPurchases()).purchases || []; } catch { return null; } // null = unbekannt (offline)
+}
+
+export async function restoreStore() {
+  await plugin('NativePurchases').restorePurchases();
+}
+
 export async function appInfo() {
   const app = plugin('App');
   if (!app) return null;

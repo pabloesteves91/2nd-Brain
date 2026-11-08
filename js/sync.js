@@ -3,6 +3,7 @@
 import { FIREBASE_CONFIG, APP_VERSION } from './config.js';
 import { db } from './db.js';
 import { isNative, appleSignIn } from './native.js';
+import { isPlus, setFirebaseGift } from './plus.js';
 
 const V = '10.12.2';
 const CDN = `https://www.gstatic.com/firebasejs/${V}`;
@@ -41,8 +42,9 @@ async function load() {
   readyUser = new Promise(resolve => {
     const off = A.onAuthStateChanged(auth, u => { off(); resolve(u); });
   });
-  A.onAuthStateChanged(auth, u => {
+  A.onAuthStateChanged(auth, async u => {
     document.dispatchEvent(new CustomEvent('auth-changed', { detail: u }));
+    await checkGift(u);
     if (u) scheduleSync(0);
   });
   // Ergebnis eines Redirect-Logins (iOS-Homescreen-App) abholen
@@ -59,6 +61,23 @@ export async function sendFeedback(text) {
   await F.addDoc(F.collection(fs, 'feedback'), {
     text: t, created_at: F.serverTimestamp(), app: APP_VERSION, platform, uid: auth.currentUser?.uid ?? null,
   });
+}
+
+// In der Firebase-Konsole geschenktes Plus: plusGifts/{E-Mail} oder plusGifts/{UID}, Felder note, until (optional).
+async function checkGift(user) {
+  if (!user) return setFirebaseGift(null);
+  const { fs, F } = fb;
+  for (const id of [user.email?.toLowerCase(), user.uid].filter(Boolean)) {
+    try {
+      const snap = await F.getDoc(F.doc(fs, 'plusGifts', id));
+      if (snap.exists()) {
+        const d = snap.data();
+        const until = d.until?.toDate ? d.until.toDate().toISOString() : d.until || null;
+        return setFirebaseGift({ note: String(d.note || ''), until });
+      }
+    } catch { return; } // offline → letzten Stand behalten
+  }
+  setFirebaseGift(null);
 }
 
 export async function initSync() {
@@ -162,6 +181,7 @@ export async function syncNow() {
     await readyUser;
     const user = auth.currentUser;
     if (!user) { setStatus({ state: 'signed-out' }); return; }
+    if (!isPlus()) { setStatus({ state: 'plus' }); return; } // Sync gehört zu Plus – Notizen bleiben lokal
 
     // Anderer Account als beim letzten Sync → alles neu abgleichen
     if ((await db.getMeta('syncUser')) !== user.uid) {

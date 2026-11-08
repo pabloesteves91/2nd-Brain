@@ -9,6 +9,15 @@ service cloud.firestore {
       allow read, write: if request.auth != null && request.auth.uid == uid;
     }
 
+    // Geschenktes Plus (Familie, Freunde): nur in der Firebase-Konsole anlegen.
+    // Dokument-ID = E-Mail (klein geschrieben) oder Benutzer-ID. Jede Person liest nur ihr eigenes Geschenk.
+    match /plusGifts/{id} {
+      allow get: if request.auth != null
+        && (id == request.auth.uid
+            || (request.auth.token.email != null && id == request.auth.token.email.lower()));
+      allow list, write: if false;
+    }
+
     // Feedback aus der App: alle dürfen senden (auch ohne Konto), niemand kann lesen –
     // nur du in der Firebase-Konsole (Firestore → Daten → feedback).
     match /feedback/{id} {
