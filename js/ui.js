@@ -215,6 +215,35 @@ export function viewImage(src, onDelete) {
   view.focus({ preventScroll: true });
 }
 
+// ---------- Todo-Zeilen in Karten ----------
+
+const TODO = /^(\s*)([○✓]) ?(.*)$/;
+
+// Notiztext für Karten: Zeilen mit ○/✓ als antippbare Kästchen; save(text) speichert den geänderten Text.
+export function noteBody(text, save) {
+  const lines = text.split('\n');
+  if (!lines.some(l => TODO.test(l))) return linkify(text);
+  const todos = lines.filter(l => TODO.test(l));
+  const done = todos.filter(l => TODO.exec(l)[2] === '✓').length;
+  const out = lines.map((line, i) => {
+    const m = TODO.exec(line);
+    if (!m) return h('div', { class: 'line' }, line ? linkify(line) : '\u00a0');
+    const isDone = m[2] === '✓';
+    return h('div', { class: 'todo' + (isDone ? ' done' : '') },
+      h('button', {
+        type: 'button', class: 'todo-box', 'aria-pressed': String(isDone), 'aria-label': t(isDone ? 'Erledigt' : 'Abhaken'),
+        onclick: e => {
+          e.stopPropagation();
+          lines[i] = `${m[1]}${isDone ? '○' : '✓'} ${m[3]}`;
+          save(lines.join('\n'));
+        },
+      }, isDone ? '✓' : ''),
+      h('span', {}, linkify(m[3])));
+  });
+  if (todos.length > 1) out.push(h('div', { class: 'todo-count' }, t('{d}/{n} erledigt', { d: done, n: todos.length })));
+  return out;
+}
+
 // ---------- Links ----------
 
 const URL_RE = /\b(?:https?:\/\/|www\.)[^\s<>"']*[^\s<>"'.,;:!?)\]}»“”]/gi;

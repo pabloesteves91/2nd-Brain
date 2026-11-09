@@ -262,6 +262,8 @@ body::before {
   display: flex;
   justify-content: center;
   gap: clamp(14px, 6vw, 32px);
+  flex-wrap: wrap; /* grosse Schrift: in zwei Zeilen statt abgeschnitten */
+  row-gap: 0;
   padding: 12px 16px calc(env(safe-area-inset-bottom) + 14px);
   background: linear-gradient(to top, var(--bg) 60%, transparent);
   font-size: 0.7647rem;
@@ -904,3 +906,11 @@ input:not([type="checkbox"]):not([type="range"]):not([type="radio"]):focus-visib
 .plus-teaser p { margin: 4px 0 0; color: var(--muted); font-size: .82rem; }
 .plus-teaser .primary { margin-top: 12px; }
 .plus-tag { margin-left: 6px; font-size: .62rem; font-weight: 600; letter-spacing: .02em; padding: 1px 6px; border-radius: 999px; border: 1px solid var(--line); color: var(--muted); }
+
+/* ---------- Todo-Listen ---------- */
+.card-text .line { min-height: 1.5em; }
+.todo { display: flex; gap: 10px; align-items: flex-start; padding: 3px 0; }
+.todo-box { flex: none; width: 22px; height: 22px; margin-top: 1px; border-radius: 50%; border: 1.5px solid var(--muted); display: grid; place-items: center; font-size: .75rem; line-height: 1; color: var(--bg); }
+.todo.done .todo-box { background: var(--fg); border-color: var(--fg); }
+.todo.done span { text-decoration: line-through; color: var(--muted); }
+.todo-count { margin-top: 6px; font-family: var(--ui); font-size: .72rem; color: var(--muted); }

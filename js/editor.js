@@ -63,6 +63,8 @@ export function initEditor() {
     pickSource(fileBtn);
   });
 
+  t.addEventListener('click', () => toggleAtCaret(t));
+
   // Schreibhilfen: #Vorschläge und automatische Listen
   const suggest = initSuggest(t);
   t.addEventListener('beforeinput', e => {
@@ -155,6 +157,31 @@ async function renderThumbs() {
 }
 
 // „Weglegen“: Notiz speichern, sofort leeres Blatt – ein Abbild der alten Notiz fliegt nach unten weg.
+// „todo“: aktuelle Notiz weglegen, neues Blatt beginnt mit einem Kreis zum Abhaken.
+export async function startTodo() {
+  const t = ta();
+  if (t.value.trim() || current?.images.length) await putAway();
+  else await startFresh({ focus: false });
+  t.value = '○ ';
+  t.dispatchEvent(new Event('input', { bubbles: true }));
+  focusEditor(true);
+}
+
+// Kreis am Zeilenanfang angetippt (Cursor davor oder direkt dahinter) → ○ ↔ ✓
+function toggleAtCaret(t) {
+  const pos = t.selectionStart;
+  if (pos !== t.selectionEnd) return;
+  const v = t.value;
+  const ls = v.lastIndexOf('\n', pos - 1) + 1;
+  const ch = v[ls];
+  if ((ch !== '○' && ch !== '✓') || pos - ls > 1) return;
+  t.setRangeText(ch === '○' ? '✓' : '○', ls, ls + 1, 'preserve');
+  const le = v.indexOf('\n', ls);
+  t.setSelectionRange(le < 0 ? v.length : le, le < 0 ? v.length : le);
+  tap();
+  t.dispatchEvent(new Event('input', { bubbles: true }));
+}
+
 export async function putAway() {
   const t = ta();
   const page = document.getElementById('page');

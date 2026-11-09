@@ -14,7 +14,8 @@ export function continueList(t) {
   const lineStart = v.lastIndexOf('\n', pos - 1) + 1;
   const line = v.slice(lineStart, pos);
   let m, next, content;
-  if ((m = line.match(/^(\s*)([-•*]) \[[ xX]\] ?(.*)$/))) { next = `${m[1]}${m[2]} [ ] `; content = m[3]; }
+  if ((m = line.match(/^(\s*)[○✓] ?(.*)$/))) { next = `${m[1]}○ `; content = m[2]; }       // Todo-Liste
+  else if ((m = line.match(/^(\s*)([-•*]) \[[ xX]\] ?(.*)$/))) { next = `${m[1]}${m[2]} [ ] `; content = m[3]; }
   else if ((m = line.match(/^(\s*)([-•*]) (.*)$/))) { next = `${m[1]}${m[2]} `; content = m[3]; }
   else if ((m = line.match(/^(\s*)(\d{1,3})([.)]) (.*)$/))) { next = `${m[1]}${Number(m[2]) + 1}${m[3]} `; content = m[4]; }
   else return false;

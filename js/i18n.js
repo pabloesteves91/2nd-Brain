@@ -367,4 +367,9 @@ export const EN = {
   'Nicht in Fotos gesichert – Zugriff in den iOS-Einstellungen erlauben': 'Not saved to Photos – allow access in iOS Settings',
   'Kamera: {e}': 'Camera: {e}',
   'Rückfrage': 'Confirmation',
+  'todo': 'todo',
+  'Erledigt': 'Done',
+  'Abhaken': 'Check off',
+  '{d}/{n} erledigt': '{d}/{n} done',
+  '„todo“ startet eine Liste zum Abhaken – zweimal Enter beendet sie.': '“todo” starts a checklist – press Return twice to end it.',
 };

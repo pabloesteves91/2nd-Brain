@@ -1,5 +1,5 @@
 import { db, localDay, notesOfDay, listNotes, newNote, saveNote } from './db.js';
-import { initEditor, startFresh, openNote, flush, focusEditor, refreshCurrent, autosize, putAway, takePhoto } from './editor.js';
+import { initEditor, startFresh, openNote, flush, focusEditor, refreshCurrent, autosize, putAway, takePhoto, startTodo } from './editor.js';
 import { openReview } from './review.js';
 import { openAll } from './all.js';
 import { openSettings } from './settings-view.js';
@@ -62,6 +62,7 @@ function close() {
   updateInert();
   view = null;
   body.replaceChildren();
+  refreshCurrent(); // z. B. in „heute“ abgehakt, während die Notiz im Editor offen ist
   focusEditor();
 }
 
@@ -83,6 +84,7 @@ document.addEventListener('keydown', e => {
   act();
 });
 document.getElementById('new').addEventListener('click', () => putAway());
+document.getElementById('todo').addEventListener('click', () => startTodo());
 
 body.addEventListener('open-note', async e => {
   close();

@@ -1,7 +1,7 @@
 import { listNotes, saveNote } from './db.js';
 import { imageUrl } from './images.js';
 import { settings } from './settings.js';
-import { h, thumbImg, fmtTime, fmtDay, linkify } from './ui.js';
+import { h, noteBody, thumbImg, fmtTime, fmtDay, linkify } from './ui.js';
 import { swipeNote } from './swipe.js';
 import { reminderControl } from './tasks.js';
 import { shareMenu } from './share.js';
@@ -80,7 +80,7 @@ function card(n, container, rerender) {
     h('div', {
       class: 'card-text' + (n.text.trim() ? '' : ' empty'),
       onclick: () => container.dispatchEvent(new CustomEvent('open-note', { bubbles: true, detail: n.id })),
-    }, n.text.trim() ? linkify(n.text.trim()) : t('Nur Bild')),
+    }, n.text.trim() ? noteBody(n.text.trim(), async text => { n.text = text; await saveNote(n); (() => rerender())(); }) : t('Nur Bild')),
     thumbs,
     h('div', { class: 'card-actions' },
       n.status === 'archived' ? h('button', { type: 'button', onclick: async () => { n.status = 'sorted'; await saveNote(n); rerender(); } }, t('wiederherstellen')) : null,

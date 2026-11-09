@@ -12,7 +12,8 @@ const SLIDES = [
   { img: '02.jpg', title: 'Weglegen, Bilder, Listen', points: [
     'Im Schreibfeld nach unten ziehen oder „neu“ tippen – die Notiz ist weggelegt.',
     '„bild“ hängt Fotos aus Kamera oder Mediathek an.',
-    'Zeile mit „-“ oder „1.“ beginnen – Enter setzt die Liste fort.'] },
+    'Zeile mit „-“ oder „1.“ beginnen – Enter setzt die Liste fort.',
+    '„todo“ startet eine Liste zum Abhaken – zweimal Enter beendet sie.'] },
   { img: '03.jpg', title: '#Kategorien beim Schreiben', points: [
     '# tippen und einen Vorschlag antippen – die Notiz ist einsortiert.',
     'Eigene Kategorien legst du unter ··· an.',

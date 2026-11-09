@@ -5,7 +5,7 @@ import { swipeNote } from './swipe.js';
 import { imageUrl } from './images.js';
 import { settings } from './settings.js';
 import { isPlus } from './plus.js';
-import { h, thumbImg, fmtTime, fmtDay, shiftDay, linkify } from './ui.js';
+import { h, noteBody, thumbImg, fmtTime, fmtDay, shiftDay, linkify } from './ui.js';
 import { t, locale } from './i18n.js';
 
 const STOP = new Set(`aber alle allem allen aller alles also auch auf aus bei beim bin bis bist dann das dass dem den denn der des die dies diese diesem diesen dieser dir doch dort durch ein eine einem einen einer eines etwas euch für gegen hab habe haben hat hatte hier ihr ihre ihm ihn ich ist jetzt kann kein keine man mehr mein meine mich mir mit muss nach nicht noch nur oder ohne schon sehr sein seine sich sie sind so soll über um und uns unser vom von vor war waren was weil wenn werden wie wieder wir wird wo zu zum zur sollte könnte würde mal immer einfach heute morgen dann denke glaube the and for that this with from have are was you not but a an to of in on at it is be as or if so do my me we he she they them our your his her its just what when how why who all any can will would should could about into than then there their more some also very really still even only like get got make made need want think know today tomorrow`.split(/\s+/));
@@ -259,7 +259,7 @@ function card(n, container, { compact = false } = {}) {
     h('div', {
       class: 'card-text' + (n.text.trim() ? '' : ' empty'),
       onclick: () => container.dispatchEvent(new CustomEvent('open-note', { bubbles: true, detail: n.id })),
-    }, n.text.trim() ? linkify(n.text.trim()) : t('Nur Bild')),
+    }, n.text.trim() ? noteBody(n.text.trim(), async text => { n.text = text; await saveNote(n); (() => render(container))(); }) : t('Nur Bild')),
     thumbs,
     compact ? null : h('div', { class: 'card-actions' },
       h('button', { type: 'button', class: n.pinned ? 'on' : '', onclick: async () => { n.pinned = !n.pinned; await saveNote(n); render(container); } }, n.pinned ? t('gepinnt') : t('pinnen')),

@@ -8,7 +8,8 @@ const fmt = { format: d => new Intl.DateTimeFormat(locale(), { weekday: 'short',
 
 const TASK_TAGS = ['aufgabe', 'aufgaben', 'task', 'tasks', 'todo'];
 // Auch wenn ein anderes #Tag die Kategorie bestimmt (z. B. „#app #aufgabe“) bleibt es eine Aufgabe.
-export const isTask = n => n.category === 'Aufgabe' || n.category === 'Task' || !!n.remind_at || (n.tags || []).some(x => TASK_TAGS.includes(x));
+export const isTask = n => n.category === 'Aufgabe' || n.category === 'Task' || !!n.remind_at || (n.tags || []).some(x => TASK_TAGS.includes(x))
+  || /(^|\n)\s*○ /.test(n.text || ''); // Todo-Liste mit offenen Punkten
 
 function toLocalInput(iso) {
   const d = iso ? new Date(iso) : new Date(Date.now() + 3600_000);
