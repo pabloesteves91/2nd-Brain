@@ -104,9 +104,56 @@ struct SecondBrainWidget: Widget {
     }
 }
 
+// MARK: - Breites Widget „Schnellaktionen“: Neuer Gedanke · Foto · Heute
+
+private struct ActionButton: View {
+    let symbol: String
+    let title: String
+    let url: String
+
+    var body: some View {
+        Link(destination: URL(string: url)!) {
+            VStack(spacing: 6) {
+                Image(systemName: symbol).font(.system(size: 22, weight: .medium))
+                Text(title).font(.system(size: 12, weight: .semibold)).lineLimit(1).minimumScaleFactor(0.8)
+            }
+            .foregroundColor(ink)
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .background(RoundedRectangle(cornerRadius: 14).fill(muted.opacity(0.12)))
+        }
+    }
+}
+
+struct ActionsWidgetView: View {
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text("2nd Brain").font(.system(size: 13, weight: .semibold)).foregroundColor(muted)
+            HStack(spacing: 8) {
+                ActionButton(symbol: "square.and.pencil", title: L("Neuer Gedanke", "New thought"), url: "secondbrain://new")
+                ActionButton(symbol: "camera", title: L("Foto", "Photo"), url: "secondbrain://photo")
+                ActionButton(symbol: "sun.horizon", title: L("Heute", "Today"), url: "secondbrain://today")
+            }
+        }
+    }
+}
+
+struct SecondBrainActionsWidget: Widget {
+    let kind = "SecondBrainActionsWidget"
+
+    var body: some WidgetConfiguration {
+        StaticConfiguration(kind: kind, provider: ThoughtProvider()) { _ in
+            ActionsWidgetView().paperBackground()
+        }
+        .configurationDisplayName(L("Schnellaktionen", "Quick actions"))
+        .description(L("Schreiben, Foto oder dein Tag – mit einem Tipp.", "Write, photo or your day – in one tap."))
+        .supportedFamilies([.systemMedium])
+    }
+}
+
 @main
 struct SecondBrainWidgets: WidgetBundle {
     var body: some Widget {
         SecondBrainWidget()
+        SecondBrainActionsWidget()
     }
 }

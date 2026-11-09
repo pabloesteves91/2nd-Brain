@@ -20,7 +20,7 @@ const WEEKLY_ID = 2002;
 
 export const appPlugin = () => plugin('App');
 
-export async function initNative({ onOpenReview, onOpenWeek, onOpenNote, onNewThought, onAppState, onPendingAction, onImport } = {}) {
+export async function initNative({ onOpenReview, onOpenWeek, onOpenNote, onNewThought, onAppState, onPendingAction, onImport, onPhoto } = {}) {
   if (!isNative()) return;
   document.documentElement.classList.add('native');
   // iPad-App auf dem Mac: kein Touchscreen, keine Bildschirmtastatur → keinen Platz dafür reservieren
@@ -43,6 +43,8 @@ export async function initNative({ onOpenReview, onOpenWeek, onOpenNote, onNewTh
   plugin('SecondBrainNative')?.addListener?.('pendingAction', () => onPendingAction?.())?.catch?.(() => {});
   app?.addListener?.('appUrlOpen', ({ url }) => {
     if (/^secondbrain:\/\/new/i.test(url || '')) onNewThought?.();
+    if (/^secondbrain:\/\/photo/i.test(url || '')) onPhoto?.();   // Widget „Schnellaktionen“
+    if (/^secondbrain:\/\/today/i.test(url || '')) onOpenReview?.();
     const m = /^secondbrain:\/\/import\?d=([\w-]+)/i.exec(url || '')
       || /^https:\/\/(?:www\.)?2ndbrain\.ch\/note\.html#([\w-]+)/i.exec(url || ''); // Universal Link
     if (m) onImport?.(m[1]);

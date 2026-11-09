@@ -1,5 +1,5 @@
 import { db, localDay, notesOfDay, listNotes, newNote, saveNote } from './db.js';
-import { initEditor, startFresh, openNote, flush, focusEditor, refreshCurrent, autosize, putAway } from './editor.js';
+import { initEditor, startFresh, openNote, flush, focusEditor, refreshCurrent, autosize, putAway, takePhoto } from './editor.js';
 import { openReview } from './review.js';
 import { openAll } from './all.js';
 import { openSettings } from './settings-view.js';
@@ -209,6 +209,7 @@ initNative({
   onAppState: active => { onAppState(active); if (active) { nativeInbox(); refreshPurchases(); } },
   onPendingAction: () => nativeInbox(),
   onImport: code => openShared(code),
+  onPhoto: async () => { if (view) close(); await startFresh({ focus: false }); await takePhoto(); },
 });
 
 // Geteilte Notiz aus einem Link (App: secondbrain://import?d=…, Web: …/#import=…)

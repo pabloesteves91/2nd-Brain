@@ -99,11 +99,19 @@ async function save({ quiet = false } = {}) {
   if (!quiet && !empty) flash(tr('gespeichert'));
 }
 
+async function fromCamera(fromLibrary) {
+  const blobs = await cameraPhotos(fromLibrary);
+  if (blobs.length) await addImages(blobs.map((b, i) => new File([b], `foto-${i}.jpg`, { type: b.type || 'image/jpeg' })));
+}
+
+// Widget „Foto“: direkt die Kamera; ohne Kamera-Plugin (Mac) die normale Bildauswahl.
+export async function takePhoto() {
+  if (canUseCamera()) await fromCamera(false);
+  else document.getElementById('file').click();
+}
+
 function pickSource(anchor) {
-  const take = fromLibrary => async () => {
-    const blobs = await cameraPhotos(fromLibrary);
-    if (blobs.length) await addImages(blobs.map((b, i) => new File([b], `foto-${i}.jpg`, { type: b.type || 'image/jpeg' })));
-  };
+  const take = fromLibrary => () => fromCamera(fromLibrary);
   popMenu(anchor, [[tr('Foto aufnehmen'), take(false)], [tr('Aus Mediathek'), take(true)]]);
 }
 
