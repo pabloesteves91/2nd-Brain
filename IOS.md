@@ -331,8 +331,8 @@ App Store Connect → App → links **„+“ neben der Sprache** (oben rechts b
 ### iOS-Texte auf Englisch (Xcode, einmalig)
 1. Projekt **App** (blau) → **Info** → **Localizations**: **English** und **German** müssen in der Liste stehen
    (sonst **+** → German).
-2. Finder: `ios-extensions/App/en.lproj/InfoPlist.strings` und den ganzen Ordner `ios-extensions/App/de.lproj`
-   (InfoPlist.strings, Localizable.strings, AppShortcuts.strings) in Xcode auf **App → App** ziehen →
-   *Copy items if needed*, Target nur **App**. Ist `AppShortcuts.strings` schon drin: Inhalt ersetzen (pbcopy).
+2. Basissprache ist **German** (Default) – so lassen. Finder: die Ordner `ios-extensions/App/en.lproj`
+   (InfoPlist, Localizable, AppShortcuts) und `ios-extensions/App/de.lproj` (InfoPlist, AppShortcuts) in Xcode auf
+   **App → App** ziehen → *Copy items if needed*, Target nur **App**. Danach steht bei English „3 Files Localized“.
 3. Den Inhalt von `NewThoughtIntent.swift`, `Widget/SecondBrainWidget.swift` und `Share/ShareViewController.swift`
    in Xcode ersetzen (`pbcopy < …`, dann ⌘A ⌘V ⌘S).

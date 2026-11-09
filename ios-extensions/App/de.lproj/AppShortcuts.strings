@@ -1,7 +1,6 @@
-/* Deutsche Siri-Phrasen für den Kurzbefehl „Neuer Gedanke“. Links die englische Phrase aus NewThoughtIntent.swift,
-   rechts die deutsche. ${applicationName} = Name der App (inkl. Alternativnamen). */
-"New thought in ${applicationName}" = "Neuer Gedanke in ${applicationName}";
-"${applicationName} new thought" = "${applicationName} neuer Gedanke";
-"Note a thought in ${applicationName}" = "Gedanke in ${applicationName} notieren";
-"Note in ${applicationName}" = "Notiz in ${applicationName}";
-"New note in ${applicationName}" = "Neue Notiz in ${applicationName}";
+/* Deutsche Siri-Phrasen (Basissprache des Projekts ist Deutsch). ${applicationName} = Name der App. */
+"Neuer Gedanke in ${applicationName}" = "Neuer Gedanke in ${applicationName}";
+"${applicationName} neuer Gedanke" = "${applicationName} neuer Gedanke";
+"Gedanke in ${applicationName} notieren" = "Gedanke in ${applicationName} notieren";
+"Notiz in ${applicationName}" = "Notiz in ${applicationName}";
+"Neue Notiz in ${applicationName}" = "Neue Notiz in ${applicationName}";

@@ -1,0 +1,6 @@
+/* Englische Siri-Phrasen: links die deutsche Phrase aus NewThoughtIntent.swift, rechts Englisch. */
+"Neuer Gedanke in ${applicationName}" = "New thought in ${applicationName}";
+"${applicationName} neuer Gedanke" = "${applicationName} new thought";
+"Gedanke in ${applicationName} notieren" = "Note a thought in ${applicationName}";
+"Notiz in ${applicationName}" = "Note in ${applicationName}";
+"Neue Notiz in ${applicationName}" = "New note in ${applicationName}";
