@@ -6,7 +6,8 @@ import { h, toast, askConfirm } from './ui.js';
 import { isNative, biometryAvailable, verifyIdentity, appInfo } from './native.js';
 import { APP_VERSION, SUPPORT_EMAIL, siteUrl } from './config.js';
 import { isPlus, plusKind } from './plus.js';
-import { canBuy } from './native.js';
+import { canBuy, manageSubscriptions } from './native.js';
+import { refreshPurchases } from './plus.js';
 import { t, locale } from './i18n.js';
 
 function aboutHeader() {
@@ -96,9 +97,10 @@ function plusSection() {
   const kind = plusKind();
   return h('div', { class: 'group' }, h('h3', {}, t('2nd Brain Plus')),
     kind
-      ? row(t('Plus aktiv ✓'), (kind === 'monthly' || kind === 'yearly')
-        ? h('a', { class: 'link', href: 'https://apps.apple.com/account/subscriptions', target: '_blank', rel: 'noopener' }, t('Abo verwalten')) : null,
-      KIND_TEXT[kind])
+      ? [row(t('Plus aktiv ✓'), (kind === 'monthly' || kind === 'yearly')
+        ? h('button', { type: 'button', class: 'link', onclick: async () => { await manageSubscriptions(); refreshPurchases(); } }, t('Abo verwalten')) : null,
+      KIND_TEXT[kind]),
+      row(t('Plus-Optionen'), plusLink(t('Ansehen')), t('Monat, Jahr oder für immer'))]
       : row(t('Unterstütze 2nd Brain'), plusLink(t('Ansehen')), t('Sync auf allen Geräten und Wochenrückblick')));
 }
 

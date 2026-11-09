@@ -256,6 +256,12 @@ export async function ownedPurchases() {
   try { return (await plugin('NativePurchases').getPurchases()).purchases || []; } catch { return null; } // null = unbekannt (offline)
 }
 
+// Apples Abo-Verwaltung direkt in der App (zeigt auch Sandbox-Abos); sonst die Webseite.
+export async function manageSubscriptions() {
+  try { await plugin('NativePurchases').manageSubscriptions(); }
+  catch { window.open('https://apps.apple.com/account/subscriptions', '_blank'); }
+}
+
 export async function restoreStore() {
   await plugin('NativePurchases').restorePurchases();
 }

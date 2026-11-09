@@ -184,6 +184,8 @@ export const EN = {
   '2nd Brain Plus': '2nd Brain Plus',
   'Plus aktiv ✓': 'Plus active ✓',
   'Abo verwalten': 'Manage subscription',
+  'Plus-Optionen': 'Plus options',
+  'Monat, Jahr oder für immer': 'Month, year or lifetime',
   'Unterstütze 2nd Brain': 'Support 2nd Brain',
   'Ansehen': 'View',
   'Sync auf allen Geräten und Wochenrückblick': 'Sync on all devices and weekly review',
