@@ -22,7 +22,7 @@
     "@capacitor/share": "7.0.4",
     "@capacitor/status-bar": "7.0.6",
     "@capgo/capacitor-native-biometric": "7.6.0",
-    "@capgo/native-purchases": "7.19.3"
+    "@capgo/native-purchases": "7.16.2"
   },
   "devDependencies": {
     "@capacitor/cli": "7.4.5"
