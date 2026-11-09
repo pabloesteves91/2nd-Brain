@@ -5,6 +5,7 @@ import { db } from './db.js';
 import { isNative, appleSignIn } from './native.js';
 import { isPlus, setFirebaseGift, grantEarlyAccount } from './plus.js';
 import { t } from './i18n.js';
+import { settings, setSetting, DEFAULTS } from './settings.js';
 
 const V = '10.12.2';
 const CDN = `https://www.gstatic.com/firebasejs/${V}`;
@@ -196,6 +197,7 @@ export async function syncNow() {
     setStatus({ state: 'syncing', error: null });
     await push(user.uid);
     const changed = await pull(user.uid);
+    await syncCategories(user.uid);
     setStatus({ state: 'ok', at: new Date().toISOString() });
     if (changed) document.dispatchEvent(new CustomEvent('remote-changed'));
   } catch (err) {
@@ -234,6 +236,37 @@ async function push(uid) {
     }
   }
 }
+
+// Eigene Kategorien (#Tags) geräteübergreifend: neuere Liste gewinnt. Ein Gerät, das die Liste noch nie
+// geändert hat (z. B. nach Neuinstallation), übernimmt die Cloud-Liste und ergänzt eigene Einträge.
+async function syncCategories(uid) {
+  const { fs, F } = fb;
+  const ref = F.doc(fs, 'users', uid, 'meta', 'prefs');
+  const remote = (await F.getDoc(ref)).data() || {};
+  const s = settings();
+  const localAt = s.categoriesAt || 0;
+  const remoteAt = remote.categoriesAt || 0;
+  const remoteCats = Array.isArray(remote.categories) ? remote.categories : null;
+  if (remoteCats && (localAt === 0 || remoteAt > localAt)) {
+    // Neuinstallation: Standardliste nicht zurückholen, nur wirklich eigene lokale Einträge behalten
+    const own = s.categories.filter(c => !DEFAULTS.categories.includes(c));
+    const merged = localAt === 0 ? [...new Set([...remoteCats, ...own])] : remoteCats;
+    setSetting('categories', merged); // setzt categoriesAt = jetzt
+    if (localAt === 0 && merged.length !== remoteCats.length) await F.setDoc(ref, { categories: merged, categoriesAt: settings().categoriesAt }, { merge: true });
+    else setSetting('categoriesAt', remoteAt);
+    document.dispatchEvent(new CustomEvent('remote-changed'));
+  } else if (localAt > remoteAt || !remoteCats) {
+    const at = localAt || Date.now();
+    if (!localAt) setSetting('categoriesAt', at);
+    await F.setDoc(ref, { categories: s.categories, categoriesAt: at }, { merge: true });
+  }
+}
+
+let lastCatsAt = settings().categoriesAt || 0;
+document.addEventListener('settings-changed', () => {
+  const at = settings().categoriesAt || 0;
+  if (at !== lastCatsAt) { lastCatsAt = at; scheduleSync(1500); }
+});
 
 const imagePath = (uid, id) => `users/${uid}/images/${id}.jpg`;
 

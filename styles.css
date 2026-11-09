@@ -713,14 +713,16 @@ select.cat.set { color: var(--fg); border-color: var(--faint); }
   gap: 16px;
   align-items: center;
   padding: 11px 18px;
-  border-radius: 999px;
+  border-radius: 18px;
   background: var(--fg);
   color: var(--bg);
   font-size: 0.8235rem;
   opacity: 0;
   transition: opacity .2s, transform .2s;
   z-index: 46; /* auch über der Bildansicht */
-  white-space: nowrap;
+  width: max-content;
+  max-width: calc(100vw - 32px); /* lange Meldungen umbrechen statt abschneiden */
+  overflow-wrap: anywhere;
 }
 .toast.show { opacity: 1; transform: translate(-50%, 0); }
 .toast button { color: var(--bg); font-weight: 600; text-decoration: underline; text-underline-offset: 3px; }

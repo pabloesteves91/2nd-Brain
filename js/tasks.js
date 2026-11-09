@@ -6,7 +6,9 @@ import { t, locale } from './i18n.js';
 
 const fmt = { format: d => new Intl.DateTimeFormat(locale(), { weekday: 'short', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }).format(d) };
 
-export const isTask = n => n.category === 'Aufgabe' || n.category === 'Task' || !!n.remind_at;
+const TASK_TAGS = ['aufgabe', 'aufgaben', 'task', 'tasks', 'todo'];
+// Auch wenn ein anderes #Tag die Kategorie bestimmt (z. B. „#app #aufgabe“) bleibt es eine Aufgabe.
+export const isTask = n => n.category === 'Aufgabe' || n.category === 'Task' || !!n.remind_at || (n.tags || []).some(x => TASK_TAGS.includes(x));
 
 function toLocalInput(iso) {
   const d = iso ? new Date(iso) : new Date(Date.now() + 3600_000);

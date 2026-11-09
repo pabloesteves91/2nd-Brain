@@ -33,6 +33,7 @@ export const settings = () => current;
 
 export function setSetting(key, value) {
   current = { ...current, [key]: value };
+  if (key === 'categories') current.categoriesAt = Date.now(); // für den Sync: neuere Liste gewinnt
   try { localStorage.setItem(KEY, JSON.stringify(current)); } catch { /* privat-modus */ }
   apply();
 }

@@ -336,3 +336,85 @@ App Store Connect → App → links **„+“ neben der Sprache** (oben rechts b
    **App → App** ziehen → *Copy items if needed*, Target nur **App**. Danach steht bei English „3 Files Localized“.
 3. Den Inhalt von `NewThoughtIntent.swift`, `Widget/SecondBrainWidget.swift` und `Share/ShareViewController.swift`
    in Xcode ersetzen (`pbcopy < …`, dann ⌘A ⌘V ⌘S).
+
+---
+
+# App-Store-Texte ab 2.3 (Notizen, Journal & Erinnerungen in einer App)
+
+## Deutsch
+- **Untertitel:** `Notizen, Journal & Erinnerung`
+- **Werbetext:**
+  > Notizen, Journal und Erinnerungen in einer ruhigen App – öffnen, schreiben, fertig. Am Abend in Ruhe sortieren. Gratis, ohne Werbung.
+- **Keywords:** `notizen,journal,tagebuch,erinnerungen,aufgaben,ideen,gedanken,minimal,fokus,todo,memo,rückblick`
+- **Beschreibung:**
+  > Öffnen. Schreiben. Schliessen.
+  >
+  > 2nd Brain vereint drei Apps in einer – Notizen, Journal und Erinnerungen. Ruhig, schnell und gratis.
+  >
+  > 📝 NOTIZEN
+  > Beim Öffnen wartet ein leeres Blatt mit Cursor. Gedanke aufschreiben, Foto anhängen, weglegen – fertig. Tippe # und 2nd Brain schlägt Kategorien vor, Listen setzen sich selbst fort, Links lassen sich antippen.
+  >
+  > 📖 JOURNAL
+  > Am Abend zeigt dir der Tagesrückblick alle Gedanken des Tages – sortieren, pinnen, archivieren. Ab und zu tauchen alte Gedanken von vor einer Woche, einem Monat oder einem Jahr wieder auf. Mit Plus kommt der Wochenrückblick mit Themen und Kategorien dazu.
+  >
+  > ⏰ ERINNERUNGEN
+  > Mit #aufgabe wird jede Notiz zur Aufgabe. Ein Tipp auf „erinnern“, Zeit wählen – und 2nd Brain erinnert dich mit einer Mitteilung. Funktioniert auch, wenn die Notiz mehrere #Tags hat.
+  >
+  > UND AUSSERDEM
+  > • Widget, Siri-Kurzbefehl „Neuer Gedanke“ und Teilen-Menü
+  > • Notizen als Text oder Link teilen
+  > • Face ID für private Gedanken
+  > • iPhone, iPad und Mac – mit Tastaturkürzeln und Trackpad
+  > • Bedienungshilfen: VoiceOver, grössere Schrift, hoher Kontrast, reduzierte Bewegung
+  > • Deutsch und Englisch
+  >
+  > GRATIS – UND PLUS, WENN DU MAGST
+  > Notizen, Journal und Erinnerungen sind gratis, ohne Werbung und ohne Tracking. Mit 2nd Brain Plus unterstützt du die App und bekommst Sync auf iPhone, iPad und Mac und den Wochenrückblick: CHF 1 im Monat, CHF 9 im Jahr (14 Tage gratis) oder einmalig CHF 24. Wer 2nd Brain schon vor Plus genutzt hat, bekommt Plus für immer geschenkt.
+  >
+  > Nutzungsbedingungen: https://2ndbrain.ch/terms.html · Datenschutz: https://2ndbrain.ch/privacy.html
+- **Neuerungen in dieser Version (2.3):**
+  > • Notizen, Journal & Erinnerungen in einer App – jetzt auch auf Englisch
+  > • Neu: 2nd Brain Plus mit Sync auf allen Geräten und Wochenrückblick – monatlich, jährlich (14 Tage gratis) oder einmalig für immer. Wer 2nd Brain schon vorher genutzt hat, bekommt Plus für immer geschenkt.
+  > • Eigene Kategorien werden jetzt mit synchronisiert – auch nach Neuinstallation und auf neuen Geräten
+  > • Erinnerungen auch bei Notizen mit mehreren #Tags (z. B. #app #aufgabe)
+  > • Foto aufnehmen mit der Kamera repariert
+  > • Abo direkt in der App verwalten, sichere Rückfrage beim Löschen, keine Tastatur während der Einführung
+
+## English
+- **Subtitle:** `Notes, journal & reminders`
+- **Promotional Text:**
+  > Notes, journal and reminders in one calm app – open, write, done. Sort it all calmly in the evening. Free, no ads.
+- **Keywords:** `notes,journal,diary,reminders,tasks,ideas,thoughts,minimal,focus,todo,memo,review,daily`
+- **Description:**
+  > Open. Write. Close.
+  >
+  > 2nd Brain combines three apps in one – notes, journal and reminders. Calm, fast and free.
+  >
+  > 📝 NOTES
+  > A blank page with a cursor is waiting when you open the app. Write down a thought, attach a photo, put it away – done. Type # and 2nd Brain suggests categories, lists continue by themselves, links are tappable.
+  >
+  > 📖 JOURNAL
+  > In the evening the daily review shows all of the day’s thoughts – sort, pin, archive. Now and then old thoughts from a week, a month or a year ago resurface. With Plus you also get the weekly review with topics and categories.
+  >
+  > ⏰ REMINDERS
+  > Add #task and any note becomes a task. Tap “remind me”, pick a time – and 2nd Brain reminds you with a notification. Works even when a note has several #tags.
+  >
+  > AND ALSO
+  > • Widget, Siri shortcut “New thought” and share sheet
+  > • Share notes as text or as a link
+  > • Face ID for private thoughts
+  > • iPhone, iPad and Mac – with keyboard shortcuts and trackpad
+  > • Accessibility: VoiceOver, larger text, high contrast, reduced motion
+  > • English and German
+  >
+  > FREE – AND PLUS IF YOU LIKE
+  > Notes, journal and reminders are free, without ads and tracking. With 2nd Brain Plus you support the app and get sync on iPhone, iPad and Mac plus the weekly review: monthly, yearly (14 days free) or once for a lifetime. Everyone who used 2nd Brain before Plus gets it free forever.
+  >
+  > Terms of Use: https://2ndbrain.ch/en/terms.html · Privacy: https://2ndbrain.ch/en/privacy.html
+- **What’s New (2.3):**
+  > • Notes, journal & reminders in one app – now also in English
+  > • New: 2nd Brain Plus with sync on all devices and the weekly review – monthly, yearly (14 days free) or once for a lifetime. Everyone who used 2nd Brain before gets Plus free forever.
+  > • Your own categories now sync too – also after reinstalling and on new devices
+  > • Reminders also for notes with several #tags (e.g. #app #task)
+  > • Taking photos with the camera fixed
+  > • Manage your subscription right in the app, safer delete confirmation, no keyboard during the introduction
