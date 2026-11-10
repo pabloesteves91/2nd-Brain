@@ -1,0 +1,16 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">2nd Brain</string>
+    <string name="title_activity_main">2nd Brain</string>
+    <string name="package_name">ch.fabioberta.secondbrain</string>
+    <string name="custom_url_scheme">ch.fabioberta.secondbrain</string>
+    <string name="widget_new">New thought</string>
+    <string name="widget_prompt">What’s on your mind?</string>
+    <string name="widget_photo">Photo</string>
+    <string name="widget_today">Today</string>
+    <string name="widget_actions">Quick actions</string>
+    <string name="widget_new_desc">One tap – and you’re writing.</string>
+    <string name="widget_actions_desc">Write, photo or your day – in one tap.</string>
+    <string name="shortcut_todo">Todo list</string>
+    <string name="share_label">Save in 2nd Brain</string>
+</resources>

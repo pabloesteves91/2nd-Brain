@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="widget_new">Neuer Gedanke</string>
+    <string name="widget_prompt">Was geht dir durch den Kopf?</string>
+    <string name="widget_photo">Foto</string>
+    <string name="widget_today">Heute</string>
+    <string name="widget_actions">Schnellaktionen</string>
+    <string name="widget_new_desc">Ein Tipp – und du schreibst.</string>
+    <string name="widget_actions_desc">Schreiben, Foto oder dein Tag – mit einem Tipp.</string>
+    <string name="shortcut_todo">Todo-Liste</string>
+    <string name="share_label">In 2nd Brain sichern</string>
+</resources>

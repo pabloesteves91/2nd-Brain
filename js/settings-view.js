@@ -3,7 +3,7 @@ import { blobToDataUrl, dataUrlToBlob } from './images.js';
 import { settings, setSetting } from './settings.js';
 import * as sync from './sync.js';
 import { h, toast, askConfirm } from './ui.js';
-import { isNative, biometryAvailable, verifyIdentity, appInfo } from './native.js';
+import { isNative, isAndroid, biometryAvailable, verifyIdentity, appInfo } from './native.js';
 import { APP_VERSION, SUPPORT_EMAIL, siteUrl } from './config.js';
 import { isPlus, plusKind } from './plus.js';
 import { canBuy, manageSubscriptions } from './native.js';
@@ -14,7 +14,7 @@ function aboutHeader() {
   const sub = h('div', { class: 'about-sub' }, t('Version {v}', { v: APP_VERSION }));
   const mail = h('a', { class: 'support-btn', href: '#' }, t('Support'));
   const setMail = version => {
-    const platform = isNative() ? 'iOS-App' : 'Web-App';
+    const platform = isAndroid() ? 'Android-App' : isNative() ? 'iOS-App' : 'Web-App';
     const body = `\n\n\n—\n2nd Brain ${version} · ${platform}\n${navigator.userAgent}`;
     mail.href = `mailto:${SUPPORT_EMAIL}?subject=${encodeURIComponent('2nd Brain Support')}&body=${encodeURIComponent(body)}`;
   };
@@ -163,12 +163,12 @@ export function openSettings(container) {
     ),
 
     isNative() ? h('div', { class: 'group' }, h('h3', {}, t('Privatsphäre')),
-      row(t('Mit Face ID sperren'), h('label', { class: 'switch' },
+      row(t(isAndroid() ? 'Mit Fingerabdruck sperren' : 'Mit Face ID sperren'), h('label', { class: 'switch' },
         h('input', {
           type: 'checkbox', checked: s.faceId,
           onchange: async e => {
             const want = e.target.checked;
-            if (want && !(await biometryAvailable())) { toast(t('Face ID ist auf diesem Gerät nicht verfügbar oder nicht eingerichtet.')); e.target.checked = false; return; }
+            if (want && !(await biometryAvailable())) { toast(t(isAndroid() ? 'Fingerabdruck ist auf diesem Gerät nicht verfügbar oder nicht eingerichtet.' : 'Face ID ist auf diesem Gerät nicht verfügbar oder nicht eingerichtet.')); e.target.checked = false; return; }
             if (!(await verifyIdentity())) { e.target.checked = !want; return; }
             setSetting('faceId', want);
           },
@@ -257,7 +257,8 @@ function syncSection() {
       isPlus() ? h('p', { class: 'small' }, t('Melde dich an, um deine Notizen auf allen Geräten zu haben.'))
         : h('div', { class: 'plus-teaser' }, h('b', {}, t('Sync auf allen Geräten')), h('p', {}, t('Der Sync gehört zu 2nd Brain Plus. Hast du Plus geschenkt bekommen? Dann melde dich unten an.')),
           h('button', { type: 'button', class: 'primary', onclick: e => e.currentTarget.dispatchEvent(new CustomEvent('open-plus', { bubbles: true })) }, t('Sync einschalten'))),
-      isNative()
+      // shortcut: Android nur mit E-Mail – Google-Anmeldung braucht dort ein natives Plugin (Popup geht im WebView nicht)
+      isAndroid() ? null : isNative()
         ? row('Apple', h('button', {
           type: 'button', class: 'link',
           onclick: async () => { err.textContent = ''; try { await sync.signInApple(); render(); } catch (e) { err.textContent = e.message; } },

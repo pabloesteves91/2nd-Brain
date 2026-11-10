@@ -8,7 +8,16 @@
     "backgroundColor": "#fbfaf7"
   },
   "plugins": {
-    "Keyboard": { "resize": "native", "resizeOnFullScreen": true },
-    "LocalNotifications": { "iconColor": "#1d1d1b" }
+    "Keyboard": {
+      "resize": "native",
+      "resizeOnFullScreen": true
+    },
+    "LocalNotifications": {
+      "iconColor": "#1d1d1b",
+      "smallIcon": "ic_stat_icon"
+    }
+  },
+  "android": {
+    "backgroundColor": "#fbfaf7"
   }
 }

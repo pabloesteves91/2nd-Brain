@@ -2,7 +2,7 @@
 // Plus gilt, wenn gekauft (Abo/für immer), früher Nutzer (Geschenk) oder in Firebase geschenkt (plusGifts).
 import { settings, setSetting } from './settings.js';
 import { PLUS_IDS, PLUS_SINCE } from './config.js';
-import { isNative, canBuy, ownedPurchases } from './native.js';
+import { isNative, isAndroid, canBuy, ownedPurchases } from './native.js';
 import { db } from './db.js';
 
 const DAY = 86400000;
@@ -37,8 +37,9 @@ export async function refreshPurchases() {
   const list = await ownedPurchases();
   if (!list) return; // offline/unbekannt → letzten Stand behalten
   const ok = p => !p.revocationDate;
+  // Google Play liefert nur aktuelle Käufe, ohne Ablaufdatum: gekauft = purchaseState „1“
   const has = id => list.some(p => p.productIdentifier === id && ok(p)
-    && (id === PLUS_IDS.lifetime || p.isActive === true || (p.expirationDate && new Date(p.expirationDate).getTime() > Date.now())));
+    && (id === PLUS_IDS.lifetime || p.isActive === true || (isAndroid() && String(p.purchaseState) === '1') || (p.expirationDate && new Date(p.expirationDate).getTime() > Date.now())));
   const kind = has(PLUS_IDS.lifetime) ? 'lifetime' : has(PLUS_IDS.yearly) ? 'yearly' : has(PLUS_IDS.monthly) ? 'monthly' : null;
   if (kind !== (settings().plusKind || null)) { setSetting('plusKind', kind); changed(); }
 }

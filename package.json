@@ -8,10 +8,13 @@
     "build": "node scripts/build-www.mjs",
     "sync": "npm run build && npx cap sync ios",
     "ios": "npm run build && npx cap sync ios && npx cap open ios",
-    "serve": "python3 -m http.server 8000"
+    "serve": "python3 -m http.server 8000",
+    "sync:android": "npm run build && npx cap sync android",
+    "android": "npm run build && npx cap sync android && npx cap open android"
   },
   "dependencies": {
     "@capacitor-community/apple-sign-in": "7.1.0",
+    "@capacitor/android": "7.6.10",
     "@capacitor/app": "7.1.2",
     "@capacitor/camera": "7.0.5",
     "@capacitor/core": "7.6.10",

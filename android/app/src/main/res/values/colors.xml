@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="paper">#FBFAF7</color>
+    <color name="paper_dim">#F0EEE8</color>
+    <color name="ink">#1D1D1B</color>
+    <color name="ink_soft">#8A8984</color>
+    <color name="colorPrimary">#1D1D1B</color>
+    <color name="colorPrimaryDark">#1D1D1B</color>
+    <color name="colorAccent">#1D1D1B</color>
+</resources>

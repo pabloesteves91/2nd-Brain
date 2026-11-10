@@ -212,6 +212,7 @@ initNative({
   onPendingAction: () => nativeInbox(),
   onImport: code => openShared(code),
   onPhoto: async () => { if (view) close(); await startFresh({ focus: false }); await takePhoto(); },
+  onTodo: () => { if (view) close(); startTodo(); },
 });
 
 // Geteilte Notiz aus einem Link (App: secondbrain://import?d=…, Web: …/#import=…)

@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<shortcuts xmlns:android="http://schemas.android.com/apk/res/android">
+    <shortcut android:shortcutId="new" android:enabled="true" android:icon="@mipmap/ic_launcher"
+        android:shortcutShortLabel="@string/widget_new" android:shortcutLongLabel="@string/widget_new">
+        <intent android:action="android.intent.action.VIEW" android:data="secondbrain://new"
+            android:targetPackage="ch.fabioberta.secondbrain" android:targetClass="ch.fabioberta.secondbrain.MainActivity" />
+    </shortcut>
+    <shortcut android:shortcutId="todo" android:enabled="true" android:icon="@mipmap/ic_launcher"
+        android:shortcutShortLabel="@string/shortcut_todo" android:shortcutLongLabel="@string/shortcut_todo">
+        <intent android:action="android.intent.action.VIEW" android:data="secondbrain://todo"
+            android:targetPackage="ch.fabioberta.secondbrain" android:targetClass="ch.fabioberta.secondbrain.MainActivity" />
+    </shortcut>
+    <shortcut android:shortcutId="photo" android:enabled="true" android:icon="@mipmap/ic_launcher"
+        android:shortcutShortLabel="@string/widget_photo" android:shortcutLongLabel="@string/widget_photo">
+        <intent android:action="android.intent.action.VIEW" android:data="secondbrain://photo"
+            android:targetPackage="ch.fabioberta.secondbrain" android:targetClass="ch.fabioberta.secondbrain.MainActivity" />
+    </shortcut>
+    <shortcut android:shortcutId="today" android:enabled="true" android:icon="@mipmap/ic_launcher"
+        android:shortcutShortLabel="@string/widget_today" android:shortcutLongLabel="@string/widget_today">
+        <intent android:action="android.intent.action.VIEW" android:data="secondbrain://today"
+            android:targetPackage="ch.fabioberta.secondbrain" android:targetClass="ch.fabioberta.secondbrain.MainActivity" />
+    </shortcut>
+</shortcuts>

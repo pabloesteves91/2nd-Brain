@@ -8,6 +8,7 @@ const C = globalThis.Capacitor;
 const cache = {};
 
 export const isNative = () => !!C?.isNativePlatform?.();
+export const isAndroid = () => C?.getPlatform?.() === 'android';
 
 function plugin(name) {
   if (!isNative()) return null;
@@ -20,7 +21,7 @@ const WEEKLY_ID = 2002;
 
 export const appPlugin = () => plugin('App');
 
-export async function initNative({ onOpenReview, onOpenWeek, onOpenNote, onNewThought, onAppState, onPendingAction, onImport, onPhoto } = {}) {
+export async function initNative({ onOpenReview, onOpenWeek, onOpenNote, onNewThought, onAppState, onPendingAction, onImport, onPhoto, onTodo } = {}) {
   if (!isNative()) return;
   document.documentElement.classList.add('native');
   // iPad-App auf dem Mac: kein Touchscreen, keine Bildschirmtastatur → keinen Platz dafür reservieren
@@ -45,9 +46,17 @@ export async function initNative({ onOpenReview, onOpenWeek, onOpenNote, onNewTh
     if (/^secondbrain:\/\/new/i.test(url || '')) onNewThought?.();
     if (/^secondbrain:\/\/photo/i.test(url || '')) onPhoto?.();   // Widget „Schnellaktionen“
     if (/^secondbrain:\/\/today/i.test(url || '')) onOpenReview?.();
+    if (/^secondbrain:\/\/todo/i.test(url || '')) onTodo?.();         // Android-Verknüpfung
     const m = /^secondbrain:\/\/import\?d=([\w-]+)/i.exec(url || '')
       || /^https:\/\/(?:www\.)?2ndbrain\.ch\/note\.html#([\w-]+)/i.exec(url || ''); // Universal Link
     if (m) onImport?.(m[1]);
+  });
+  // Android-Zurück-Taste: wie Escape (schliesst Blatt, Bild, Rückfrage, Einführung); sonst App in den Hintergrund
+  app?.addListener?.('backButton', () => {
+    const pick = document.querySelector('.pick');
+    if (pick) pick.remove();
+    else if (document.querySelector('.confirm, .imgview, .onboarding, #overlay:not([hidden])')) document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
+    else app.minimizeApp?.();
   });
 }
 
@@ -219,7 +228,7 @@ export async function cameraPhotos(fromLibrary) {
     const photos = fromLibrary
       ? (await cam.pickImages({ quality: 90, limit: 0 })).photos
       : [await cam.getPhoto({ source: 'CAMERA', resultType: 'uri', quality: 90, correctOrientation: true, saveToGallery: true })];
-    if (!fromLibrary && photos[0]?.saved === false) toast(t('Nicht in Fotos gesichert – Zugriff in den iOS-Einstellungen erlauben'));
+    if (!fromLibrary && photos[0]?.saved === false) toast(t('Nicht in Fotos gesichert – Zugriff in den Einstellungen erlauben'));
     return Promise.all(photos.map(async ph => (await fetch(ph.webPath)).blob()));
   } catch (err) {
     if (!/cancel/i.test(err?.message || '')) toast(t('Kamera: {e}', { e: err?.message || t('Fehler') }));
@@ -250,8 +259,10 @@ export async function storeProducts(ids, type) {
   catch { return []; }
 }
 
+// Google Play: Abos brauchen den Basis-Plan – in der Play Console heisst er wie das Ende der ID („monthly“, „yearly“).
 export async function buyProduct(id, type) {
-  return plugin('NativePurchases').purchaseProduct({ productIdentifier: id, productType: type, quantity: 1 });
+  const planIdentifier = isAndroid() && type === 'subs' ? id.split('.').pop() : undefined;
+  return plugin('NativePurchases').purchaseProduct({ productIdentifier: id, productType: type, quantity: 1, planIdentifier });
 }
 
 export async function ownedPurchases() {
@@ -261,7 +272,7 @@ export async function ownedPurchases() {
 // Apples Abo-Verwaltung direkt in der App (zeigt auch Sandbox-Abos); sonst die Webseite.
 export async function manageSubscriptions() {
   try { await plugin('NativePurchases').manageSubscriptions(); }
-  catch { window.open('https://apps.apple.com/account/subscriptions', '_blank'); }
+  catch { window.open(isAndroid() ? 'https://play.google.com/store/account/subscriptions' : 'https://apps.apple.com/account/subscriptions', '_blank'); }
 }
 
 export async function restoreStore() {

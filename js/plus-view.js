@@ -1,7 +1,7 @@
 // Kaufbildschirm „Unterstütze 2nd Brain“. Preise kommen immer von Apple (lokalisiert), nie hart codiert.
 import { h, toast } from './ui.js';
 import { PLUS_IDS, siteUrl, EULA_URL } from './config.js';
-import { storeProducts, buyProduct, restoreStore } from './native.js';
+import { storeProducts, buyProduct, restoreStore, isAndroid } from './native.js';
 import { refreshPurchases, isPlus, answered } from './plus.js';
 import { t } from './i18n.js';
 
@@ -17,7 +17,7 @@ export async function openPlus(container, close) {
     storeProducts([PLUS_IDS.monthly, PLUS_IDS.yearly], 'subs'),
     storeProducts([PLUS_IDS.lifetime], 'inapp'),
   ]);
-  const byId = Object.fromEntries([...subs, ...once].map(p => [p.identifier, p]));
+  const byId = Object.fromEntries([...subs, ...once].map(p => [isAndroid() && p.planIdentifier ? p.planIdentifier : p.identifier, p])); // Android: identifier = Basis-Plan
   const opts = OPTIONS.map(o => ({ ...o, id: PLUS_IDS[o.key], product: byId[PLUS_IDS[o.key]] })).filter(o => o.product);
   let pick = opts.find(o => o.key === 'yearly') || opts[0];
 
@@ -50,8 +50,8 @@ export async function openPlus(container, close) {
     legal.replaceChildren(
       pick.key === 'lifetime' ? t('Einmaliger Kauf, kein Abo. ') :
         (trial(pick) ? t('Nach 14 Tagen {price} {per}', { price: pick.product.priceString, per }) : `${pick.product.priceString} ${per}`)
-        + t('. Das Abo verlängert sich automatisch und ist jederzeit in den Apple-ID-Einstellungen kündbar. '),
-      h('a', { href: EULA_URL, target: '_blank', rel: 'noopener' }, t('Nutzungsbedingungen')), ' · ',
+        + t(isAndroid() ? '. Das Abo verlängert sich automatisch und ist jederzeit in Google Play kündbar. ' : '. Das Abo verlängert sich automatisch und ist jederzeit in den Apple-ID-Einstellungen kündbar. '),
+      h('a', { href: isAndroid() ? siteUrl('terms.html') : EULA_URL, target: '_blank', rel: 'noopener' }, t('Nutzungsbedingungen')), ' · ',
       h('a', { href: siteUrl('privacy.html'), target: '_blank', rel: 'noopener' }, t('Datenschutz')));
   };
 
@@ -79,7 +79,7 @@ export async function openPlus(container, close) {
       h('h2', {}, t('Unterstütze 2nd Brain')),
       h('p', { class: 'plus-sub' }, t('2nd Brain ist ohne Werbung und ohne Tracking. Mit Plus hilfst du, dass das so bleibt – und bekommst noch etwas dazu.')),
       h('ul', { class: 'plus-points' },
-        h('li', {}, h('b', {}, t('Sync')), t(' auf iPhone, iPad und Mac')),
+        h('li', {}, h('b', {}, t('Sync')), t(isAndroid() ? ' auf allen deinen Geräten' : ' auf iPhone, iPad und Mac')),
         h('li', {}, h('b', {}, t('Wochenrückblick')), t(' mit Themen und Kategorien')),
         h('li', {}, h('b', {}, t('Alles andere')), t(' bleibt sowieso gratis'))),
       opts.length ? [list, cta] : h('p', { class: 'small', style: 'text-align:center' }, t('Der App Store ist gerade nicht erreichbar. Bitte später nochmals versuchen.')),
