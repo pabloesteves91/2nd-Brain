@@ -21,6 +21,8 @@ export const PLUS_IDS = {
 // Sync-Konten, die vor diesem Tag angelegt wurden, gehören frühen Nutzern → Plus für immer geschenkt.
 export const PLUS_SINCE = '2026-11-08';
 // Website-Seiten in der Sprache der App (englisch unter /en/).
+// Apples Standard-Lizenz (Pflicht-Link bei Abos)
+export const EULA_URL = 'https://www.apple.com/legal/internet-services/itunes/dev/stdeula/';
 export const siteUrl = (page = '') => `https://2ndbrain.ch/${isEn() ? 'en/' : ''}${page}`;
 
 export const APP_VERSION = '2.3';

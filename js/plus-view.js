@@ -1,6 +1,6 @@
 // Kaufbildschirm „Unterstütze 2nd Brain“. Preise kommen immer von Apple (lokalisiert), nie hart codiert.
 import { h, toast } from './ui.js';
-import { PLUS_IDS, siteUrl } from './config.js';
+import { PLUS_IDS, siteUrl, EULA_URL } from './config.js';
 import { storeProducts, buyProduct, restoreStore } from './native.js';
 import { refreshPurchases, isPlus, answered } from './plus.js';
 import { t } from './i18n.js';
@@ -51,7 +51,7 @@ export async function openPlus(container, close) {
       pick.key === 'lifetime' ? t('Einmaliger Kauf, kein Abo. ') :
         (trial(pick) ? t('Nach 14 Tagen {price} {per}', { price: pick.product.priceString, per }) : `${pick.product.priceString} ${per}`)
         + t('. Das Abo verlängert sich automatisch und ist jederzeit in den Apple-ID-Einstellungen kündbar. '),
-      h('a', { href: siteUrl('terms.html'), target: '_blank', rel: 'noopener' }, t('Nutzungsbedingungen')), ' · ',
+      h('a', { href: EULA_URL, target: '_blank', rel: 'noopener' }, t('Nutzungsbedingungen')), ' · ',
       h('a', { href: siteUrl('privacy.html'), target: '_blank', rel: 'noopener' }, t('Datenschutz')));
   };
 

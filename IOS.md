@@ -322,7 +322,8 @@ App Store Connect → App → links **„+“ neben der Sprache** (oben rechts b
   >
   > No ads. No tracking. Without an account everything stays on your device.
   >
-  > Terms of Use: https://2ndbrain.ch/en/terms.html · Privacy: https://2ndbrain.ch/en/privacy.html
+  > Terms of Use (EULA): https://www.apple.com/legal/internet-services/itunes/dev/stdeula/
+  > Privacy Policy: https://2ndbrain.ch/en/privacy.html
 - **What’s New (2.3):**
   > New: 2nd Brain is now available in English. 2nd Brain Plus brings sync on all your devices and the weekly review – monthly, yearly (14 days free) or once for a lifetime. Everyone who used 2nd Brain before gets Plus free forever. Plus: safer delete confirmations and no keyboard during the introduction.
 - **Support URL:** `https://2ndbrain.ch/en/#kontakt` · **Marketing URL:** `https://2ndbrain.ch/en/` ·
@@ -340,6 +341,9 @@ App Store Connect → App → links **„+“ neben der Sprache** (oben rechts b
 ---
 
 # App-Store-Texte ab 2.3 (Notizen, Journal & Erinnerungen in einer App)
+
+> **Pflicht bei Abos:** Der EULA-Link muss in der Beschreibung **jeder** Sprache stehen (sonst stoppt Apple die Prüfung).
+> App-Informationen → Lizenzvereinbarung = „Standardlizenzvereinbarung von Apple“.
 
 ## Deutsch
 - **Untertitel:** `Notizen, Journal & Erinnerung`
@@ -371,7 +375,8 @@ App Store Connect → App → links **„+“ neben der Sprache** (oben rechts b
   > GRATIS – UND PLUS, WENN DU MAGST
   > Notizen, Journal und Erinnerungen sind gratis, ohne Werbung und ohne Tracking. Mit 2nd Brain Plus unterstützt du die App und bekommst Sync auf iPhone, iPad und Mac und den Wochenrückblick: CHF 1 im Monat, CHF 9 im Jahr (14 Tage gratis) oder einmalig CHF 24. Wer 2nd Brain schon vor Plus genutzt hat, bekommt Plus für immer geschenkt.
   >
-  > Nutzungsbedingungen: https://2ndbrain.ch/terms.html · Datenschutz: https://2ndbrain.ch/privacy.html
+  > Nutzungsbedingungen (EULA): https://www.apple.com/legal/internet-services/itunes/dev/stdeula/
+  > Datenschutz: https://2ndbrain.ch/privacy.html
 - **Neuerungen in dieser Version (2.3):**
   > • Notizen, Journal & Erinnerungen in einer App – jetzt auch auf Englisch
   > • Neu: 2nd Brain Plus mit Sync auf allen Geräten und Wochenrückblick – monatlich, jährlich (14 Tage gratis) oder einmalig für immer. Wer 2nd Brain schon vorher genutzt hat, bekommt Plus für immer geschenkt.
@@ -410,7 +415,8 @@ App Store Connect → App → links **„+“ neben der Sprache** (oben rechts b
   > FREE – AND PLUS IF YOU LIKE
   > Notes, journal and reminders are free, without ads and tracking. With 2nd Brain Plus you support the app and get sync on iPhone, iPad and Mac plus the weekly review: monthly, yearly (14 days free) or once for a lifetime. Everyone who used 2nd Brain before Plus gets it free forever.
   >
-  > Terms of Use: https://2ndbrain.ch/en/terms.html · Privacy: https://2ndbrain.ch/en/privacy.html
+  > Terms of Use (EULA): https://www.apple.com/legal/internet-services/itunes/dev/stdeula/
+  > Privacy Policy: https://2ndbrain.ch/en/privacy.html
 - **What’s New (2.3):**
   > • Notes, journal & reminders in one app – now also in English
   > • New: 2nd Brain Plus with sync on all devices and the weekly review – monthly, yearly (14 days free) or once for a lifetime. Everyone who used 2nd Brain before gets Plus free forever.
