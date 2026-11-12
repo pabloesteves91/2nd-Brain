@@ -125,16 +125,20 @@ public class SecondBrainNativePlugin: CAPPlugin, CAPBridgedPlugin {
             call.reject("unavailable")
             return
         }
-        let input = audioEngine.inputNode
-        let format = input.outputFormat(forBus: 0)
-        guard format.channelCount > 0 else { // z. B. Mac ohne Mikrofon
-            call.reject("unavailable")
-            return
-        }
         do {
+            // Zuerst die Audio-Sitzung auf Aufnahme stellen – erst danach stimmt das Format des Mikrofons
+            // (sonst stürzt installTap mit einem veralteten Format ab).
             let session = AVAudioSession.sharedInstance()
             try session.setCategory(.record, mode: .measurement, options: .duckOthers)
             try session.setActive(true, options: .notifyOthersOnDeactivation)
+
+            let input = audioEngine.inputNode
+            let format = input.outputFormat(forBus: 0)
+            guard format.channelCount > 0, format.sampleRate > 0 else { // z. B. Mac ohne Mikrofon
+                endAudio()
+                call.reject("unavailable")
+                return
+            }
 
             let request = SFSpeechAudioBufferRecognitionRequest()
             request.shouldReportPartialResults = true
