@@ -236,6 +236,8 @@ export const EN = {
   'Notizen, die du heute ergänzt, stehen im Tagesrückblick': 'Notes you add to today show up in your daily review',
   'Einstellungen und #Kategorien werden mit synchronisiert': 'Settings and #categories now sync too',
   'Automatisches Backup': 'Automatic backup',
+  'Automatisch synchronisieren': 'Sync automatically',
+  'Aus: nur beim Öffnen und Schliessen der App': 'Off: only when opening and closing the app',
   'Dateien › 2nd Brain': 'Files › 2nd Brain',
   'Wöchentlich – zuletzt am {d}': 'Weekly – last on {d}',
   'Wöchentlich, das erste kommt bald': 'Weekly – the first one comes soon',

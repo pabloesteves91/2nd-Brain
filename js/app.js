@@ -104,7 +104,7 @@ window.addEventListener('pointerup', e => {
 
 // ---------- Daten geändert (lokal oder per Sync) ----------
 
-document.addEventListener('notes-changed', () => scheduleSync());
+document.addEventListener('notes-changed', () => { if (settings().autoSync) scheduleSync(); }); // aus: Änderungen gehen beim Schliessen der App hoch
 document.addEventListener('remote-changed', async () => {
   refreshCurrent();
   if (isNative()) rescheduleTasks(await listNotes());
@@ -188,7 +188,7 @@ setInterval(checkReminder, 60000);
 
 initSync().then(() => scheduleSync(500));
 // Solange die App offen ist: jede Minute Änderungen anderer Geräte holen (ohne Anmeldung/Plus passiert nichts)
-setInterval(() => { if (document.visibilityState === 'visible') scheduleSync(0); }, 60000);
+setInterval(() => { if (settings().autoSync && document.visibilityState === 'visible') scheduleSync(0); }, 60000);
 autoBackup();
 // Einmalig (Update auf 2.4): Kategorien aus vorhandenen Notizen in die Liste übernehmen
 db.getMeta('catsAdopted').then(async done => { if (!done) { adoptCategories(await listNotes()); await db.setMeta('catsAdopted', true); } });

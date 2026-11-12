@@ -237,6 +237,7 @@ function syncSection() {
       body.replaceChildren(
         row(t('Angemeldet'), h('button', { type: 'button', class: 'link', onclick: async () => { await sync.signOut(); render(); } }, t('abmelden')), user.email || user.displayName || ''),
         row(st, h('button', { type: 'button', class: 'link', onclick: () => sync.syncNow() }, t('jetzt synchronisieren'))),
+        row(t('Automatisch synchronisieren'), toggle('autoSync'), t('Aus: nur beim Öffnen und Schliessen der App')),
         row(t('Konto löschen'), h('button', {
           type: 'button', class: 'danger',
           onclick: async () => {
