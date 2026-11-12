@@ -16,7 +16,23 @@ struct NewThoughtIntent: AppIntent {
     }
 }
 
-// „Hey Siri, schreib einen Gedanken in 2nd Brain“ – Siri fragt nach dem Text und legt ihn ab, ohne die App zu öffnen.
+// „Hey Siri, Neuer Gedanke in 2nd Brain“: öffnet die App mit leerem Blatt und startet gleich die Spracheingabe.
+// Öffnet die App bewusst – Befehle, die Text diktiert entgegennehmen, verwechselt Siri mit „Notiz anlegen“
+// und fragt dann jedes Mal „2nd Brain oder Notizen?“.
+@available(iOS 16.0, *)
+struct SpeakThoughtIntent: AppIntent {
+    static let title: LocalizedStringResource = "Neuer Gedanke sprechen"
+    static let openAppWhenRun: Bool = true
+
+    @MainActor
+    func perform() async throws -> some IntentResult {
+        AppGroup.defaults?.set("speak", forKey: AppGroup.pendingActionKey)
+        NotificationCenter.default.post(name: AppGroup.pendingActionNotification, object: nil)
+        return .result()
+    }
+}
+
+// Für die Kurzbefehle-App (ohne Siri-Satz): Text übergeben und ablegen, ohne die App zu öffnen. – Siri fragt nach dem Text und legt ihn ab, ohne die App zu öffnen.
 // Ablage wie beim Teilen-Menü (AppGroup.inbox); die App übernimmt die Notiz beim nächsten Öffnen.
 @available(iOS 16.0, *)
 struct AddThoughtIntent: AppIntent {
@@ -62,8 +78,8 @@ struct SecondBrainShortcuts: AppShortcutsProvider {
             systemImageName: "square.and.pencil"
         )
         AppShortcut(
-            intent: AddThoughtIntent(),
-            // Ohne „schreib“/„notiere“/„Notiz“ – sonst gibt Siri an Erinnerungen ab oder fragt jedes Mal „2nd Brain oder Notizen?“.
+            intent: SpeakThoughtIntent(),
+            // Ohne „schreib“/„notiere“/„Notiz“ – sonst gibt Siri an Erinnerungen/Notizen ab.
             phrases: [
                 "Neuer Gedanke in \(.applicationName)",
                 "\(.applicationName) neuer Gedanke",

@@ -357,7 +357,7 @@ cd ~/2nd-Brain && git pull && npm run sync
 4. **Version 2.4**, Build 1 (App, SecondBrainWidget, ShareExtension) → **⇧⌘K** (Clean Build Folder), App auf dem
    iPhone löschen → ▶ Run → auf dem iPhone testen:
    - Menü **sprechen** → Erlaubnis geben → sprechen → Text erscheint, nach kurzer Stille stoppt es.
-   - „Hey Siri, Neuer Gedanke in 2nd Brain“ (oder „Eintrag in 2nd Brain“) → Siri fragt nach → diktieren → „Gesichert in 2nd Brain.“ →
+   - „Hey Siri, Neuer Gedanke in 2nd Brain“ → 2nd Brain öffnet sich, das Mikrofon hört sofort zu → sprechen → Text wird gespeichert →
      App öffnen: die Notiz ist da. (Neue Siri-Phrasen erkennt iOS erst nach dem ersten Start der neuen Version.)
    - ··· → Konto → **Passwort vergessen?** mit deiner E-Mail → Mail kommt.
 

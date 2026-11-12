@@ -238,7 +238,10 @@ async function nativeInbox() {
   if (!isNative() || inboxBusy) return;
   inboxBusy = true;
   try {
-    if ((await takePendingAction()) === 'new') { if (view) close(); await startFresh(); }
+    const action = await takePendingAction();
+    if (action === 'new' || action === 'speak') { if (view) close(); await startFresh(); }
+    // Siri „Neuer Gedanke in 2nd Brain“: leeres Blatt und gleich zuhören (kurz warten, bis Siri das Mikrofon freigibt)
+    if (action === 'speak' && canDictate()) setTimeout(() => toggleDictation(), 700);
     const items = await readSharedInbox();
     const done = [];
     let imported = 0;
