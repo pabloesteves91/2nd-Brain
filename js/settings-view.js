@@ -11,12 +11,21 @@ import { canBuy, manageSubscriptions, canBackup } from './native.js';
 import { refreshPurchases } from './plus.js';
 import { t, locale } from './i18n.js';
 
+// Für die Support-Mail: kurz und lesbar, z. B. „iPhone · iOS 18.7“
+function deviceLine(ua = navigator.userAgent) {
+  const ios = /OS (\d+)_(\d+)/.exec(ua);
+  const android = /Android (\d+(?:\.\d+)?)/.exec(ua);
+  if (isAndroid() || android) return `Android${android ? ' ' + android[1] : ''}`;
+  if (!isNative()) return 'Web';
+  if (navigator.maxTouchPoints === 0) return 'Mac';
+  return `${/iPad/.test(ua) ? 'iPad' : 'iPhone'}${ios ? ` · iOS ${ios[1]}.${ios[2]}` : ''}`;
+}
+
 function aboutHeader() {
   const sub = h('div', { class: 'about-sub' }, t('Version {v}', { v: APP_VERSION }));
   const mail = h('a', { class: 'support-btn', href: '#' }, t('Support'));
   const setMail = version => {
-    const platform = isAndroid() ? 'Android-App' : isNative() ? 'iOS-App' : 'Web-App';
-    const body = `\n\n\n—\n2nd Brain ${version} · ${platform}\n${navigator.userAgent}`;
+    const body = `\n\n\n—\n2nd Brain ${version} · ${deviceLine()}`;
     mail.href = `mailto:${SUPPORT_EMAIL}?subject=${encodeURIComponent('2nd Brain Support')}&body=${encodeURIComponent(body)}`;
   };
   setMail(APP_VERSION);
