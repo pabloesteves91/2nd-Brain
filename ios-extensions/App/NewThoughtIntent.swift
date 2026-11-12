@@ -65,7 +65,6 @@ struct SecondBrainShortcuts: AppShortcutsProvider {
             intent: AddThoughtIntent(),
             // Ohne „schreib“/„notiere“/„Notiz“ – sonst gibt Siri an Erinnerungen ab oder fragt jedes Mal „2nd Brain oder Notizen?“.
             phrases: [
-                "Neuer Gedanke mit \(.applicationName)",
                 "Neuer Gedanke in \(.applicationName)",
                 "\(.applicationName) neuer Gedanke",
                 "Eintrag in \(.applicationName)",
