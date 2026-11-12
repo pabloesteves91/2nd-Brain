@@ -201,4 +201,48 @@ public class SecondBrainNativePlugin extends Plugin {
             call.resolve();
         });
     }
+
+    // ---------- Bewertung & Auto-Backup ----------
+
+    @PluginMethod
+    public void requestReview(PluginCall call) {
+        com.google.android.play.core.review.ReviewManager manager =
+            com.google.android.play.core.review.ReviewManagerFactory.create(getContext());
+        manager.requestReviewFlow().addOnCompleteListener(task -> {
+            if (task.isSuccessful()) manager.launchReviewFlow(getActivity(), task.getResult());
+            call.resolve(); // Google entscheidet selbst, ob der Dialog erscheint
+        });
+    }
+
+    /** Sicherung nach „Download/2nd Brain/2nd-Brain-Backup.json“ – eine Datei, wird jede Woche ersetzt (ab Android 10). */
+    @PluginMethod
+    public void saveBackup(PluginCall call) {
+        String json = call.getString("json");
+        if (json == null) { call.reject("Keine Daten"); return; }
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) { call.reject("Ab Android 10"); return; }
+        try {
+            ContentResolver r = getContext().getContentResolver();
+            Uri col = MediaStore.Downloads.EXTERNAL_CONTENT_URI;
+            String dir = Environment.DIRECTORY_DOWNLOADS + "/2nd Brain/";
+            String file = "2nd-Brain-Backup.json";
+            Uri uri = null;
+            try (android.database.Cursor c = r.query(col, new String[] { MediaStore.MediaColumns._ID },
+                MediaStore.MediaColumns.DISPLAY_NAME + "=? AND " + MediaStore.MediaColumns.RELATIVE_PATH + "=?",
+                new String[] { file, dir }, null)) {
+                if (c != null && c.moveToFirst()) uri = android.content.ContentUris.withAppendedId(col, c.getLong(0));
+            }
+            if (uri == null) {
+                ContentValues v = new ContentValues();
+                v.put(MediaStore.MediaColumns.DISPLAY_NAME, file);
+                v.put(MediaStore.MediaColumns.MIME_TYPE, "application/json");
+                v.put(MediaStore.MediaColumns.RELATIVE_PATH, dir);
+                uri = r.insert(col, v);
+            }
+            if (uri == null) { call.reject("Sichern fehlgeschlagen"); return; }
+            try (OutputStream out = r.openOutputStream(uri, "wt")) { out.write(json.getBytes(StandardCharsets.UTF_8)); }
+            call.resolve();
+        } catch (Exception e) {
+            call.reject(e.getMessage() != null ? e.getMessage() : "Sichern fehlgeschlagen");
+        }
+    }
 }

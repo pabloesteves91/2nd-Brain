@@ -1,12 +1,13 @@
 import { db, wipeAll, emitChange } from './db.js';
-import { blobToDataUrl, dataUrlToBlob } from './images.js';
+import { dataUrlToBlob } from './images.js';
+import { buildBackup } from './backup.js';
 import { settings, setSetting } from './settings.js';
 import * as sync from './sync.js';
 import { h, toast, askConfirm } from './ui.js';
 import { isNative, isAndroid, biometryAvailable, verifyIdentity, appInfo } from './native.js';
 import { APP_VERSION, SUPPORT_EMAIL, siteUrl } from './config.js';
 import { isPlus, plusKind } from './plus.js';
-import { canBuy, manageSubscriptions } from './native.js';
+import { canBuy, manageSubscriptions, canBackup } from './native.js';
 import { refreshPurchases } from './plus.js';
 import { t, locale } from './i18n.js';
 
@@ -187,6 +188,7 @@ export function openSettings(container) {
     ),
 
     h('div', { class: 'group' }, h('h3', {}, t('Daten')),
+      canBackup() ? backupRow() : null,
       row(t('Exportieren'), h('button', { type: 'button', class: 'link', onclick: exportData }, t('JSON sichern'))),
       row(t('Importieren'), h('label', { class: 'link' }, t('Datei wählen'),
         h('input', { type: 'file', accept: 'application/json,.json', hidden: true, onchange: importData }))),
@@ -292,12 +294,7 @@ function syncSection() {
 }
 
 async function exportData() {
-  const notes = (await db.all('notes')).filter(n => !n.deleted).map(({ dirty, dirtyLocal, ...n }) => n);
-  const images = [];
-  for (const img of await db.all('images')) {
-    if (img.blob) images.push({ id: img.id, note_id: img.note_id, data: await blobToDataUrl(img.blob) });
-  }
-  const blob = new Blob([JSON.stringify({ app: '2nd-brain', version: 1, exported_at: new Date().toISOString(), notes, images })], { type: 'application/json' });
+  const blob = new Blob([await buildBackup()], { type: 'application/json' });
   const a = h('a', { href: URL.createObjectURL(blob), download: `2nd-brain-${new Date().toISOString().slice(0, 10)}.json` });
   document.body.append(a);
   a.click();
@@ -325,4 +322,11 @@ async function importData(e) {
   } catch (err) {
     toast(t('Import fehlgeschlagen: {e}', { e: err.message }));
   }
+}
+
+// Auto-Backup: nur Info, wann zuletzt gesichert wurde (wo: Dateien-App bzw. Downloads)
+function backupRow() {
+  const hint = h('span', {}, t('Wöchentlich, das erste kommt bald'));
+  db.getMeta('backupAt').then(at => { if (at) hint.textContent = t('Wöchentlich – zuletzt am {d}', { d: new Date(at).toLocaleDateString(locale()) }); });
+  return row(t('Automatisches Backup'), h('span', { class: 'small' }, isAndroid() ? 'Downloads › 2nd Brain' : t('Dateien › 2nd Brain')), hint);
 }

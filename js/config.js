@@ -25,5 +25,5 @@ export const PLUS_SINCE = '2026-11-08';
 export const EULA_URL = 'https://www.apple.com/legal/internet-services/itunes/dev/stdeula/';
 export const siteUrl = (page = '') => `https://2ndbrain.ch/${isEn() ? 'en/' : ''}${page}`;
 
-export const APP_VERSION = '2.3';
+export const APP_VERSION = '2.4';
 export const SUPPORT_EMAIL = 'support@2ndbrain.ch';

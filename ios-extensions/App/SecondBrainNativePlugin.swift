@@ -5,6 +5,7 @@ import Capacitor
 import Photos
 import Speech
 import AVFoundation
+import StoreKit
 
 @objc(SecondBrainNativePlugin)
 public class SecondBrainNativePlugin: CAPPlugin, CAPBridgedPlugin {
@@ -17,6 +18,8 @@ public class SecondBrainNativePlugin: CAPPlugin, CAPBridgedPlugin {
         CAPPluginMethod(name: "saveToPhotos", returnType: CAPPluginReturnPromise),
         CAPPluginMethod(name: "startDictation", returnType: CAPPluginReturnPromise),
         CAPPluginMethod(name: "stopDictation", returnType: CAPPluginReturnPromise),
+        CAPPluginMethod(name: "requestReview", returnType: CAPPluginReturnPromise),
+        CAPPluginMethod(name: "saveBackup", returnType: CAPPluginReturnPromise),
     ]
 
     // Spracheingabe
@@ -195,5 +198,42 @@ public class SecondBrainNativePlugin: CAPPlugin, CAPBridgedPlugin {
         speechTask?.cancel()
         speechTask = nil
         try? AVAudioSession.sharedInstance().setActive(false, options: .notifyOthersOnDeactivation)
+    }
+
+    // MARK: Bewertung & Auto-Backup
+
+    /// Apples Bewertungsabfrage – iOS entscheidet selbst, ob und wie oft sie erscheint.
+    @objc func requestReview(_ call: CAPPluginCall) {
+        DispatchQueue.main.async {
+            if let scene = UIApplication.shared.connectedScenes
+                .first(where: { $0.activationState == .foregroundActive }) as? UIWindowScene {
+                SKStoreReviewController.requestReview(in: scene)
+            }
+            call.resolve()
+        }
+    }
+
+    /// Sicherung in Dokumente/Backups (sichtbar in der Dateien-App unter „Auf meinem iPhone › 2nd Brain“), die 4 neuesten bleiben.
+    @objc func saveBackup(_ call: CAPPluginCall) {
+        guard let json = call.getString("json"), let data = json.data(using: .utf8) else {
+            call.reject("Keine Daten")
+            return
+        }
+        let name = call.getString("name") ?? "2nd-Brain-Backup.json"
+        let fm = FileManager.default
+        do {
+            let docs = try fm.url(for: .documentDirectory, in: .userDomainMask, appropriateFor: nil, create: true)
+            let dir = docs.appendingPathComponent("Backups", isDirectory: true)
+            try fm.createDirectory(at: dir, withIntermediateDirectories: true)
+            try data.write(to: dir.appendingPathComponent(name), options: .atomic)
+            let old = try fm.contentsOfDirectory(at: dir, includingPropertiesForKeys: nil)
+                .filter { $0.pathExtension == "json" }
+                .sorted { $0.lastPathComponent > $1.lastPathComponent }
+                .dropFirst(4)
+            for url in old { try? fm.removeItem(at: url) }
+            call.resolve()
+        } catch {
+            call.reject(error.localizedDescription)
+        }
     }
 }

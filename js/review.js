@@ -3,7 +3,8 @@ import { reminderControl } from './tasks.js';
 import { shareMenu } from './share.js';
 import { swipeNote } from './swipe.js';
 import { imageUrl } from './images.js';
-import { settings } from './settings.js';
+import { settings, setSetting } from './settings.js';
+import { isNative, askReview } from './native.js';
 import { isPlus } from './plus.js';
 import { h, noteBody, thumbImg, fmtTime, fmtDay, shiftDay, linkify } from './ui.js';
 import { t, locale } from './i18n.js';
@@ -142,6 +143,7 @@ async function render(container) {
             await db.setMeta('closedDays', [...new Set([...closedDays, state.day])].slice(-60));
             document.getElementById('banner').hidden = true;
             document.dispatchEvent(new CustomEvent('day-closed'));
+            maybeAskReview(); // guter Moment: Tag geschafft
             render(container);
           },
         }, unsorted === 0 && closedDays.includes(state.day) ? t('Tag abgeschlossen ✓') : t('Tag abschliessen')),
@@ -306,4 +308,13 @@ function enableDrag(list, container) {
     window.addEventListener('pointerup', up);
     window.addEventListener('pointercancel', up);
   });
+}
+
+// Einmal dezent um eine Bewertung bitten: frühestens 5 Tage nach der ersten Nutzung und ab 10 Notizen.
+async function maybeAskReview() {
+  const s = settings();
+  if (!isNative() || s.reviewAskedAt || !s.firstUseAt || Date.now() - s.firstUseAt < 5 * 86400000) return;
+  if ((await listNotes()).length < 10) return;
+  setSetting('reviewAskedAt', Date.now());
+  setTimeout(askReview, 800);
 }

@@ -12,6 +12,8 @@ import { applyTags, adoptCategories } from './tags.js';
 import { toast, updateInert } from './ui.js';
 import { initLock, onAppState } from './lock.js';
 import { showOnboarding } from './onboarding.js';
+import { showWhatsNew, markSeen } from './whatsnew.js';
+import { autoBackup } from './backup.js';
 import { importShared } from './share.js';
 import { openPlus } from './plus-view.js';
 import { isPlus, grantEarlyUsers, refreshPurchases, shouldAskOnStart } from './plus.js';
@@ -185,6 +187,9 @@ setInterval(checkReminder, 60000);
 // ---------- Sync & Offline ----------
 
 initSync().then(() => scheduleSync(500));
+// Solange die App offen ist: jede Minute Änderungen anderer Geräte holen (ohne Anmeldung/Plus passiert nichts)
+setInterval(() => { if (document.visibilityState === 'visible') scheduleSync(0); }, 60000);
+autoBackup();
 // Einmalig (Update auf 2.4): Kategorien aus vorhandenen Notizen in die Liste übernehmen
 db.getMeta('catsAdopted').then(async done => { if (!done) { adoptCategories(await listNotes()); await db.setMeta('catsAdopted', true); } });
 if (isNative()) listNotes().then(rescheduleTasks);
@@ -194,11 +199,15 @@ if (isNative()) listNotes().then(rescheduleTasks);
 initLock();
 // Plus: frühe Nutzer beschenken (vor der Einführung prüfen), Käufe abfragen, Kaufbildschirm ggf. anbieten.
 grantEarlyUsers().then(async () => {
+  if (!settings().firstUseAt) setSetting('firstUseAt', Date.now());
   if (!settings().onboarded) showOnboarding();
   else if (shouldAskOnStart()) { setSetting('plusAskedAgain', true); open('plus'); }
+  else showWhatsNew();
   await refreshPurchases();
 });
-document.addEventListener('onboarding-done', () => { if (isNative() && !isPlus()) open('plus'); });
+document.addEventListener('onboarding-done', () => {
+  markSeen(); // neue Nutzer: kein „Was ist neu“
+  if (isNative() && !isPlus()) open('plus'); });
 body.addEventListener('open-plus', () => open('plus'));
 document.addEventListener('plus-changed', () => {
   nativeSettings();
@@ -211,7 +220,7 @@ initNative({
   onOpenWeek: () => open('week'),
   onOpenNote: async id => { if (view) close(); await openNote(id); },
   onNewThought: async () => { if (view) close(); await startFresh(); },
-  onAppState: active => { onAppState(active); if (active) { nativeInbox(); refreshPurchases(); } },
+  onAppState: active => { onAppState(active); if (active) { nativeInbox(); refreshPurchases(); scheduleSync(300); autoBackup(); } },
   onPendingAction: () => nativeInbox(),
   onImport: code => openShared(code),
   onPhoto: async () => { if (view) close(); await startFresh({ focus: false }); await takePhoto(); },

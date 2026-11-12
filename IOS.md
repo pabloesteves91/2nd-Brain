@@ -360,6 +360,9 @@ cd ~/2nd-Brain && git pull && npm run sync
    - „Hey Siri, Neuer Gedanke in 2nd Brain“ → Siri fragt nach → diktieren → „Gesichert in 2nd Brain.“ (App bleibt zu) →
      App öffnen: die Notiz ist da. (Neue Siri-Phrasen erkennt iOS erst nach dem ersten Start der neuen Version.)
    - ··· → Konto → **Passwort vergessen?** mit deiner E-Mail → Mail kommt.
+   - Nach dem Update erscheint einmal **„Neu in 2.4“**.
+   - **Auto-Backup:** einmal pro Woche in der Dateien-App unter *Auf meinem iPhone › 2nd Brain › Backups*
+     (die Info.plist-Schlüssel dafür setzt `npm run sync`).
 
 ---
 

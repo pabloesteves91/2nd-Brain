@@ -242,6 +242,17 @@ export function endDictationListeners() {
   dictHandles = [];
 }
 
+// ---------- Bewertung & Auto-Backup (eigenes Plugin) ----------
+
+export async function askReview() {
+  try { await plugin('SecondBrainNative')?.requestReview(); } catch { /* ältere App-Version */ }
+}
+
+export const canBackup = () => isNative() && !!C.isPluginAvailable?.('SecondBrainNative');
+export async function saveBackup(json) {
+  await plugin('SecondBrainNative').saveBackup({ json, name: `2nd-Brain-${new Date().toISOString().slice(0, 10)}.json` });
+}
+
 // ---------- Kamera ----------
 
 // Nur iPhone/iPad (nicht Mac): Fotos laufen über das Kamera-Plugin, damit sie auch in der Mediathek landen.

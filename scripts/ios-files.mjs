@@ -50,6 +50,8 @@ for (const file of walk(src)) {
 const PLIST_KEYS = {
   NSMicrophoneUsageDescription: '\t<key>NSMicrophoneUsageDescription</key>\n\t<string>Um Gesprochenes in Text umzuwandeln.</string>\n',
   NSSpeechRecognitionUsageDescription: '\t<key>NSSpeechRecognitionUsageDescription</key>\n\t<string>Um Gesprochenes in Text umzuwandeln – auf deinem Gerät.</string>\n',
+  UIFileSharingEnabled: '\t<key>UIFileSharingEnabled</key>\n\t<true/>\n',            // Auto-Backup in der Dateien-App
+  LSSupportsOpeningDocumentsInPlace: '\t<key>LSSupportsOpeningDocumentsInPlace</key>\n\t<true/>\n',
   INAlternativeAppNames: readFileSync(join(src, 'App', 'Info-Siri.plist.txt'), 'utf8').replace(/<!--[\s\S]*?-->\s*/, ''),
 };
 const appPlist = [...(targets.get('Info.plist') || [])].find(p => p.split(sep).slice(-3).join('/') === 'App/App/Info.plist');
