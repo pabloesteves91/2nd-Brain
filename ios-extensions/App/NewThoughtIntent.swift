@@ -63,13 +63,10 @@ struct SecondBrainShortcuts: AppShortcutsProvider {
         )
         AppShortcut(
             intent: AddThoughtIntent(),
-            // Ohne Verben wie „schreib“/„notiere“ – die fängt Siri sonst für Erinnerungen/Notizen ab.
+            // Ohne „schreib“/„notiere“/„Notiz“ – sonst gibt Siri an Erinnerungen ab oder fragt jedes Mal „2nd Brain oder Notizen?“.
             phrases: [
                 "Neuer Gedanke in \(.applicationName)",
                 "\(.applicationName) neuer Gedanke",
-                "Gedanke in \(.applicationName) notieren",
-                "Notiz in \(.applicationName)",
-                "Neue Notiz in \(.applicationName)",
                 "Eintrag in \(.applicationName)",
                 "Neuer Eintrag in \(.applicationName)",
                 "Gedanke für \(.applicationName)",
