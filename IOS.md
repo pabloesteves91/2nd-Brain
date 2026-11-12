@@ -346,24 +346,16 @@ App Store Connect → App → links **„+“ neben der Sprache** (oben rechts b
 cd ~/2nd-Brain && git pull && npm run sync
 ```
 
-1. **Swift-Dateien ersetzen** – jeweils im Terminal kopieren, in Xcode die Datei öffnen, ⌘A ⌘V ⌘S:
-   ```bash
-   pbcopy < ~/2nd-Brain/ios-extensions/App/SecondBrainNativePlugin.swift
-   ```
-   ```bash
-   pbcopy < ~/2nd-Brain/ios-extensions/App/NewThoughtIntent.swift
-   ```
-   ```bash
-   pbcopy < ~/2nd-Brain/ios-extensions/Widget/SecondBrainWidget.swift
-   ```
-2. **Texte ersetzen** (gleiches Vorgehen): `App/de.lproj/AppShortcuts.strings`, `App/de.lproj/InfoPlist.strings`,
-   `App/en.lproj/AppShortcuts.strings`, `App/en.lproj/InfoPlist.strings`, `App/en.lproj/Localizable.strings`.
-   In Xcode liegen sie unter **App → App** bei *AppShortcuts*, *InfoPlist* und *Localizable* (Pfeil aufklappen →
-   German bzw. English).
+1. **Swift- und Text-Dateien** kopiert `npm run sync` jetzt automatisch über die Kopien im Xcode-Projekt
+   (Skript `scripts/ios-files.mjs`, einzeln: `npm run ios:files`). Die Ausgabe zeigt, was aktualisiert wurde.
+2. Steht dort **„nicht im Xcode-Projekt“**, die genannte Datei **einmal** in Xcode hinzufügen (Finder →
+   `ios-extensions/…` auf den passenden gelben Ordner ziehen, *Copy items if needed*, richtiges Target) – danach
+   aktualisiert `npm run sync` sie ebenfalls.
 3. **Info.plist** (App → App → Info) – zwei Zeilen mit **+** hinzufügen:
    - *Privacy – Microphone Usage Description*: `Um Gesprochenes in Text umzuwandeln.`
    - *Privacy – Speech Recognition Usage Description*: `Um Gesprochenes in Text umzuwandeln – auf deinem Gerät.`
-4. **Version 2.4**, Build 1 (App, SecondBrainWidget, ShareExtension) → ⌘B → auf dem iPhone testen:
+4. **Version 2.4**, Build 1 (App, SecondBrainWidget, ShareExtension) → **⇧⌘K** (Clean Build Folder), App auf dem
+   iPhone löschen → ▶ Run → auf dem iPhone testen:
    - Menü **sprechen** → Erlaubnis geben → sprechen → Text erscheint, nach kurzer Stille stoppt es.
    - „Hey Siri, schreib einen Gedanken in 2nd Brain“ → Siri fragt nach → diktieren → „Gesichert in 2nd Brain.“ →
      App öffnen: die Notiz ist da. (Neue Siri-Phrasen erkennt iOS erst nach dem ersten Start der neuen Version.)

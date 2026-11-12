@@ -6,11 +6,12 @@
   "type": "module",
   "scripts": {
     "build": "node scripts/build-www.mjs",
-    "sync": "npm run build && npx cap sync ios",
+    "sync": "npm run build && npx cap sync ios && node scripts/ios-files.mjs",
     "ios": "npm run build && npx cap sync ios && npx cap open ios",
     "serve": "python3 -m http.server 8000",
     "sync:android": "npm run build && npx cap sync android",
-    "android": "npm run build && npx cap sync android && npx cap open android"
+    "android": "npm run build && npx cap sync android && npx cap open android",
+    "ios:files": "node scripts/ios-files.mjs"
   },
   "dependencies": {
     "@capacitor-community/apple-sign-in": "7.1.0",
