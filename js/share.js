@@ -1,7 +1,7 @@
 // Notiz teilen: als Text oder als Link, den eine andere Person in ihrem 2nd Brain öffnen kann.
 import { db, newNote, saveNote } from './db.js';
 import { encodeNote, decodeNote } from './share-codec.js';
-import { applyTags } from './tags.js';
+import { applyTags, ensureCategory, tagLabel } from './tags.js';
 import { popMenu, toast } from './ui.js';
 import { shareNative } from './native.js';
 import { t } from './i18n.js';
@@ -40,8 +40,10 @@ export async function importShared(code) {
   const n = newNote();
   n.id = id;
   n.text = text;
-  n.category = category;
+  n.category = ensureCategory(category);
   applyTags(n);
+  // #Tag aus der geteilten Notiz wird beim Empfänger zur Kategorie, auch wenn er das sonst nicht automatisch macht
+  if (!n.category && n.tags.length) { n.category = ensureCategory(tagLabel(n.text, n.tags[0])); n.status = 'sorted'; }
   await saveNote(n);
   return id;
 }

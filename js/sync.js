@@ -5,11 +5,12 @@ import { db } from './db.js';
 import { isNative, appleSignIn } from './native.js';
 import { isPlus, setFirebaseGift, grantEarlyAccount } from './plus.js';
 import { t, lang } from './i18n.js';
-import { settings, setSetting, DEFAULTS } from './settings.js';
+import { extractTags, adoptCategories } from './tags.js';
+import { settings, setSetting, DEFAULTS, SYNC_KEYS } from './settings.js';
 
 const V = '10.12.2';
 const CDN = `https://www.gstatic.com/firebasejs/${V}`;
-const NOTE_FIELDS = ['id', 'text', 'images', 'created_at', 'updated_at', 'day', 'category', 'pinned', 'status', 'sort_order', 'deleted', 'tags', 'remind_at'];
+const NOTE_FIELDS = ['id', 'text', 'images', 'created_at', 'updated_at', 'day', 'category', 'pinned', 'status', 'sort_order', 'deleted', 'tags', 'remind_at', 'edited_day'];
 
 export const syncEnabled = !!FIREBASE_CONFIG;
 
@@ -268,11 +269,26 @@ async function syncCategories(uid) {
     if (!localAt) setSetting('categoriesAt', at);
     await F.setDoc(ref, { categories: s.categories, categoriesAt: at }, { merge: true });
   }
+  await syncPrefs(ref, remote);
 }
 
-let lastCatsAt = settings().categoriesAt || 0;
+// Übrige Einstellungen (SYNC_KEYS): wie die Kategorien – die zuletzt geänderte Fassung gewinnt.
+async function syncPrefs(ref, remote) {
+  const { F } = fb;
+  const s = settings();
+  const localAt = s.prefsAt || 0;
+  const remoteAt = remote.prefsAt || 0;
+  if (remote.prefs && remoteAt > localAt) {
+    for (const k of SYNC_KEYS) if (k in remote.prefs && remote.prefs[k] !== s[k]) setSetting(k, remote.prefs[k]);
+    setSetting('prefsAt', remoteAt);
+  } else if (localAt > remoteAt) {
+    await F.setDoc(ref, { prefs: Object.fromEntries(SYNC_KEYS.map(k => [k, s[k]])), prefsAt: localAt }, { merge: true });
+  }
+}
+
+let lastCatsAt = `${settings().categoriesAt || 0}|${settings().prefsAt || 0}`;
 document.addEventListener('settings-changed', () => {
-  const at = settings().categoriesAt || 0;
+  const at = `${settings().categoriesAt || 0}|${settings().prefsAt || 0}`;
   if (at !== lastCatsAt) { lastCatsAt = at; scheduleSync(1500); }
 });
 
@@ -290,6 +306,7 @@ async function pull(uid) {
   let max = last;
   let changed = false;
   const needImages = new Set();
+  const pulled = [];
 
   for (const d of snap.docs) {
     const remote = d.data();
@@ -299,7 +316,8 @@ async function pull(uid) {
     const local = await db.get('notes', d.id);
     if (local?.dirty && local.updated_at >= remote.updated_at) continue; // lokal neuer
     if (!local || remote.updated_at > local.updated_at || (!local.dirty && remote.updated_at !== local.updated_at)) {
-      await db.put('notes', { ...remote, images: remote.images || [], dirty: false });
+      await db.put('notes', { ...remote, images: remote.images || [], tags: remote.tags || extractTags(remote.text || ''), dirty: false });
+      pulled.push(remote);
       changed = true;
     }
     if (!remote.deleted) for (const id of remote.images || []) needImages.add([id, d.id]);
@@ -317,6 +335,7 @@ async function pull(uid) {
     }
   }
 
+  adoptCategories(pulled); // Kategorien anderer Geräte auch in die eigene Liste
   await db.setMeta('lastPull', max);
   return changed;
 }

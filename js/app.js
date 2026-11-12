@@ -8,7 +8,7 @@ import { initSync, scheduleSync, syncNow } from './sync.js';
 import { isNative, initNative, scheduleReminder, scheduleWeekly, rescheduleTasks, setStatusBar, tap,
   takePendingAction, readSharedInbox, clearSharedInbox, canDictate } from './native.js';
 import { storeImage, dataUrlToBlob } from './images.js';
-import { applyTags } from './tags.js';
+import { applyTags, adoptCategories } from './tags.js';
 import { toast, updateInert } from './ui.js';
 import { initLock, onAppState } from './lock.js';
 import { showOnboarding } from './onboarding.js';
@@ -185,6 +185,8 @@ setInterval(checkReminder, 60000);
 // ---------- Sync & Offline ----------
 
 initSync().then(() => scheduleSync(500));
+// Einmalig (Update auf 2.4): Kategorien aus vorhandenen Notizen in die Liste übernehmen
+db.getMeta('catsAdopted').then(async done => { if (!done) { adoptCategories(await listNotes()); await db.setMeta('catsAdopted', true); } });
 if (isNative()) listNotes().then(rescheduleTasks);
 
 // ---------- Native iOS-App ----------

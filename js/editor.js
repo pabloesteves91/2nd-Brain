@@ -1,4 +1,4 @@
-import { db, newNote, saveNote } from './db.js';
+import { db, newNote, saveNote, localDay } from './db.js';
 import { storeImage, imageUrl, removeImage } from './images.js';
 import { h, thumbImg, reducedMotion, popMenu, flash, findLinks, linkEl, shortUrl, toast } from './ui.js';
 import { applyTags } from './tags.js';
@@ -93,6 +93,7 @@ async function save({ quiet = false } = {}) {
     current = newNote();
   }
   if (current.text === text && !current.dirtyLocal) return;
+  if (current.text !== text && current.day !== localDay()) current.edited_day = localDay(); // erscheint dann auch in „heute“
   current.text = text;
   current.deleted = empty;   // leere Notizen verschwinden einfach
   applyTags(current);

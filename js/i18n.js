@@ -225,6 +225,8 @@ export const EN = {
   'Mit Fingerabdruck sperren': 'Lock with fingerprint',
   'Passwort vergessen?': 'Forgot password?',
   'sprechen': 'speak',
+  'bearbeitet': 'edited',
+  'Tipp: Schreib eine #Kategorie in die Notiz, z. B. #idee oder #projekt – dann ist sie automatisch einsortiert.': 'Tip: add a #category to the note, e.g. #idea or #project – it’s sorted automatically.',
   'stopp': 'stop',
   'Spracheingabe nicht erlaubt – bitte in den Einstellungen erlauben.': 'Voice input isn’t allowed – please allow it in Settings.',
   'Spracheingabe ist auf diesem Gerät nicht verfügbar.': 'Voice input isn’t available on this device.',

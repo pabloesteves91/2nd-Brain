@@ -97,7 +97,7 @@ export async function listNotes({ includeDeleted = false } = {}) {
 }
 
 export async function notesOfDay(day) {
-  return (await listNotes()).filter(n => n.day === day);
+  return (await listNotes()).filter(n => n.day === day || n.edited_day === day); // auch heute bearbeitete ältere Notizen
 }
 
 export async function deleteNote(note) {

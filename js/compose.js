@@ -2,7 +2,7 @@
 import { listNotes } from './db.js';
 import { settings } from './settings.js';
 import { h } from './ui.js';
-import { normTag } from './tags.js';
+import { normTag, extractTags } from './tags.js';
 
 // ---------- Listen ----------
 
@@ -34,7 +34,7 @@ document.addEventListener('notes-changed', () => { pool = null; });
 async function knownTags() {
   if (!pool) {
     const counts = new Map();
-    for (const n of await listNotes()) for (const t of n.tags || []) counts.set(t, (counts.get(t) || 0) + 1);
+    for (const n of await listNotes()) for (const t of extractTags(n.text || '')) counts.set(t, (counts.get(t) || 0) + 1); // aus dem Text: auch alte/synchronisierte Notizen ohne gespeicherte Tags
     pool = [...counts].sort((a, b) => b[1] - a[1]).map(([t]) => t);
   }
   return pool;

@@ -31,9 +31,13 @@ function load() {
 
 export const settings = () => current;
 
+// Diese Einstellungen gehen mit dem Sync auf alle Geräte (nicht: Sprache, Face ID, Einführung, Käufe – die sind pro Gerät).
+export const SYNC_KEYS = ['font', 'size', 'theme', 'freshAfterMin', 'reminder', 'reviewTime', 'tagsAsCategory', 'weekly', 'weeklyTime', 'rediscover'];
+
 export function setSetting(key, value) {
   current = { ...current, [key]: value };
   if (key === 'categories') current.categoriesAt = Date.now(); // für den Sync: neuere Liste gewinnt
+  if (SYNC_KEYS.includes(key)) current.prefsAt = Date.now();
   try { localStorage.setItem(KEY, JSON.stringify(current)); } catch { /* privat-modus */ }
   apply();
 }

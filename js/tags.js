@@ -35,3 +35,24 @@ export function applyTags(note) {
     if (note.status === 'inbox') note.status = 'sorted';
   }
 }
+
+// Kategorie in die eigene Liste aufnehmen, falls sie fehlt (gleiche Schreibweise-Regeln wie bei #Tags).
+export function ensureCategory(name) {
+  if (!name) return null;
+  const cats = settings().categories;
+  const found = cats.find(c => normTag(c) === normTag(name));
+  if (found) return found;
+  setSetting('categories', [...cats, name]);
+  return name;
+}
+
+// Kategorien, die an Notizen hängen, aber in der Liste fehlen (Sync, Neuinstallation, ältere Version) → übernehmen.
+export function adoptCategories(notes) {
+  for (const n of notes) if (!n.deleted && n.category) ensureCategory(n.category);
+}
+
+// Ein Wort mit grossem Anfangsbuchstaben, so wie es im Text steht („#Meinprojekt“ → „Meinprojekt“).
+export function tagLabel(text, tag) {
+  const raw = text.match(new RegExp(`#(${tag})`, 'iu'))?.[1] || tag;
+  return raw.charAt(0).toUpperCase() + raw.slice(1);
+}

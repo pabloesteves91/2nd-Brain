@@ -918,3 +918,5 @@ input:not([type="checkbox"]):not([type="range"]):not([type="radio"]):focus-visib
 .todo.done .todo-box { background: var(--fg); border-color: var(--fg); }
 .todo.done span { text-decoration: line-through; color: var(--muted); }
 .todo-count { margin-top: 6px; font-family: var(--ui); font-size: .72rem; color: var(--muted); }
+
+.tag-hint { font-size: .8235rem; color: var(--muted); text-align: center; margin: 4px 16px 12px; line-height: 1.45; }

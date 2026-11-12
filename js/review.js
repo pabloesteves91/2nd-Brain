@@ -133,6 +133,7 @@ async function render(container) {
         ),
         cards,
         h('p', { class: 'swipe-hint' }, t('→ archivieren · ← löschen')),
+        unsorted ? h('p', { class: 'tag-hint' }, t('Tipp: Schreib eine #Kategorie in die Notiz, z. B. #idee oder #projekt – dann ist sie automatisch einsortiert.')) : null,
         h('button', {
           type: 'button', class: 'primary',
           disabled: unsorted === 0 && closedDays.includes(state.day),
@@ -250,7 +251,7 @@ function card(n, container, { compact = false } = {}) {
 
   return h('article', { class: 'card', 'data-id': n.id },
     h('div', { class: 'card-top' },
-      h('span', {}, compact ? `${fmtDay(n.day)} · ${fmtTime(n.created_at)}` : fmtTime(n.created_at)),
+      h('span', {}, compact ? `${fmtDay(n.day)} · ${fmtTime(n.created_at)}` : n.day !== state.day ? `${fmtDay(n.day)} · ${t('bearbeitet')}` : fmtTime(n.created_at)),
       n.pinned ? h('span', {}, '★') : null,
       h('span', { class: 'grow' }),
       compact ? (n.category ? h('span', {}, n.category) : null) : select,
