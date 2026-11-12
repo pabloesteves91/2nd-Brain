@@ -8,3 +8,5 @@
 "Neuer Eintrag in ${applicationName}" = "Neuer Eintrag in ${applicationName}";
 "Gedanke für ${applicationName}" = "Gedanke für ${applicationName}";
 "${applicationName} Eintrag" = "${applicationName} Eintrag";
+"Neues Blatt in ${applicationName}" = "Neues Blatt in ${applicationName}";
+"${applicationName} öffnen und schreiben" = "${applicationName} öffnen und schreiben";

@@ -53,26 +53,29 @@ struct SecondBrainShortcuts: AppShortcutsProvider {
     static var appShortcuts: [AppShortcut] {
         AppShortcut(
             intent: NewThoughtIntent(),
+            // Öffnet die App mit leerem Blatt (auch für Kurzbefehle/Action-Button). Diktieren: AddThoughtIntent.
             phrases: [
-                "Neuer Gedanke in \(.applicationName)",
-                "\(.applicationName) neuer Gedanke",
-                "Gedanke in \(.applicationName) notieren",
-                "Notiz in \(.applicationName)",
-                "Neue Notiz in \(.applicationName)",
+                "Neues Blatt in \(.applicationName)",
+                "\(.applicationName) öffnen und schreiben",
             ],
-            shortTitle: "Neuer Gedanke", // Englisch: en.lproj/Localizable.strings
+            shortTitle: "Leeres Blatt", // Englisch: en.lproj/Localizable.strings
             systemImageName: "square.and.pencil"
         )
         AppShortcut(
             intent: AddThoughtIntent(),
             // Ohne Verben wie „schreib“/„notiere“ – die fängt Siri sonst für Erinnerungen/Notizen ab.
             phrases: [
+                "Neuer Gedanke in \(.applicationName)",
+                "\(.applicationName) neuer Gedanke",
+                "Gedanke in \(.applicationName) notieren",
+                "Notiz in \(.applicationName)",
+                "Neue Notiz in \(.applicationName)",
                 "Eintrag in \(.applicationName)",
                 "Neuer Eintrag in \(.applicationName)",
                 "Gedanke für \(.applicationName)",
                 "\(.applicationName) Eintrag",
             ],
-            shortTitle: "Gedanken aufschreiben",
+            shortTitle: "Neuer Gedanke",
             systemImageName: "mic"
         )
     }
