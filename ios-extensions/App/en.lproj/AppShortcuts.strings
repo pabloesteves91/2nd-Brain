@@ -10,3 +10,4 @@
 "${applicationName} Eintrag" = "${applicationName} entry";
 "Neues Blatt in ${applicationName}" = "Blank page in ${applicationName}";
 "${applicationName} öffnen und schreiben" = "Open ${applicationName} and write";
+"Neuer Gedanke mit ${applicationName}" = "New thought with ${applicationName}";
