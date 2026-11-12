@@ -4,7 +4,7 @@
 "Gedanke in ${applicationName} notieren" = "Gedanke in ${applicationName} notieren";
 "Notiz in ${applicationName}" = "Notiz in ${applicationName}";
 "Neue Notiz in ${applicationName}" = "Neue Notiz in ${applicationName}";
-"Schreib einen Gedanken in ${applicationName}" = "Schreib einen Gedanken in ${applicationName}";
-"Gedanken in ${applicationName} aufschreiben" = "Gedanken in ${applicationName} aufschreiben";
-"Halte einen Gedanken in ${applicationName} fest" = "Halte einen Gedanken in ${applicationName} fest";
-"${applicationName} aufschreiben" = "${applicationName} aufschreiben";
+"Eintrag in ${applicationName}" = "Eintrag in ${applicationName}";
+"Neuer Eintrag in ${applicationName}" = "Neuer Eintrag in ${applicationName}";
+"Gedanke für ${applicationName}" = "Gedanke für ${applicationName}";
+"${applicationName} Eintrag" = "${applicationName} Eintrag";
