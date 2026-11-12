@@ -26,4 +26,4 @@ export const EULA_URL = 'https://www.apple.com/legal/internet-services/itunes/de
 export const siteUrl = (page = '') => `https://2ndbrain.ch/${isEn() ? 'en/' : ''}${page}`;
 
 export const APP_VERSION = '2.3';
-export const SUPPORT_EMAIL = 'fabioberta@me.com';
+export const SUPPORT_EMAIL = 'support@2ndbrain.ch';
