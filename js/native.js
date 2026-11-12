@@ -216,6 +216,32 @@ export async function clearSharedInbox(ids) {
   try { await p.clearInbox({ ids }); } catch { /* egal */ }
 }
 
+// ---------- Spracheingabe (eigenes Plugin: Apple Speech / Android SpeechRecognizer, auf dem Gerät) ----------
+
+export const canDictate = () => isNative() && !!C.isPluginAvailable?.('SecondBrainNative');
+let dictHandles = [];
+
+// onText(text, final): text ist jeweils alles bisher Gesagte; onEnd(): Erkennung beendet.
+export async function startDictation(lang, onText, onEnd) {
+  const p = plugin('SecondBrainNative');
+  endDictationListeners();
+  dictHandles = await Promise.all([
+    p.addListener('dictation', d => onText(d?.text || '', !!d?.final)),
+    p.addListener('dictationEnd', () => onEnd()),
+  ]);
+  try { await p.startDictation({ lang }); }
+  catch (err) { endDictationListeners(); throw err; }
+}
+
+export async function stopDictation() {
+  try { await plugin('SecondBrainNative')?.stopDictation(); } catch { /* schon gestoppt */ }
+}
+
+export function endDictationListeners() {
+  dictHandles.forEach(h => h?.remove?.());
+  dictHandles = [];
+}
+
 // ---------- Kamera ----------
 
 // Nur iPhone/iPad (nicht Mac): Fotos laufen über das Kamera-Plugin, damit sie auch in der Mediathek landen.

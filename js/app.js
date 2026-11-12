@@ -1,12 +1,12 @@
 import { db, localDay, notesOfDay, listNotes, newNote, saveNote } from './db.js';
-import { initEditor, startFresh, openNote, flush, focusEditor, refreshCurrent, autosize, putAway, takePhoto, startTodo } from './editor.js';
+import { initEditor, startFresh, openNote, flush, focusEditor, refreshCurrent, autosize, putAway, takePhoto, startTodo, toggleDictation } from './editor.js';
 import { openReview } from './review.js';
 import { openAll } from './all.js';
 import { openSettings } from './settings-view.js';
 import { settings, apply } from './settings.js';
 import { initSync, scheduleSync, syncNow } from './sync.js';
 import { isNative, initNative, scheduleReminder, scheduleWeekly, rescheduleTasks, setStatusBar, tap,
-  takePendingAction, readSharedInbox, clearSharedInbox } from './native.js';
+  takePendingAction, readSharedInbox, clearSharedInbox, canDictate } from './native.js';
 import { storeImage, dataUrlToBlob } from './images.js';
 import { applyTags } from './tags.js';
 import { toast, updateInert } from './ui.js';
@@ -85,6 +85,7 @@ document.addEventListener('keydown', e => {
 });
 document.getElementById('new').addEventListener('click', () => putAway());
 document.getElementById('todo').addEventListener('click', () => startTodo());
+if (canDictate()) { const sp = document.getElementById('speak'); sp.hidden = false; sp.addEventListener('click', () => toggleDictation()); }
 
 body.addEventListener('open-note', async e => {
   close();

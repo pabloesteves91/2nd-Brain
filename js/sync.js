@@ -4,7 +4,7 @@ import { FIREBASE_CONFIG, APP_VERSION } from './config.js';
 import { db } from './db.js';
 import { isNative, appleSignIn } from './native.js';
 import { isPlus, setFirebaseGift, grantEarlyAccount } from './plus.js';
-import { t } from './i18n.js';
+import { t, lang } from './i18n.js';
 import { settings, setSetting, DEFAULTS } from './settings.js';
 
 const V = '10.12.2';
@@ -117,6 +117,14 @@ export async function signInGoogle() {
     if (standalone) await A.signInWithRedirect(auth, provider);
     else await A.signInWithPopup(auth, provider);
   } catch (err) { throw new Error(msg(err)); }
+}
+
+// „Passwort vergessen“: Firebase schickt einen Link zum Zurücksetzen (Mail in der App-Sprache).
+export async function resetPassword(email) {
+  const { auth, A } = await load();
+  auth.languageCode = lang();
+  try { await A.sendPasswordResetEmail(auth, email); }
+  catch (err) { if (!String(err?.code).includes('user-not-found')) throw new Error(msg(err)); } // nicht verraten, ob es das Konto gibt
 }
 
 export async function signInEmail(email, password, create = false) {

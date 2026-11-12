@@ -3,3 +3,5 @@
 "NSPhotoLibraryUsageDescription" = "Um Bilder aus deiner Mediathek zu Notizen hinzuzufügen.";
 "NSPhotoLibraryAddUsageDescription" = "Um Fotos, die du in 2nd Brain aufnimmst, in deiner Mediathek zu sichern.";
 "NSFaceIDUsageDescription" = "Um deine Notizen mit Face ID zu schützen.";
+"NSMicrophoneUsageDescription" = "Um Gesprochenes in Text umzuwandeln.";
+"NSSpeechRecognitionUsageDescription" = "Um Gesprochenes in Text umzuwandeln – auf deinem Gerät.";

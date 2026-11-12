@@ -261,7 +261,7 @@ body::before {
   left: 0; right: 0; bottom: 0;
   display: flex;
   justify-content: center;
-  gap: clamp(14px, 6vw, 32px);
+  gap: clamp(8px, 3.2vw, 32px);
   flex-wrap: wrap; /* grosse Schrift: in zwei Zeilen statt abgeschnitten */
   row-gap: 0;
   padding: 12px 16px calc(env(safe-area-inset-bottom) + 14px);
@@ -281,6 +281,10 @@ body::before {
 .menu button:active, .menu .menu-btn:active { color: var(--fg); }
 
 body.typing .menu { opacity: .45; }
+body.typing .menu:has(.listening) { opacity: 1; }
+.menu button.listening { color: var(--fg); animation: listen 1.2s ease-in-out infinite; }
+@keyframes listen { 50% { opacity: .35; } }
+@media (prefers-reduced-motion: reduce) { .menu button.listening { animation: none; text-decoration: underline; } }
 body.typing .menu:hover, body.typing .menu:focus-within { opacity: 1; }
 
 /* ---------- Sheet ---------- */

@@ -51,6 +51,8 @@ Testliste:
 | Teilen | Chrome → Seite → Teilen → **2nd Brain** → App öffnen → Notiz ist da |
 | Fingerabdruck | ··· → „Mit Fingerabdruck sperren“; im Emulator: ⋯ (Extended Controls) → **Fingerprint** → Touch Sensor |
 | Sync | ··· → Konto → E-Mail + Passwort (Google-Anmeldung gibt es auf Android vorerst nicht) |
+| Spracheingabe | Menü **sprechen** → Mikrofon erlauben → sprechen; im Emulator: ⋯ → Microphone → „Virtual microphone uses host audio input“ einschalten |
+| Passwort vergessen | ··· → Konto → E-Mail eingeben → „Passwort vergessen?“ |
 
 ## 4. Google Play Console (einmalig)
 

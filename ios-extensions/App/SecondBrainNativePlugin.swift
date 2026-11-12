@@ -3,6 +3,8 @@
 import Foundation
 import Capacitor
 import Photos
+import Speech
+import AVFoundation
 
 @objc(SecondBrainNativePlugin)
 public class SecondBrainNativePlugin: CAPPlugin, CAPBridgedPlugin {
@@ -13,7 +15,14 @@ public class SecondBrainNativePlugin: CAPPlugin, CAPBridgedPlugin {
         CAPPluginMethod(name: "clearInbox", returnType: CAPPluginReturnPromise),
         CAPPluginMethod(name: "takePendingAction", returnType: CAPPluginReturnPromise),
         CAPPluginMethod(name: "saveToPhotos", returnType: CAPPluginReturnPromise),
+        CAPPluginMethod(name: "startDictation", returnType: CAPPluginReturnPromise),
+        CAPPluginMethod(name: "stopDictation", returnType: CAPPluginReturnPromise),
     ]
+
+    // Spracheingabe
+    private let audioEngine = AVAudioEngine()
+    private var speechRequest: SFSpeechAudioBufferRecognitionRequest?
+    private var speechTask: SFSpeechRecognitionTask?
 
     override public func load() {
         NotificationCenter.default.addObserver(
@@ -87,5 +96,100 @@ public class SecondBrainNativePlugin: CAPPlugin, CAPBridgedPlugin {
                 if ok { call.resolve() } else { call.reject(error?.localizedDescription ?? "Sichern fehlgeschlagen") }
             }
         }
+    }
+
+    // MARK: Spracheingabe – Erkennung auf dem Gerät, keine Aufnahme wird gespeichert.
+
+    /// Startet die Erkennung; Ergebnisse kommen als Event „dictation“ { text, final }, Ende als „dictationEnd“.
+    @objc func startDictation(_ call: CAPPluginCall) {
+        let lang = call.getString("lang") ?? Locale.current.identifier
+        SFSpeechRecognizer.requestAuthorization { status in
+            guard status == .authorized else {
+                call.reject("speech-denied")
+                return
+            }
+            AVAudioSession.sharedInstance().requestRecordPermission { granted in
+                guard granted else {
+                    call.reject("mic-denied")
+                    return
+                }
+                DispatchQueue.main.async { self.beginDictation(lang: lang, call: call) }
+            }
+        }
+    }
+
+    private func beginDictation(lang: String, call: CAPPluginCall) {
+        endAudio()
+        guard let recognizer = SFSpeechRecognizer(locale: Locale(identifier: lang)) ?? SFSpeechRecognizer(),
+              recognizer.isAvailable else {
+            call.reject("unavailable")
+            return
+        }
+        let input = audioEngine.inputNode
+        let format = input.outputFormat(forBus: 0)
+        guard format.channelCount > 0 else { // z. B. Mac ohne Mikrofon
+            call.reject("unavailable")
+            return
+        }
+        do {
+            let session = AVAudioSession.sharedInstance()
+            try session.setCategory(.record, mode: .measurement, options: .duckOthers)
+            try session.setActive(true, options: .notifyOthersOnDeactivation)
+
+            let request = SFSpeechAudioBufferRecognitionRequest()
+            request.shouldReportPartialResults = true
+            if recognizer.supportsOnDeviceRecognition { request.requiresOnDeviceRecognition = true }
+            if #available(iOS 16.0, *) { request.addsPunctuation = true }
+            speechRequest = request
+
+            input.removeTap(onBus: 0)
+            input.installTap(onBus: 0, bufferSize: 1024, format: format) { buffer, _ in
+                request.append(buffer)
+            }
+            audioEngine.prepare()
+            try audioEngine.start()
+
+            speechTask = recognizer.recognitionTask(with: request) { [weak self] result, error in
+                guard let self = self else { return }
+                if let result = result {
+                    self.notifyListeners("dictation", data: [
+                        "text": result.bestTranscription.formattedString,
+                        "final": result.isFinal,
+                    ])
+                }
+                if error != nil || result?.isFinal == true {
+                    DispatchQueue.main.async {
+                        self.endAudio()
+                        self.notifyListeners("dictationEnd", data: [:])
+                    }
+                }
+            }
+            call.resolve()
+        } catch {
+            endAudio()
+            call.reject(error.localizedDescription)
+        }
+    }
+
+    /// Aufnahme beenden – das Endergebnis kommt danach noch als „dictation“ mit final = true.
+    @objc func stopDictation(_ call: CAPPluginCall) {
+        DispatchQueue.main.async {
+            if self.audioEngine.isRunning {
+                self.audioEngine.stop()
+                self.audioEngine.inputNode.removeTap(onBus: 0)
+            }
+            self.speechRequest?.endAudio()
+            call.resolve()
+        }
+    }
+
+    private func endAudio() {
+        if audioEngine.isRunning { audioEngine.stop() }
+        audioEngine.inputNode.removeTap(onBus: 0)
+        speechRequest?.endAudio()
+        speechRequest = nil
+        speechTask?.cancel()
+        speechTask = nil
+        try? AVAudioSession.sharedInstance().setActive(false, options: .notifyOthersOnDeactivation)
     }
 }

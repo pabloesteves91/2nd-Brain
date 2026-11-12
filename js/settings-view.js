@@ -273,6 +273,16 @@ function syncSection() {
         h('button', { type: 'button', class: 'link', onclick: go(false) }, t('anmelden')),
         h('button', { type: 'button', class: 'link', onclick: go(true) }, t('neues Konto')),
       ),
+      h('div', { class: 'row' }, h('button', {
+        type: 'button', class: 'link small',
+        onclick: async () => {
+          err.textContent = '';
+          const mail = email.value.trim();
+          if (!mail) { err.textContent = t('Gib zuerst deine E-Mail ein.'); email.focus(); return; }
+          try { await sync.resetPassword(mail); toast(t('Falls es ein Konto gibt, ist die E-Mail zum Zurücksetzen unterwegs.')); }
+          catch (e) { err.textContent = e.message; }
+        },
+      }, t('Passwort vergessen?'))),
       err,
     );
   };

@@ -340,6 +340,37 @@ App Store Connect → App → links **„+“ neben der Sprache** (oben rechts b
 
 ---
 
+# Update 2.4 in Xcode (Widget „Schnellaktionen“, Spracheingabe, Siri „Gedanken aufschreiben“)
+
+```bash
+cd ~/2nd-Brain && git pull && npm run sync
+```
+
+1. **Swift-Dateien ersetzen** – jeweils im Terminal kopieren, in Xcode die Datei öffnen, ⌘A ⌘V ⌘S:
+   ```bash
+   pbcopy < ~/2nd-Brain/ios-extensions/App/SecondBrainNativePlugin.swift
+   ```
+   ```bash
+   pbcopy < ~/2nd-Brain/ios-extensions/App/NewThoughtIntent.swift
+   ```
+   ```bash
+   pbcopy < ~/2nd-Brain/ios-extensions/Widget/SecondBrainWidget.swift
+   ```
+2. **Texte ersetzen** (gleiches Vorgehen): `App/de.lproj/AppShortcuts.strings`, `App/de.lproj/InfoPlist.strings`,
+   `App/en.lproj/AppShortcuts.strings`, `App/en.lproj/InfoPlist.strings`, `App/en.lproj/Localizable.strings`.
+   In Xcode liegen sie unter **App → App** bei *AppShortcuts*, *InfoPlist* und *Localizable* (Pfeil aufklappen →
+   German bzw. English).
+3. **Info.plist** (App → App → Info) – zwei Zeilen mit **+** hinzufügen:
+   - *Privacy – Microphone Usage Description*: `Um Gesprochenes in Text umzuwandeln.`
+   - *Privacy – Speech Recognition Usage Description*: `Um Gesprochenes in Text umzuwandeln – auf deinem Gerät.`
+4. **Version 2.4**, Build 1 (App, SecondBrainWidget, ShareExtension) → ⌘B → auf dem iPhone testen:
+   - Menü **sprechen** → Erlaubnis geben → sprechen → Text erscheint, nach kurzer Stille stoppt es.
+   - „Hey Siri, schreib einen Gedanken in 2nd Brain“ → Siri fragt nach → diktieren → „Gesichert in 2nd Brain.“ →
+     App öffnen: die Notiz ist da. (Neue Siri-Phrasen erkennt iOS erst nach dem ersten Start der neuen Version.)
+   - ··· → Konto → **Passwort vergessen?** mit deiner E-Mail → Mail kommt.
+
+---
+
 # App-Store-Texte ab 2.3 (Notizen, Journal & Erinnerungen in einer App)
 
 > **Pflicht bei Abos:** Der EULA-Link muss in der Beschreibung **jeder** Sprache stehen (sonst stoppt Apple die Prüfung).

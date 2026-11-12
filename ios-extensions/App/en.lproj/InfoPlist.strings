@@ -3,3 +3,5 @@
 "NSPhotoLibraryUsageDescription" = "To add images from your library to notes.";
 "NSPhotoLibraryAddUsageDescription" = "To save photos you take in 2nd Brain to your library.";
 "NSFaceIDUsageDescription" = "To protect your notes with Face ID.";
+"NSMicrophoneUsageDescription" = "To turn what you say into text.";
+"NSSpeechRecognitionUsageDescription" = "To turn what you say into text – on your device.";

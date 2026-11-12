@@ -1,10 +1,10 @@
 import { db, newNote, saveNote } from './db.js';
 import { storeImage, imageUrl, removeImage } from './images.js';
-import { h, thumbImg, reducedMotion, popMenu, flash, findLinks, linkEl, shortUrl } from './ui.js';
+import { h, thumbImg, reducedMotion, popMenu, flash, findLinks, linkEl, shortUrl, toast } from './ui.js';
 import { applyTags } from './tags.js';
-import { tap, canUseCamera, cameraPhotos } from './native.js';
+import { tap, canUseCamera, cameraPhotos, startDictation, stopDictation, endDictationListeners } from './native.js';
 import { continueList, initSuggest } from './compose.js';
-import { t as tr } from './i18n.js';
+import { t as tr, locale } from './i18n.js';
 
 const ta = () => document.getElementById('note');
 const thumbsEl = () => document.getElementById('thumbs');
@@ -269,6 +269,7 @@ function initPullDown() {
 
 // Leeres Blatt – der Kern des Workflows.
 export async function startFresh({ focus = true } = {}) {
+  cancelDictation();
   await flush();
   current = null;
   ta().value = '';
@@ -278,6 +279,7 @@ export async function startFresh({ focus = true } = {}) {
 }
 
 export async function openNote(id) {
+  cancelDictation();
   await flush();
   const note = await db.get('notes', id);
   if (!note) return;
@@ -311,4 +313,62 @@ export async function refreshCurrent() {
     autosize();
     renderThumbs();
   }
+}
+
+// ---------- Spracheingabe ----------
+// Gesprochenes erscheint live an der Cursor-Position; jedes Teilergebnis ersetzt das vorherige.
+let dict = null; // { start, len, sep, quiet, safety }
+const speakBtn = () => document.getElementById('speak');
+
+function speakState(on) {
+  const b = speakBtn();
+  if (!b) return;
+  b.classList.toggle('listening', on);
+  b.setAttribute('aria-pressed', String(on));
+  b.textContent = tr(on ? 'stopp' : 'sprechen');
+}
+
+export async function toggleDictation() {
+  if (dict) { // zweiter Tipp: Aufnahme beenden, Endergebnis kommt noch
+    clearTimeout(dict.quiet);
+    dict.safety = setTimeout(cancelDictation, 3000);
+    stopDictation();
+    return;
+  }
+  const t = ta();
+  const pos = document.activeElement === t ? t.selectionEnd : t.value.length;
+  const before = t.value.slice(0, pos);
+  dict = { start: pos, len: 0, sep: before && !/\s$/.test(before) ? ' ' : '', quiet: 0, safety: 0 };
+  speakState(true);
+  tap();
+  try {
+    await startDictation(locale(), onDictation, cancelDictation);
+  } catch (err) {
+    cancelDictation();
+    const m = String(err?.message || err);
+    toast(/denied/.test(m) ? tr('Spracheingabe nicht erlaubt – bitte in den Einstellungen erlauben.')
+      : /unavailable/.test(m) ? tr('Spracheingabe ist auf diesem Gerät nicht verfügbar.')
+        : tr('Spracheingabe: {e}', { e: m }));
+  }
+}
+
+function onDictation(text, final) {
+  if (!dict || !text) return;
+  const t = ta();
+  const ins = dict.sep + text;
+  t.setRangeText(ins, dict.start, dict.start + dict.len, 'end');
+  dict.len = ins.length;
+  t.dispatchEvent(new Event('input', { bubbles: true }));
+  clearTimeout(dict.quiet);
+  if (final) cancelDictation();
+  else dict.quiet = setTimeout(() => dict && toggleDictation(), 2500); // nach Stille selbst beenden
+}
+
+export function cancelDictation() {
+  if (!dict) return;
+  clearTimeout(dict.quiet); clearTimeout(dict.safety);
+  dict = null;
+  stopDictation();
+  endDictationListeners();
+  speakState(false);
 }
