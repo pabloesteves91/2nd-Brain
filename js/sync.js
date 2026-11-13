@@ -51,7 +51,7 @@ async function load() {
     grantEarlyAccount(u);
     await checkGift(u);
     if (u) scheduleSync(0);
-    if (u) startShared(u.uid); else stopShared();
+    if (u && isPlus()) startShared(u.uid); else stopShared();
   });
   // Ergebnis eines Redirect-Logins (iOS-Homescreen-App) abholen
   if (!isNative()) A.getRedirectResult(auth).catch(err => setStatus({ state: 'error', error: msg(err) }));
@@ -344,4 +344,5 @@ async function pull(uid) {
 
 // Geteilte Notizen: Zugriff auf Firebase und Hochladen nach dem Speichern
 initShared(load);
-document.addEventListener('shared-changed', e => pushShared(e.detail));
+document.addEventListener('shared-changed', e => { if (isPlus()) pushShared(e.detail); });
+document.addEventListener('plus-changed', async () => { const u = await currentUser(); if (u && isPlus()) startShared(u.uid); else stopShared(); });

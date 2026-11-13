@@ -26,7 +26,7 @@ const bubble = (el, name) => el.dispatchEvent(new CustomEvent(name, { bubbles: t
 // Gemeinsam bearbeiten: braucht ein Konto; wer eine Notiz neu teilt, braucht Plus (Eingeladene nicht).
 async function inviteLink(n, anchor) {
   if (!(await currentUser())) { toast(t('Melde dich an, um Notizen gemeinsam zu bearbeiten.')); bubble(anchor, 'open-settings'); return; }
-  if (!n.shared_id && !isPlus()) { bubble(anchor, 'open-plus'); return; }
+  if (!isPlus()) { bubble(anchor, 'open-plus'); return; } // gemeinsame Notizen gehören für alle Beteiligten zu Plus
   try {
     const code = await createShared(n);
     const first = n.text.trim().split('\n')[0].slice(0, 60);

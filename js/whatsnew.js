@@ -7,7 +7,7 @@ import { isAndroid } from './native.js';
 
 const WHATS_NEW = {
   '2.5': [
-    'Notizen gemeinsam bearbeiten: Teilen → „Gemeinsam bearbeiten“ und Einladungslink senden',
+    'Plus: Notizen gemeinsam bearbeiten – Teilen → „Gemeinsam bearbeiten“ und Einladungslink senden',
     'Änderungen der anderen erscheinen sofort',
     'Lange Notizen: die Schreibstelle bleibt über der Tastatur sichtbar',
     'iPad: öffnet im Vollbild',

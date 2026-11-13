@@ -249,6 +249,12 @@ async function joinFromLink(code) {
     toast(t('Melde dich an – danach bist du bei der gemeinsamen Notiz dabei.'));
     return;
   }
+  if (!isPlus()) {
+    try { localStorage.setItem(JOIN_KEY, code); } catch { /* egal */ }
+    open('plus');
+    toast(t('Gemeinsame Notizen gehören zu Plus – danach bist du dabei.'));
+    return;
+  }
   try {
     const id = await joinShared(code);
     try { localStorage.removeItem(JOIN_KEY); } catch { /* egal */ }
@@ -257,11 +263,13 @@ async function joinFromLink(code) {
     toast(t('Du bearbeitest diese Notiz jetzt gemeinsam.'));
   } catch { toast(t('Diese Einladung ist ungültig oder abgelaufen.')); }
 }
-document.addEventListener('auth-changed', e => {
+const pendingJoin = async () => {
   let code = null;
   try { code = localStorage.getItem(JOIN_KEY); } catch { /* egal */ }
-  if (e.detail && code) joinFromLink(code);
-});
+  if (code && isPlus() && (await currentUser())) joinFromLink(code);
+};
+document.addEventListener('auth-changed', pendingJoin);
+document.addEventListener('plus-changed', pendingJoin);
 
 function checkImportHash() {
   const m = /^#import=([\w-]+)/.exec(location.hash);

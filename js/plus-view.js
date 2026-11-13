@@ -81,6 +81,7 @@ export async function openPlus(container, close) {
       h('ul', { class: 'plus-points' },
         h('li', {}, h('b', {}, t('Sync')), t(isAndroid() ? ' auf allen deinen Geräten' : ' auf iPhone, iPad und Mac')),
         h('li', {}, h('b', {}, t('Wochenrückblick')), t(' mit Themen und Kategorien')),
+        h('li', {}, h('b', {}, t('Gemeinsame Notizen')), t(' – live mit anderen bearbeiten')),
         h('li', {}, h('b', {}, t('Alles andere')), t(' bleibt sowieso gratis'))),
       opts.length ? [list, cta] : h('p', { class: 'small', style: 'text-align:center' }, t('Der App Store ist gerade nicht erreichbar. Bitte später nochmals versuchen.')),
       h('div', { class: 'plus-later' },
