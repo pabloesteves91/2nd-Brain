@@ -4,6 +4,9 @@ import { encodeNote, decodeNote } from './share-codec.js';
 import { applyTags, ensureCategory, tagLabel } from './tags.js';
 import { popMenu, toast } from './ui.js';
 import { shareNative } from './native.js';
+import { createShared, leaveShared } from './shared.js';
+import { currentUser } from './sync.js';
+import { isPlus } from './plus.js';
 import { t } from './i18n.js';
 
 export const SHARE_PAGE = 'https://2ndbrain.ch/note.html';
@@ -18,8 +21,29 @@ async function share({ text, url }) {
   catch { toast(t('Teilen ist hier nicht möglich')); }
 }
 
+const bubble = (el, name) => el.dispatchEvent(new CustomEvent(name, { bubbles: true }));
+
+// Gemeinsam bearbeiten: braucht ein Konto; wer eine Notiz neu teilt, braucht Plus (Eingeladene nicht).
+async function inviteLink(n, anchor) {
+  if (!(await currentUser())) { toast(t('Melde dich an, um Notizen gemeinsam zu bearbeiten.')); bubble(anchor, 'open-settings'); return; }
+  if (!n.shared_id && !isPlus()) { bubble(anchor, 'open-plus'); return; }
+  try {
+    const code = await createShared(n);
+    const first = n.text.trim().split('\n')[0].slice(0, 60);
+    share({ text: t('Bearbeite diese Notiz gemeinsam mit mir in 2nd Brain: {first}', { first }), url: `${SHARE_PAGE}#${code}` });
+  } catch (err) { console.warn(err); toast(t('Teilen ist gerade nicht möglich – bist du online?')); }
+}
+
 export function shareMenu(n, anchor) {
+  const together = n.shared_id
+    ? [[t('Einladungslink senden'), () => inviteLink(n, anchor)],
+      [n.shared_owner ? t('Teilen beenden') : t('Gemeinsame Notiz verlassen'), async () => {
+        try { await leaveShared(n); toast(n.shared_owner ? t('Notiz wird nicht mehr geteilt') : t('Du bist nicht mehr dabei')); bubble(anchor, 'shared-left'); }
+        catch { toast(t('Teilen ist gerade nicht möglich – bist du online?')); }
+      }]]
+    : [[t('Gemeinsam bearbeiten …'), () => inviteLink(n, anchor)]];
   popMenu(anchor, [
+    ...together,
     [t('Als Text'), () => share({ text: n.text.trim() })],
     [t('Als Link'), async () => {
       const code = await encodeNote(n);

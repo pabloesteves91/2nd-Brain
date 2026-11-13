@@ -366,6 +366,20 @@ cd ~/2nd-Brain && git pull && npm run sync
 
 ---
 
+# Update 2.5 (gemeinsame Notizen, iPad-Vollbild, Schreibstelle sichtbar)
+
+1. **Firebase-Regeln veröffentlichen (Pflicht für gemeinsame Notizen):** Firebase Console → Firestore → **Regeln** →
+   den ganzen Inhalt von `firestore.rules` aus dem Repo einfügen → **Veröffentlichen**.
+2. `cd ~/2nd-Brain && git pull && npm run sync` – trägt u. a. `UIRequiresFullScreen` (iPad im Vollbild) in die
+   Info.plist ein. In Xcode Version **2.5**, Build **1**, ⇧⌘K, ▶ Run.
+3. Testen mit zwei Konten (z. B. iPhone + iPad mit verschiedenen Anmeldungen):
+   - Notiz → **teilen → Gemeinsam bearbeiten …** (braucht Plus) → Link an das zweite Gerät schicken → dort öffnen,
+     anmelden → die Notiz erscheint; Abhaken/Schreiben erscheint auf dem anderen Gerät nach 1–2 Sekunden.
+   - **Teilen beenden** (Besitzer) bzw. **Gemeinsame Notiz verlassen**: Die Notiz bleibt als normale Notiz.
+   - Nur Text wird geteilt, keine Bilder.
+
+---
+
 # App-Store-Texte ab 2.3 (Notizen, Journal & Erinnerungen in einer App)
 
 > **Pflicht bei Abos:** Der EULA-Link muss in der Beschreibung **jeder** Sprache stehen (sonst stoppt Apple die Prüfung).

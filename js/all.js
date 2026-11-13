@@ -74,6 +74,7 @@ function card(n, container, rerender) {
     h('div', { class: 'card-top' },
       h('span', {}, fmtTime(n.created_at)),
       n.pinned ? h('span', {}, '★') : null,
+      n.shared_id ? h('span', { class: 'shared-tag', title: t('geteilt') }, `👥${n.shared_count > 1 ? ' ' + n.shared_count : ''}`) : null,
       h('span', { class: 'grow' }),
       n.category ? h('span', {}, n.category) : null,
     ),

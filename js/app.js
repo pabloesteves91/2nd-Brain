@@ -4,7 +4,7 @@ import { openReview } from './review.js';
 import { openAll } from './all.js';
 import { openSettings } from './settings-view.js';
 import { settings, apply } from './settings.js';
-import { initSync, scheduleSync, syncNow } from './sync.js';
+import { initSync, scheduleSync, syncNow, currentUser } from './sync.js';
 import { isNative, initNative, scheduleReminder, scheduleWeekly, rescheduleTasks, setStatusBar, tap,
   takePendingAction, readSharedInbox, clearSharedInbox, canDictate } from './native.js';
 import { storeImage, dataUrlToBlob } from './images.js';
@@ -15,6 +15,7 @@ import { showOnboarding } from './onboarding.js';
 import { showWhatsNew, markSeen } from './whatsnew.js';
 import { autoBackup } from './backup.js';
 import { importShared } from './share.js';
+import { joinShared, JOIN_PREFIX } from './shared.js';
 import { openPlus } from './plus-view.js';
 import { isPlus, grantEarlyUsers, refreshPurchases, shouldAskOnStart } from './plus.js';
 import { setSetting } from './settings.js';
@@ -209,6 +210,8 @@ document.addEventListener('onboarding-done', () => {
   markSeen(); // neue Nutzer: kein „Was ist neu“
   if (isNative() && !isPlus()) open('plus'); });
 body.addEventListener('open-plus', () => open('plus'));
+body.addEventListener('open-settings', () => open('settings'));
+body.addEventListener('shared-left', () => { if (view) views[view](body); });
 document.addEventListener('plus-changed', () => {
   nativeSettings();
   scheduleSync(300);
@@ -229,6 +232,7 @@ initNative({
 
 // Geteilte Notiz aus einem Link (App: secondbrain://import?d=…, Web: …/#import=…)
 async function openShared(code) {
+  if (code.startsWith(JOIN_PREFIX)) return joinFromLink(code);
   try {
     const id = await importShared(code);
     if (view) close();
@@ -236,6 +240,29 @@ async function openShared(code) {
     toast(t('Geteilte Notiz übernommen'));
   } catch { toast(t('Dieser Link enthält keine gültige Notiz')); }
 }
+// Einladung zu einer gemeinsamen Notiz: ohne Konto erst anmelden, danach automatisch beitreten.
+const JOIN_KEY = 'sb.pendingJoin';
+async function joinFromLink(code) {
+  if (!(await currentUser())) {
+    try { localStorage.setItem(JOIN_KEY, code); } catch { /* egal */ }
+    open('settings');
+    toast(t('Melde dich an – danach bist du bei der gemeinsamen Notiz dabei.'));
+    return;
+  }
+  try {
+    const id = await joinShared(code);
+    try { localStorage.removeItem(JOIN_KEY); } catch { /* egal */ }
+    if (view) close();
+    if (id) await openNote(id);
+    toast(t('Du bearbeitest diese Notiz jetzt gemeinsam.'));
+  } catch { toast(t('Diese Einladung ist ungültig oder abgelaufen.')); }
+}
+document.addEventListener('auth-changed', e => {
+  let code = null;
+  try { code = localStorage.getItem(JOIN_KEY); } catch { /* egal */ }
+  if (e.detail && code) joinFromLink(code);
+});
+
 function checkImportHash() {
   const m = /^#import=([\w-]+)/.exec(location.hash);
   if (m) { history.replaceState(null, '', location.pathname + location.search); openShared(m[1]); }

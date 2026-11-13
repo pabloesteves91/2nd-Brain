@@ -50,6 +50,7 @@ for (const file of walk(src)) {
 const PLIST_KEYS = {
   NSMicrophoneUsageDescription: '\t<key>NSMicrophoneUsageDescription</key>\n\t<string>Um Gesprochenes in Text umzuwandeln.</string>\n',
   NSSpeechRecognitionUsageDescription: '\t<key>NSSpeechRecognitionUsageDescription</key>\n\t<string>Um Gesprochenes in Text umzuwandeln – auf deinem Gerät.</string>\n',
+  UIRequiresFullScreen: '\t<key>UIRequiresFullScreen</key>\n\t<true/>\n',            // iPad: immer im Vollbild öffnen
   UIFileSharingEnabled: '\t<key>UIFileSharingEnabled</key>\n\t<true/>\n',            // Auto-Backup in der Dateien-App
   LSSupportsOpeningDocumentsInPlace: '\t<key>LSSupportsOpeningDocumentsInPlace</key>\n\t<true/>\n',
   INAlternativeAppNames: readFileSync(join(src, 'App', 'Info-Siri.plist.txt'), 'utf8').replace(/<!--[\s\S]*?-->\s*/, ''),

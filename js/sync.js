@@ -6,11 +6,12 @@ import { isNative, appleSignIn } from './native.js';
 import { isPlus, setFirebaseGift, grantEarlyAccount } from './plus.js';
 import { t, lang } from './i18n.js';
 import { extractTags, adoptCategories } from './tags.js';
+import { initShared, startShared, stopShared, pushShared } from './shared.js';
 import { settings, setSetting, DEFAULTS, SYNC_KEYS } from './settings.js';
 
 const V = '10.12.2';
 const CDN = `https://www.gstatic.com/firebasejs/${V}`;
-const NOTE_FIELDS = ['id', 'text', 'images', 'created_at', 'updated_at', 'day', 'category', 'pinned', 'status', 'sort_order', 'deleted', 'tags', 'remind_at', 'edited_day'];
+const NOTE_FIELDS = ['id', 'text', 'images', 'created_at', 'updated_at', 'day', 'category', 'pinned', 'status', 'sort_order', 'deleted', 'tags', 'remind_at', 'edited_day', 'shared_id'];
 
 export const syncEnabled = !!FIREBASE_CONFIG;
 
@@ -50,6 +51,7 @@ async function load() {
     grantEarlyAccount(u);
     await checkGift(u);
     if (u) scheduleSync(0);
+    if (u) startShared(u.uid); else stopShared();
   });
   // Ergebnis eines Redirect-Logins (iOS-Homescreen-App) abholen
   if (!isNative()) A.getRedirectResult(auth).catch(err => setStatus({ state: 'error', error: msg(err) }));
@@ -339,3 +341,7 @@ async function pull(uid) {
   await db.setMeta('lastPull', max);
   return changed;
 }
+
+// Geteilte Notizen: Zugriff auf Firebase und Hochladen nach dem Speichern
+initShared(load);
+document.addEventListener('shared-changed', e => pushShared(e.detail));

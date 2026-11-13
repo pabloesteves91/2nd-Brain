@@ -6,6 +6,12 @@ import { t } from './i18n.js';
 import { isAndroid } from './native.js';
 
 const WHATS_NEW = {
+  '2.5': [
+    'Notizen gemeinsam bearbeiten: Teilen → „Gemeinsam bearbeiten“ und Einladungslink senden',
+    'Änderungen der anderen erscheinen sofort',
+    'Lange Notizen: die Schreibstelle bleibt über der Tastatur sichtbar',
+    'iPad: öffnet im Vollbild',
+  ],
   '2.4': [
     'Todo-Listen: im Menü „todo“ – Kreise zum Abhaken',
     'Spracheingabe: „sprechen“ antippen und erzählen',

@@ -95,6 +95,9 @@ export function popMenu(anchor, items) {
   pop.style.left = `${Math.min(Math.max(r.left + r.width / 2, 100), innerWidth - 100)}px`;
   if (r.top > 150) pop.style.bottom = `${innerHeight - r.top + 4}px`; else pop.style.top = `${r.bottom + 4}px`;
   document.body.append(pop);
+  // breite Einträge: ganz auf dem Bildschirm halten (Mitte = left, siehe .pick translateX(-50%))
+  const w = pop.offsetWidth;
+  pop.style.left = `${Math.min(Math.max(r.left + r.width / 2, w / 2 + 8), innerWidth - w / 2 - 8)}px`;
   pop.querySelector('button').focus({ preventScroll: true });
   setTimeout(() => document.addEventListener('pointerdown', outside, true));
 }

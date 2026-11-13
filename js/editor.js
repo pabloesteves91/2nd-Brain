@@ -37,8 +37,10 @@ export function initEditor() {
   document.getElementById('tap-area').addEventListener('click', () => focusEditor(true));
   initPullDown();
   window.addEventListener('resize', autosize);
+  window.visualViewport?.addEventListener('resize', () => { if (document.activeElement === t) keepCaretVisible(); }); // Tastatur geht auf
   t.addEventListener('input', () => {
     autosize();
+    keepCaretVisible();
     document.body.classList.add('typing');
     clearTimeout(typingTimer);
     typingTimer = setTimeout(() => document.body.classList.remove('typing'), 2500);
@@ -372,4 +374,32 @@ export function cancelDictation() {
   stopDictation();
   endDictationListeners();
   speakState(false);
+}
+
+// ---------- Schreibstelle sichtbar halten ----------
+// Lange Notiz: die Zeile, in der man schreibt, nicht unter Tastatur oder Menü verschwinden lassen.
+function caretTop(t) {
+  const m = document.createElement('div');
+  const cs = getComputedStyle(t);
+  for (const p of ['fontFamily', 'fontSize', 'fontWeight', 'lineHeight', 'letterSpacing', 'paddingTop', 'paddingRight', 'paddingBottom', 'paddingLeft', 'borderTopWidth', 'borderLeftWidth', 'boxSizing', 'wordSpacing', 'tabSize']) m.style[p] = cs[p];
+  Object.assign(m.style, { position: 'absolute', visibility: 'hidden', whiteSpace: 'pre-wrap', overflowWrap: 'break-word', width: `${t.clientWidth}px`, top: '0', left: '-9999px' });
+  m.textContent = t.value.slice(0, t.selectionEnd);
+  const mark = document.createElement('span');
+  mark.textContent = '\u200b';
+  m.append(mark);
+  document.body.append(m);
+  const y = mark.offsetTop + mark.offsetHeight;
+  m.remove();
+  return t.getBoundingClientRect().top + y;
+}
+
+export function keepCaretVisible() {
+  const t = ta();
+  const editor = document.getElementById('editor');
+  if (!editor || document.activeElement !== t) return;
+  const menu = document.getElementById('menu')?.getBoundingClientRect();
+  const viewBottom = window.visualViewport ? visualViewport.offsetTop + visualViewport.height : innerHeight;
+  const limit = Math.min(viewBottom, menu && menu.top > 0 && menu.top < viewBottom ? menu.top : viewBottom) - 16;
+  const y = caretTop(t);
+  if (y > limit) editor.scrollTop += y - limit;
 }

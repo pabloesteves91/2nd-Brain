@@ -255,6 +255,7 @@ function card(n, container, { compact = false } = {}) {
     h('div', { class: 'card-top' },
       h('span', {}, compact ? `${fmtDay(n.day)} · ${fmtTime(n.created_at)}` : n.day !== state.day ? `${fmtDay(n.day)} · ${t('bearbeitet')}` : fmtTime(n.created_at)),
       n.pinned ? h('span', {}, '★') : null,
+      n.shared_id ? h('span', { class: 'shared-tag', title: t('geteilt') }, `👥${n.shared_count > 1 ? ' ' + n.shared_count : ''}`) : null,
       h('span', { class: 'grow' }),
       compact ? (n.category ? h('span', {}, n.category) : null) : select,
       !compact && state.sort === 'eigene' ? h('span', { class: 'handle', 'aria-label': t('Verschieben') }, '⋮⋮') : null,

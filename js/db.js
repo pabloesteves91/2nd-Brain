@@ -86,6 +86,7 @@ export async function saveNote(note, { touch = true } = {}) {
   note.dirty = true;
   await db.put('notes', { ...note, images: [...note.images] });
   emitChange();
+  if (note.shared_id && note.text !== note.shared_base) document.dispatchEvent(new CustomEvent('shared-changed', { detail: note }));
   return note;
 }
 
