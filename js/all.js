@@ -4,7 +4,7 @@ import { settings } from './settings.js';
 import { h, noteBody, thumbImg, fmtTime, fmtDay, linkify } from './ui.js';
 import { swipeNote } from './swipe.js';
 import { reminderControl } from './tasks.js';
-import { shareMenu } from './share.js';
+import { shareMenu, showMembers } from './share.js';
 import { t } from './i18n.js';
 
 let state = { q: '', cat: null, archived: false };
@@ -74,7 +74,7 @@ function card(n, container, rerender) {
     h('div', { class: 'card-top' },
       h('span', {}, fmtTime(n.created_at)),
       n.pinned ? h('span', {}, '★') : null,
-      n.shared_id ? h('span', { class: 'shared-tag', title: t('geteilt') }, `👥${n.shared_count > 1 ? ' ' + n.shared_count : ''}`) : null,
+      n.shared_id ? h('button', { type: 'button', class: 'shared-tag', 'aria-label': t('Wer hat Zugriff?'), onclick: e => { e.stopPropagation(); showMembers(n, e.currentTarget); } }, `👥${n.shared_count > 1 ? ' ' + n.shared_count : ''}`) : null,
       h('span', { class: 'grow' }),
       n.category ? h('span', {}, n.category) : null,
     ),

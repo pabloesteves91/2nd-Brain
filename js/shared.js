@@ -43,9 +43,15 @@ export function mergeLines(base, local, remote) {
   return out.join('\n');
 }
 
+// Lokale Notiz zu einer geteilten Notiz. Doppelte (Kopie sh-… neben dem Original, ältere Versionen) werden aufgeräumt.
 async function noteForShared(sid) {
-  return (await listNotes()).find(n => n.shared_id === sid) || (await db.get('notes', `sh-${sid}`)) || null;
+  const all = (await listNotes()).filter(n => n.shared_id === sid);
+  const keep = all.find(n => !n.id.startsWith('sh-')) || all[0] || (await db.get('notes', `sh-${sid}`)) || null;
+  for (const n of all) if (n !== keep && n.id.startsWith('sh-')) { n.deleted = true; n.shared_id = null; await saveNote(n); }
+  return keep;
 }
+
+const myEmail = auth => auth.currentUser?.email || '';
 
 // Eigene Notiz teilen → Einladungslink. Voraussetzung (Konto, Plus) prüft der Aufrufer.
 export async function createShared(note) {
@@ -55,9 +61,12 @@ export async function createShared(note) {
   if (!sid) {
     const ref = F.doc(F.collection(fs, 'shared'));
     sid = ref.id;
-    await F.setDoc(ref, { owner: uid, members: [uid], invite: randomToken(), text: note.text, updated_at: nowIso(), updated_by: uid });
-    note.shared_id = sid; note.shared_base = note.text; note.shared_owner = true;
+    // zuerst lokal verknüpfen – sonst legt der Live-Abgleich beim Anlegen eine zweite Notiz an
+    note.shared_id = sid; note.shared_base = note.text; note.shared_owner = true; note.shared_count = 1;
     await saveNote(note);
+    try {
+      await F.setDoc(ref, { owner: uid, members: [uid], names: { [uid]: myEmail(auth) }, invite: randomToken(), text: note.text, updated_at: nowIso(), updated_by: uid });
+    } catch (err) { await detach(note); throw err; }
   }
   const snap = await F.getDoc(F.doc(fs, 'shared', sid));
   return `${JOIN_PREFIX}${sid}_${snap.data().invite}`;
@@ -72,7 +81,7 @@ export async function joinShared(code) {
   const uid = auth.currentUser?.uid;
   if (!uid) throw new Error('signed-out');
   const ref = F.doc(fs, 'shared', sid);
-  try { await F.updateDoc(ref, { members: F.arrayUnion(uid), joinToken: token }); }
+  try { await F.updateDoc(ref, { members: F.arrayUnion(uid), joinToken: token, [`names.${uid}`]: myEmail(auth) }); }
   catch { /* schon Mitglied (z. B. zweites eigenes Gerät) → Regeln lehnen das Beitreten ab; Lesen klappt dann */ }
   const snap = await F.getDoc(ref); // wirft, wenn Code falsch und nicht Mitglied
   await applyRemote(sid, snap.data());
@@ -84,7 +93,7 @@ export async function leaveShared(note) {
   const { auth, fs, F } = await fbGet();
   const ref = F.doc(fs, 'shared', note.shared_id);
   if (note.shared_owner) await F.deleteDoc(ref);
-  else await F.updateDoc(ref, { members: F.arrayRemove(auth.currentUser.uid) });
+  else await F.updateDoc(ref, { members: F.arrayRemove(auth.currentUser.uid), [`names.${auth.currentUser.uid}`]: F.deleteField() });
   await detach(note);
 }
 
@@ -162,3 +171,18 @@ export async function startShared(uid) {
 }
 
 export function stopShared() { stopListen?.(); stopListen = null; }
+
+// Wer hat Zugriff? → [{ uid, email, owner, me }]
+export async function sharedMembers(note) {
+  const { auth, fs, F } = await fbGet();
+  const d = (await F.getDoc(F.doc(fs, 'shared', note.shared_id))).data();
+  if (!d) return [];
+  const me = auth.currentUser?.uid;
+  return d.members.map(uid => ({ uid, email: d.names?.[uid] || '', owner: uid === d.owner, me: uid === me }));
+}
+
+// Besitzer entfernt eine Person
+export async function removeMember(note, uid) {
+  const { fs, F } = await fbGet();
+  await F.updateDoc(F.doc(fs, 'shared', note.shared_id), { members: F.arrayRemove(uid), [`names.${uid}`]: F.deleteField() });
+}

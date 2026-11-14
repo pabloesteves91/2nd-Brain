@@ -925,3 +925,9 @@ input:not([type="checkbox"]):not([type="range"]):not([type="radio"]):focus-visib
 .whatsnew li { margin: 6px 0; }
 .whatsnew-more { display: grid; place-items: center; text-decoration: none; }
 .confirm-ok.whatsnew-ok { background: var(--fg); }
+
+.members { list-style: none; padding: 0; margin: 6px 0 18px; }
+.members .member { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--line); font-size: .8824rem; word-break: break-all; }
+.members small { color: var(--muted); }
+.members .danger { color: var(--danger); flex: none; }
+.card-top .shared-tag { padding: 2px 4px; font: inherit; color: inherit; }

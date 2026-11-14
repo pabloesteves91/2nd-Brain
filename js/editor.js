@@ -15,8 +15,11 @@ let typingTimer = null;
 
 export function autosize() {
   const t = ta();
+  const editor = document.getElementById('editor');
+  const keep = editor?.scrollTop ?? 0; // beim kurzen Zusammenfallen (height:auto) springt das Blatt sonst nach oben
   t.style.height = 'auto';
   t.style.height = `${t.scrollHeight}px`;
+  if (editor) editor.scrollTop = keep;
   renderLinks();
 }
 
@@ -377,7 +380,7 @@ export function cancelDictation() {
 }
 
 // ---------- Schreibstelle sichtbar halten ----------
-// Lange Notiz: die Zeile, in der man schreibt, nicht unter Tastatur oder Menü verschwinden lassen.
+// Lange Notiz: beim Schreiben am Ende die neue Zeile nicht unter Tastatur oder Menü verschwinden lassen.
 function caretTop(t) {
   const m = document.createElement('div');
   const cs = getComputedStyle(t);
@@ -397,6 +400,7 @@ export function keepCaretVisible() {
   const t = ta();
   const editor = document.getElementById('editor');
   if (!editor || document.activeElement !== t) return;
+  if (t.selectionEnd < t.value.trimEnd().length) return; // mitten in der Notiz: Blatt bleibt stehen, nur am Ende mitscrollen
   const menu = document.getElementById('menu')?.getBoundingClientRect();
   const viewBottom = window.visualViewport ? visualViewport.offsetTop + visualViewport.height : innerHeight;
   const limit = Math.min(viewBottom, menu && menu.top > 0 && menu.top < viewBottom ? menu.top : viewBottom) - 16;

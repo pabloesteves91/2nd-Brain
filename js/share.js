@@ -2,9 +2,9 @@
 import { db, newNote, saveNote } from './db.js';
 import { encodeNote, decodeNote } from './share-codec.js';
 import { applyTags, ensureCategory, tagLabel } from './tags.js';
-import { popMenu, toast } from './ui.js';
+import { popMenu, toast, h, updateInert } from './ui.js';
 import { shareNative } from './native.js';
-import { createShared, leaveShared } from './shared.js';
+import { createShared, leaveShared, sharedMembers, removeMember } from './shared.js';
 import { currentUser } from './sync.js';
 import { isPlus } from './plus.js';
 import { t } from './i18n.js';
@@ -70,4 +70,35 @@ export async function importShared(code) {
   if (!n.category && n.tags.length) { n.category = ensureCategory(tagLabel(n.text, n.tags[0])); n.status = 'sorted'; }
   await saveNote(n);
   return id;
+}
+
+// 👥 antippen: wer hat Zugriff? Besitzer kann Personen entfernen.
+export async function showMembers(n, anchor) {
+  let list;
+  try { list = await sharedMembers(n); } catch { toast(t('Teilen ist gerade nicht möglich – bist du online?')); return; }
+  const owner = list.find(m => m.me)?.owner;
+  const close = () => { box.remove(); document.removeEventListener('keydown', onKey, true); updateInert(); };
+  const onKey = e => { if (e.key === 'Escape') { e.stopPropagation(); close(); } };
+  const row = m => h('li', { class: 'member' },
+    h('span', {}, m.email || t('ohne E-Mail'), m.me ? h('small', {}, ` · ${t('du')}`) : null, m.owner ? h('small', {}, ` · ${t('Besitzer')}`) : null),
+    owner && !m.me ? h('button', {
+      type: 'button', class: 'link danger',
+      onclick: async e => {
+        e.currentTarget.disabled = true;
+        try { await removeMember(n, m.uid); e.currentTarget.closest('li').remove(); toast(t('Person entfernt')); }
+        catch { e.currentTarget.disabled = false; toast(t('Teilen ist gerade nicht möglich – bist du online?')); }
+      },
+    }, t('entfernen')) : null);
+  const box = h('div', { class: 'confirm', role: 'dialog', 'aria-modal': 'true', 'aria-labelledby': 'mem-t' },
+    h('div', { class: 'confirm-card' },
+      h('h2', { id: 'mem-t' }, t('Zugriff auf diese Notiz')),
+      h('ul', { class: 'members' }, list.map(row)),
+      h('div', { class: 'confirm-actions' },
+        h('button', { type: 'button', class: 'confirm-cancel', onclick: () => { close(); inviteLink(n, anchor); } }, t('Einladen')),
+        h('button', { type: 'button', class: 'confirm-ok whatsnew-ok', onclick: close }, t('OK')))));
+  box.addEventListener('click', e => { if (e.target === box) close(); });
+  document.addEventListener('keydown', onKey, true);
+  document.body.append(box);
+  updateInert();
+  box.querySelector('.whatsnew-ok').focus({ preventScroll: true });
 }
