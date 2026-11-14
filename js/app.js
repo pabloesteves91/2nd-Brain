@@ -14,7 +14,7 @@ import { initLock, onAppState } from './lock.js';
 import { showOnboarding } from './onboarding.js';
 import { showWhatsNew, markSeen } from './whatsnew.js';
 import { autoBackup } from './backup.js';
-import { importShared } from './share.js';
+import { importShared, ensureName } from './share.js';
 import { joinShared, JOIN_PREFIX } from './shared.js';
 import { openPlus } from './plus-view.js';
 import { isPlus, grantEarlyUsers, refreshPurchases, shouldAskOnStart } from './plus.js';
@@ -255,6 +255,7 @@ async function joinFromLink(code) {
     toast(t('Gemeinsame Notizen gehören zu Plus – danach bist du dabei.'));
     return;
   }
+  if (!(await ensureName())) return;
   try {
     const id = await joinShared(code);
     try { localStorage.removeItem(JOIN_KEY); } catch { /* egal */ }

@@ -17,6 +17,7 @@ export const DEFAULTS = {
   weeklyTime: '18:00',
   rediscover: true,      // im Rückblick alte Gedanken wiederentdecken
   autoSync: true,        // laufend synchronisieren (aus: nur beim Öffnen/Schliessen und per Knopf)
+  displayName: '',       // Name bei gemeinsamen Notizen
   onboarded: false,      // Einführung schon gesehen
 };
 
@@ -33,7 +34,7 @@ function load() {
 export const settings = () => current;
 
 // Diese Einstellungen gehen mit dem Sync auf alle Geräte (nicht: Sprache, Face ID, Einführung, Käufe – die sind pro Gerät).
-export const SYNC_KEYS = ['font', 'size', 'theme', 'freshAfterMin', 'reminder', 'reviewTime', 'tagsAsCategory', 'weekly', 'weeklyTime', 'rediscover', 'autoSync'];
+export const SYNC_KEYS = ['font', 'size', 'theme', 'freshAfterMin', 'reminder', 'reviewTime', 'tagsAsCategory', 'weekly', 'weeklyTime', 'rediscover', 'autoSync', 'displayName'];
 
 export function setSetting(key, value) {
   current = { ...current, [key]: value };

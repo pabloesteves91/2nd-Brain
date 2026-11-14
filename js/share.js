@@ -4,7 +4,8 @@ import { encodeNote, decodeNote } from './share-codec.js';
 import { applyTags, ensureCategory, tagLabel } from './tags.js';
 import { popMenu, toast, h, updateInert } from './ui.js';
 import { shareNative } from './native.js';
-import { createShared, leaveShared, sharedMembers, removeMember } from './shared.js';
+import { createShared, leaveShared, sharedMembers, removeMember, setMyName } from './shared.js';
+import { settings, setSetting } from './settings.js';
 import { currentUser } from './sync.js';
 import { isPlus } from './plus.js';
 import { t } from './i18n.js';
@@ -27,6 +28,7 @@ const bubble = (el, name) => el.dispatchEvent(new CustomEvent(name, { bubbles: t
 async function inviteLink(n, anchor) {
   if (!(await currentUser())) { toast(t('Melde dich an, um Notizen gemeinsam zu bearbeiten.')); bubble(anchor, 'open-settings'); return; }
   if (!isPlus()) { bubble(anchor, 'open-plus'); return; } // gemeinsame Notizen gehören für alle Beteiligten zu Plus
+  if (!(await ensureName())) return;
   try {
     const code = await createShared(n);
     const first = n.text.trim().split('\n')[0].slice(0, 60);
@@ -72,6 +74,33 @@ export async function importShared(code) {
   return id;
 }
 
+// Anzeigename für gemeinsame Notizen: einmal fragen (wichtig bei verborgener Apple-E-Mail)
+export function askName(current = '') {
+  return new Promise(resolve => {
+    const done = v => { box.remove(); updateInert(); resolve(v); };
+    const input = h('input', { type: 'text', maxlength: 40, value: current, placeholder: t('z. B. Lea'), autocomplete: 'given-name', 'aria-label': t('Dein Name') });
+    const save = () => { const v = input.value.trim(); if (v) { setSetting('displayName', v); done(v); } else input.focus(); };
+    input.addEventListener('keydown', e => { if (e.key === 'Enter') save(); if (e.key === 'Escape') { e.stopPropagation(); done(null); } });
+    const box = h('div', { class: 'confirm', role: 'dialog', 'aria-modal': 'true', 'aria-labelledby': 'name-t' },
+      h('div', { class: 'confirm-card' },
+        h('h2', { id: 'name-t' }, t('Wie sollen dich die anderen sehen?')),
+        h('p', {}, t('Der Name erscheint bei gemeinsamen Notizen in der Liste „Zugriff“.')),
+        h('div', { class: 'name-field' }, input),
+        h('div', { class: 'confirm-actions' },
+          h('button', { type: 'button', class: 'confirm-cancel', onclick: () => done(null) }, t('Abbrechen')),
+          h('button', { type: 'button', class: 'confirm-ok whatsnew-ok', onclick: save }, t('Weiter')))));
+    document.body.append(box);
+    updateInert();
+    input.focus();
+  });
+}
+
+export async function ensureName() {
+  return settings().displayName || (await askName());
+}
+
+const isRelay = mail => /@privaterelay\.appleid\.com$/i.test(mail || '');
+
 // 👥 antippen: wer hat Zugriff? Besitzer kann Personen entfernen.
 export async function showMembers(n, anchor) {
   let list;
@@ -80,7 +109,14 @@ export async function showMembers(n, anchor) {
   const close = () => { box.remove(); document.removeEventListener('keydown', onKey, true); updateInert(); };
   const onKey = e => { if (e.key === 'Escape') { e.stopPropagation(); close(); } };
   const row = m => h('li', { class: 'member' },
-    h('span', {}, m.email || t('ohne E-Mail'), m.me ? h('small', {}, ` · ${t('du')}`) : null, m.owner ? h('small', {}, ` · ${t('Besitzer')}`) : null),
+    h('span', {},
+      m.name || (isRelay(m.email) ? t('Apple-ID (verborgen)') : m.email || t('ohne E-Mail')),
+      m.me ? h('small', {}, ` · ${t('du')}`) : null, m.owner ? h('small', {}, ` · ${t('Besitzer')}`) : null,
+      m.name && m.email && !isRelay(m.email) ? h('small', { class: 'mail' }, m.email) : null),
+    m.me ? h('button', {
+      type: 'button', class: 'link',
+      onclick: async () => { const v = await askName(m.name || settings().displayName || ''); if (!v) return; try { await setMyName(n, v); close(); showMembers(n, anchor); } catch { toast(t('Teilen ist gerade nicht möglich – bist du online?')); } },
+    }, t('Name ändern')) : null,
     owner && !m.me ? h('button', {
       type: 'button', class: 'link danger',
       onclick: async e => {

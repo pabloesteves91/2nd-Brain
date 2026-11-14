@@ -5,6 +5,7 @@ import { db, newNote, saveNote, listNotes } from './db.js';
 import { applyTags } from './tags.js';
 import { toast } from './ui.js';
 import { t } from './i18n.js';
+import { settings } from './settings.js';
 
 export const JOIN_PREFIX = 'j';
 let fbGet = null;          // () => Promise<{ auth, fs, F }> – von sync.js gesetzt
@@ -52,6 +53,7 @@ async function noteForShared(sid) {
 }
 
 const myEmail = auth => auth.currentUser?.email || '';
+const myName = () => String(settings().displayName || '').trim().slice(0, 40);
 
 // Eigene Notiz teilen → Einladungslink. Voraussetzung (Konto, Plus) prüft der Aufrufer.
 export async function createShared(note) {
@@ -65,7 +67,7 @@ export async function createShared(note) {
     note.shared_id = sid; note.shared_base = note.text; note.shared_owner = true; note.shared_count = 1;
     await saveNote(note);
     try {
-      await F.setDoc(ref, { owner: uid, members: [uid], names: { [uid]: myEmail(auth) }, invite: randomToken(), text: note.text, updated_at: nowIso(), updated_by: uid });
+      await F.setDoc(ref, { owner: uid, members: [uid], names: { [uid]: myEmail(auth) }, display: { [uid]: myName() }, invite: randomToken(), text: note.text, updated_at: nowIso(), updated_by: uid });
     } catch (err) { await detach(note); throw err; }
   }
   const snap = await F.getDoc(F.doc(fs, 'shared', sid));
@@ -81,7 +83,7 @@ export async function joinShared(code) {
   const uid = auth.currentUser?.uid;
   if (!uid) throw new Error('signed-out');
   const ref = F.doc(fs, 'shared', sid);
-  try { await F.updateDoc(ref, { members: F.arrayUnion(uid), joinToken: token, [`names.${uid}`]: myEmail(auth) }); }
+  try { await F.updateDoc(ref, { members: F.arrayUnion(uid), joinToken: token, [`names.${uid}`]: myEmail(auth), [`display.${uid}`]: myName() }); }
   catch { /* schon Mitglied (z. B. zweites eigenes Gerät) → Regeln lehnen das Beitreten ab; Lesen klappt dann */ }
   const snap = await F.getDoc(ref); // wirft, wenn Code falsch und nicht Mitglied
   await applyRemote(sid, snap.data());
@@ -93,7 +95,7 @@ export async function leaveShared(note) {
   const { auth, fs, F } = await fbGet();
   const ref = F.doc(fs, 'shared', note.shared_id);
   if (note.shared_owner) await F.deleteDoc(ref);
-  else await F.updateDoc(ref, { members: F.arrayRemove(auth.currentUser.uid), [`names.${auth.currentUser.uid}`]: F.deleteField() });
+  else await F.updateDoc(ref, { members: F.arrayRemove(auth.currentUser.uid), [`names.${auth.currentUser.uid}`]: F.deleteField(), [`display.${auth.currentUser.uid}`]: F.deleteField() });
   await detach(note);
 }
 
@@ -178,11 +180,17 @@ export async function sharedMembers(note) {
   const d = (await F.getDoc(F.doc(fs, 'shared', note.shared_id))).data();
   if (!d) return [];
   const me = auth.currentUser?.uid;
-  return d.members.map(uid => ({ uid, email: d.names?.[uid] || '', owner: uid === d.owner, me: uid === me }));
+  return d.members.map(uid => ({ uid, email: d.names?.[uid] || '', name: d.display?.[uid] || '', owner: uid === d.owner, me: uid === me }));
 }
 
 // Besitzer entfernt eine Person
 export async function removeMember(note, uid) {
   const { fs, F } = await fbGet();
-  await F.updateDoc(F.doc(fs, 'shared', note.shared_id), { members: F.arrayRemove(uid), [`names.${uid}`]: F.deleteField() });
+  await F.updateDoc(F.doc(fs, 'shared', note.shared_id), { members: F.arrayRemove(uid), [`names.${uid}`]: F.deleteField(), [`display.${uid}`]: F.deleteField() });
+}
+
+// Eigenen Anzeigenamen in einer geteilten Notiz ändern
+export async function setMyName(note, name) {
+  const { auth, fs, F } = await fbGet();
+  await F.updateDoc(F.doc(fs, 'shared', note.shared_id), { [`display.${auth.currentUser.uid}`]: String(name).trim().slice(0, 40) });
 }
