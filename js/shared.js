@@ -194,3 +194,10 @@ export async function setMyName(note, name) {
   const { auth, fs, F } = await fbGet();
   await F.updateDoc(F.doc(fs, 'shared', note.shared_id), { [`display.${auth.currentUser.uid}`]: String(name).trim().slice(0, 40) });
 }
+
+// Name in allen eigenen gemeinsamen Notizen aktualisieren (Einstellungen oder „Name ändern“)
+export async function updateMyNameEverywhere(name) {
+  for (const n of (await listNotes()).filter(x => x.shared_id)) {
+    try { await setMyName(n, name); } catch (err) { console.warn('Name nicht aktualisiert', err); }
+  }
+}

@@ -931,5 +931,5 @@ input:not([type="checkbox"]):not([type="range"]):not([type="radio"]):focus-visib
 .members small { color: var(--muted); }
 .members .danger { color: var(--danger); flex: none; }
 .card-top .shared-tag { padding: 2px 4px; font: inherit; color: inherit; }
-.members .mail { display: block; }
 .name-field input { width: 100%; border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px; background: var(--card); color: var(--fg); font-size: 1rem; margin-bottom: 16px; }
+.name-input { width: 9.5rem; border: 1px solid var(--line); border-radius: 8px; padding: 6px 10px; background: var(--card); color: var(--fg); font-size: .8824rem; text-align: right; }

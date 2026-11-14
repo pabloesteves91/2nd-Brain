@@ -1,6 +1,7 @@
 import { db, wipeAll, emitChange } from './db.js';
 import { dataUrlToBlob } from './images.js';
 import { buildBackup } from './backup.js';
+import { updateMyNameEverywhere } from './shared.js';
 import { settings, setSetting } from './settings.js';
 import * as sync from './sync.js';
 import { h, toast, askConfirm } from './ui.js';
@@ -246,6 +247,10 @@ function syncSection() {
       body.replaceChildren(
         row(t('Angemeldet'), h('button', { type: 'button', class: 'link', onclick: async () => { await sync.signOut(); render(); } }, t('abmelden')), user.email || user.displayName || ''),
         row(st, h('button', { type: 'button', class: 'link', onclick: () => sync.syncNow() }, t('jetzt synchronisieren'))),
+        row(t('Name für gemeinsame Notizen'), h('input', {
+          type: 'text', maxlength: 40, value: settings().displayName || '', placeholder: t('z. B. Lea'), autocomplete: 'given-name', class: 'name-input',
+          onchange: e => { const v = e.target.value.trim().slice(0, 40); if (!v) { e.target.value = settings().displayName || ''; return; } setSetting('displayName', v); updateMyNameEverywhere(v); toast(t('Name gespeichert')); },
+        }), t('So sehen dich andere in gemeinsamen Notizen')),
         row(t('Automatisch synchronisieren'), toggle('autoSync'), t('Aus: nur beim Öffnen und Schliessen der App')),
         row(t('Konto löschen'), h('button', {
           type: 'button', class: 'danger',

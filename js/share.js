@@ -4,7 +4,7 @@ import { encodeNote, decodeNote } from './share-codec.js';
 import { applyTags, ensureCategory, tagLabel } from './tags.js';
 import { popMenu, toast, h, updateInert } from './ui.js';
 import { shareNative } from './native.js';
-import { createShared, leaveShared, sharedMembers, removeMember, setMyName } from './shared.js';
+import { createShared, leaveShared, sharedMembers, removeMember, updateMyNameEverywhere } from './shared.js';
 import { settings, setSetting } from './settings.js';
 import { currentUser } from './sync.js';
 import { isPlus } from './plus.js';
@@ -111,11 +111,10 @@ export async function showMembers(n, anchor) {
   const row = m => h('li', { class: 'member' },
     h('span', {},
       m.name || (isRelay(m.email) ? t('Apple-ID (verborgen)') : m.email || t('ohne E-Mail')),
-      m.me ? h('small', {}, ` · ${t('du')}`) : null, m.owner ? h('small', {}, ` · ${t('Besitzer')}`) : null,
-      m.name && m.email && !isRelay(m.email) ? h('small', { class: 'mail' }, m.email) : null),
+      m.me ? h('small', {}, ` · ${t('du')}`) : null, m.owner ? h('small', {}, ` · ${t('Besitzer')}`) : null),
     m.me ? h('button', {
       type: 'button', class: 'link',
-      onclick: async () => { const v = await askName(m.name || settings().displayName || ''); if (!v) return; try { await setMyName(n, v); close(); showMembers(n, anchor); } catch { toast(t('Teilen ist gerade nicht möglich – bist du online?')); } },
+      onclick: async () => { const v = await askName(m.name || settings().displayName || ''); if (!v) return; try { await updateMyNameEverywhere(v); close(); showMembers(n, anchor); } catch { toast(t('Teilen ist gerade nicht möglich – bist du online?')); } },
     }, t('Name ändern')) : null,
     owner && !m.me ? h('button', {
       type: 'button', class: 'link danger',
