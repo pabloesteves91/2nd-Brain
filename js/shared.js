@@ -11,6 +11,7 @@ export const JOIN_PREFIX = 'j';
 let fbGet = null;          // () => Promise<{ auth, fs, F }> – von sync.js gesetzt
 let stopListen = null;
 const pushTimers = new Map();
+const leaving = new Set(); // selbst verlassen/beendet – Listener-„removed“ dafür ignorieren
 
 export function initShared(getFirebase) { fbGet = getFirebase; }
 
@@ -94,7 +95,9 @@ export async function joinShared(code) {
 export async function leaveShared(note) {
   const { auth, fs, F } = await fbGet();
   const ref = F.doc(fs, 'shared', note.shared_id);
-  if (note.shared_owner) await F.deleteDoc(ref);
+  leaving.add(note.shared_id);
+  // Beenden: zuerst als beendet markieren – so behalten die anderen ihre Kopie (statt „entfernt“ → gelöscht)
+  if (note.shared_owner) { await F.updateDoc(ref, { ended: true }); await F.deleteDoc(ref); }
   else await F.updateDoc(ref, { members: F.arrayRemove(auth.currentUser.uid), [`names.${auth.currentUser.uid}`]: F.deleteField(), [`display.${auth.currentUser.uid}`]: F.deleteField() });
   await detach(note);
 }
@@ -134,6 +137,12 @@ async function push(id) {
 
 async function applyRemote(sid, data) {
   if (!data) return;
+  if (data.ended) { // Besitzer hat das Teilen beendet → Notiz bleibt als normale Notiz
+    leaving.add(sid);
+    const n = await noteForShared(sid);
+    if (n) { await detach(n); toast(t('Eine Notiz wird nicht mehr geteilt.')); document.dispatchEvent(new CustomEvent('remote-changed')); }
+    return;
+  }
   let note = await noteForShared(sid);
   if (!note) {
     note = newNote();
@@ -165,8 +174,10 @@ export async function startShared(uid) {
   stopListen = F.onSnapshot(q, async snap => {
     for (const ch of snap.docChanges()) {
       if (ch.type === 'removed') {
+        if (leaving.has(ch.doc.id)) continue;
+        // vom Besitzer entfernt → Notiz verschwindet bei mir
         const n = await noteForShared(ch.doc.id);
-        if (n) { await detach(n); toast(t('Eine Notiz wird nicht mehr geteilt.')); document.dispatchEvent(new CustomEvent('remote-changed')); }
+        if (n) { n.deleted = true; n.shared_id = null; await saveNote(n); toast(t('Du wurdest aus einer gemeinsamen Notiz entfernt.')); document.dispatchEvent(new CustomEvent('remote-changed')); }
       } else await applyRemote(ch.doc.id, ch.doc.data());
     }
   }, err => console.warn('Geteilte Notizen', err));

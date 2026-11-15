@@ -2,7 +2,7 @@
 import { db, newNote, saveNote } from './db.js';
 import { encodeNote, decodeNote } from './share-codec.js';
 import { applyTags, ensureCategory, tagLabel } from './tags.js';
-import { popMenu, toast, h, updateInert } from './ui.js';
+import { popMenu, toast, h, updateInert, askConfirm } from './ui.js';
 import { shareNative } from './native.js';
 import { createShared, leaveShared, sharedMembers, removeMember, updateMyNameEverywhere } from './shared.js';
 import { settings, setSetting } from './settings.js';
@@ -119,9 +119,12 @@ export async function showMembers(n, anchor) {
     owner && !m.me ? h('button', {
       type: 'button', class: 'link danger',
       onclick: async e => {
-        e.currentTarget.disabled = true;
-        try { await removeMember(n, m.uid); e.currentTarget.closest('li').remove(); toast(t('Person entfernt')); }
-        catch { e.currentTarget.disabled = false; toast(t('Teilen ist gerade nicht möglich – bist du online?')); }
+        const btn = e.currentTarget;
+        const who = m.name || (isRelay(m.email) ? t('Apple-ID (verborgen)') : m.email) || t('diese Person');
+        if (!(await askConfirm({ title: t('„{name}“ entfernen?', { name: who }), text: t('Die Person verliert den Zugriff, die Notiz verschwindet bei ihr.'), ok: t('Entfernen') }))) return;
+        btn.disabled = true;
+        try { await removeMember(n, m.uid); btn.closest('li').remove(); toast(t('Person entfernt')); }
+        catch { btn.disabled = false; toast(t('Teilen ist gerade nicht möglich – bist du online?')); }
       },
     }, t('entfernen')) : null);
   const box = h('div', { class: 'confirm', role: 'dialog', 'aria-modal': 'true', 'aria-labelledby': 'mem-t' },

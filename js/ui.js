@@ -71,7 +71,7 @@ export function toast(text, actionLabel, onAction, onExpire) {
 // Nach jedem Öffnen/Schliessen einer Ebene aufrufen.
 const LAYERS = ['#lock:not([hidden])', '.confirm', '.onboarding', '.imgview', '#overlay:not([hidden])'];
 export function updateInert() {
-  const top = LAYERS.map(s => document.querySelector(s)).find(Boolean);
+  const top = LAYERS.map(s => [...document.querySelectorAll(s)].pop()).find(Boolean); // zuletzt geöffnetes Fenster liegt oben
   for (const el of document.body.children) el.inert = !!top && el !== top && !el.classList.contains('toast') && !el.classList.contains('pick');
 }
 

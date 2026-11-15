@@ -65,6 +65,9 @@ service cloud.firestore {
         && request.resource.data.members.size() == resource.data.members.size() - 1
         && request.auth.uid in request.resource.data.members
         && !(request.auth.uid in namesChanged()) && !(request.auth.uid in displayChanged());
+      // Besitzer markiert das Ende (danach Löschen) – so behalten die anderen ihre Kopie
+      allow update: if signedIn() && request.auth.uid == resource.data.owner
+        && changed().hasOnly(['ended']) && request.resource.data.ended == true;
       allow delete: if signedIn() && request.auth.uid == resource.data.owner;
     }
 
